@@ -567,6 +567,7 @@
             <button class="game-btn" onclick="startGame()">🎮 Начать игру</button>
             <button class="game-btn" onclick="showRules()">📖 Правила</button>
             <button class="game-btn" onclick="showLeaderboard()">🏆 Таблица лидеров</button>
+            <button class="game-btn" onclick="debugGame()" style="background: var(--game-warning);">🐛 Отладка</button>
         </div>
         
         <div id="gameOverScreen">
@@ -586,6 +587,21 @@
         // Check if running in Telegram Web App
         let isTelegramApp = false;
         let tg = null;
+        
+        // Debug: Log when script starts loading
+        console.log('🚀 Crypto Bird script loading...');
+        console.log('Document ready state:', document.readyState);
+        console.log('Window loaded:', window.loaded);
+        
+        // Global error handler
+        window.addEventListener('error', function(e) {
+            console.error('Global error caught:', e.error);
+            console.error('Error details:', e.filename, e.lineno, e.colno);
+        });
+        
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('Unhandled promise rejection:', e.reason);
+        });
         
         // Try to initialize Telegram Web App
         function initTelegramApp() {
@@ -814,7 +830,16 @@
             
             // Initialize canvas
             canvas = document.getElementById('gameCanvas');
+            if (!canvas) {
+                console.error('Canvas element not found!');
+                return;
+            }
+            
             ctx = canvas.getContext('2d');
+            if (!ctx) {
+                console.error('Canvas context not available!');
+                return;
+            }
             
             // Set canvas size
             function resizeCanvas() {
@@ -849,14 +874,20 @@
             initAudio();
             
             // Update high score display
-            document.getElementById('highScoreValue').textContent = highScore;
+            const highScoreElement = document.getElementById('highScoreValue');
+            if (highScoreElement) {
+                highScoreElement.textContent = highScore;
+            }
             
             // Update sound buttons
             updateSoundButton();
             updateMusicButton();
             
             // Show menu by default
-            document.getElementById('gameMenu').style.display = 'block';
+            const gameMenu = document.getElementById('gameMenu');
+            if (gameMenu) {
+                gameMenu.style.display = 'block';
+            }
             
             // Add touch/click event listeners
             canvas.addEventListener('click', handleJump);
@@ -870,9 +901,36 @@
                 }
             });
             
+            // Force initial draw
+            setTimeout(() => {
+                draw();
+                console.log('Initial draw completed');
+            }, 100);
+            
+            // Auto-start game after 2 seconds if in browser mode
+            if (!isTelegramApp) {
+                setTimeout(() => {
+                    console.log('Auto-starting game in browser mode...');
+                    startGame();
+                }, 2000);
+            }
+            
+            // Periodic debug check
+            setInterval(() => {
+                if (gameState === 'playing' && (!canvas || !ctx)) {
+                    console.error('Canvas lost during gameplay, attempting recovery...');
+                    canvas = document.getElementById('gameCanvas');
+                    ctx = canvas ? canvas.getContext('2d') : null;
+                    if (canvas && ctx) {
+                        console.log('Canvas recovered');
+                    }
+                }
+            }, 5000);
+            
             console.log('✅ Crypto Bird game ready!');
             console.log('Game state:', gameState);
             console.log('Is Telegram App:', isTelegramApp);
+            console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
         });
         
         // Handle jump
@@ -903,6 +961,12 @@
         function startGame() {
             console.log('startGame() called!');
             
+            // Check if canvas is available
+            if (!canvas || !ctx) {
+                console.error('Canvas not available for game start');
+                return;
+            }
+            
             // Reset game state
             gameState = 'playing';
             
@@ -928,14 +992,21 @@
             }
             
             // Hide menu
-            document.getElementById('gameMenu').style.display = 'none';
-            document.getElementById('gameOverScreen').style.display = 'none';
+            const gameMenu = document.getElementById('gameMenu');
+            const gameOverScreen = document.getElementById('gameOverScreen');
+            if (gameMenu) gameMenu.style.display = 'none';
+            if (gameOverScreen) gameOverScreen.style.display = 'none';
             
             // Show UI elements
-            document.getElementById('scoreDisplay').classList.remove('hidden');
-            document.getElementById('highScoreDisplay').classList.remove('hidden');
-            document.getElementById('dailyChallenge').classList.remove('hidden');
-            document.getElementById('instructions').classList.remove('hidden');
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            const highScoreDisplay = document.getElementById('highScoreDisplay');
+            const dailyChallenge = document.getElementById('dailyChallenge');
+            const instructions = document.getElementById('instructions');
+            
+            if (scoreDisplay) scoreDisplay.classList.remove('hidden');
+            if (highScoreDisplay) highScoreDisplay.classList.remove('hidden');
+            if (dailyChallenge) dailyChallenge.classList.remove('hidden');
+            if (instructions) instructions.classList.remove('hidden');
             
             // Start game loop
             gameLoop();
@@ -1179,6 +1250,11 @@
                 return;
             }
             
+            if (!ctx || !canvas) {
+                console.error('Canvas not available in game loop');
+                return;
+            }
+            
             update();
             draw();
             
@@ -1250,86 +1326,105 @@
         
         // Draw game
         function draw() {
-            // Clear canvas with fade effect
-            ctx.fillStyle = 'rgba(10, 10, 15, 0.2)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw background grid
-            drawGrid();
-            
-            // Draw bird
-            drawBird();
-            
-            // Draw tokens
-            tokens.forEach(token => {
-                drawToken(token);
-            });
-            
-            // Draw particles
-            particles.forEach(particle => {
-                drawParticle(particle);
-            });
+            try {
+                if (!ctx || !canvas) {
+                    console.error('Canvas or context not available for drawing');
+                    return;
+                }
+                
+                // Clear canvas with fade effect
+                ctx.fillStyle = 'rgba(10, 10, 15, 0.2)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw background grid
+                drawGrid();
+                
+                // Draw bird (even in menu state)
+                drawBird();
+                
+                // Draw tokens (only when playing)
+                if (gameState === 'playing') {
+                    tokens.forEach(token => {
+                        drawToken(token);
+                    });
+                }
+                
+                // Draw particles
+                particles.forEach(particle => {
+                    drawParticle(particle);
+                });
+            } catch (error) {
+                console.error('Error in draw function:', error);
+            }
         }
         
         // Draw grid background
         function drawGrid() {
-            ctx.strokeStyle = 'rgba(0, 212, 255, 0.05)';
-            ctx.lineWidth = 1;
-            
-            for (let x = 0; x < canvas.width; x += 80) {
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, canvas.height);
-                ctx.stroke();
-            }
-            
-            for (let y = 0; y < canvas.height; y += 80) {
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(canvas.width, y);
-                ctx.stroke();
+            try {
+                ctx.strokeStyle = 'rgba(0, 212, 255, 0.05)';
+                ctx.lineWidth = 1;
+                
+                for (let x = 0; x < canvas.width; x += 80) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, canvas.height);
+                    ctx.stroke();
+                }
+                
+                for (let y = 0; y < canvas.height; y += 80) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(canvas.width, y);
+                    ctx.stroke();
+                }
+            } catch (error) {
+                console.error('Error drawing grid:', error);
             }
         }
         
         // Draw bird
         function drawBird() {
-            // Bird shadow
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-            ctx.beginPath();
-            ctx.arc(bird.x + bird.width / 2 + 2, bird.y + bird.height + 2, bird.width / 2, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Bird body
-            ctx.fillStyle = bird.color;
-            ctx.beginPath();
-            ctx.arc(bird.x + bird.width / 2, bird.y + bird.height / 2, bird.width / 2, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Bird glow
-            ctx.shadowColor = bird.color;
-            ctx.shadowBlur = 20;
-            ctx.beginPath();
-            ctx.arc(bird.x + bird.width / 2, bird.y + bird.height / 2, bird.width / 2, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.shadowBlur = 0;
-            
-            // Bird eye
-            ctx.fillStyle = '#ffffff';
-            ctx.beginPath();
-            ctx.arc(bird.x + bird.width / 2 + 5, bird.y + bird.height / 2 - 5, 3, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Bird pupil
-            ctx.fillStyle = '#000000';
-            ctx.beginPath();
-            ctx.arc(bird.x + bird.width / 2 + 5, bird.y + bird.height / 2 - 5, 1.5, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Bird wing
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-            ctx.beginPath();
-            ctx.arc(bird.x + bird.width / 2 - 6, bird.y + bird.height / 2 + 6, 6, 0, Math.PI * 2);
-            ctx.fill();
+            try {
+                // Bird shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.beginPath();
+                ctx.arc(bird.x + bird.width / 2 + 2, bird.y + bird.height + 2, bird.width / 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Bird body
+                ctx.fillStyle = bird.color;
+                ctx.beginPath();
+                ctx.arc(bird.x + bird.width / 2, bird.y + bird.height / 2, bird.width / 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Bird glow
+                ctx.shadowColor = bird.color;
+                ctx.shadowBlur = 20;
+                ctx.beginPath();
+                ctx.arc(bird.x + bird.width / 2, bird.y + bird.height / 2, bird.width / 2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                
+                // Bird eye
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(bird.x + bird.width / 2 + 5, bird.y + bird.height / 2 - 5, 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Bird pupil
+                ctx.fillStyle = '#000000';
+                ctx.beginPath();
+                ctx.arc(bird.x + bird.width / 2 + 5, bird.y + bird.height / 2 - 5, 1.5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Bird wing
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.beginPath();
+                ctx.arc(bird.x + bird.width / 2 - 6, bird.y + bird.height / 2 + 6, 6, 0, Math.PI * 2);
+                ctx.fill();
+            } catch (error) {
+                console.error('Error drawing bird:', error);
+            }
         }
         
         // Draw token
@@ -1412,6 +1507,21 @@
         // Export functions to global scope for HTML onclick (after all functions are defined)
         window.restartGame = restartGame;
         window.showMenu = showMenu;
+        
+        // Global debug function
+        window.debugGame = function() {
+            console.log('=== Crypto Bird Debug Info ===');
+            console.log('Canvas:', canvas);
+            console.log('Context:', ctx);
+            console.log('Game State:', gameState);
+            console.log('Score:', score);
+            console.log('Is Telegram App:', isTelegramApp);
+            console.log('Sound Enabled:', soundEnabled);
+            console.log('Music Enabled:', musicEnabled);
+            console.log('Bird position:', bird.x, bird.y);
+            console.log('Canvas dimensions:', canvas ? canvas.width + 'x' + canvas.height : 'N/A');
+            console.log('=============================');
+        };
         
         // Debug: Check if functions are properly exported
         console.log('Function exports check:');
