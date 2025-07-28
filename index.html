@@ -208,13 +208,11 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            margin: 10px;
+            margin: 10px auto; /* Центрирование с auto */
             box-shadow: var(--game-shadow);
             pointer-events: auto;
             width: 200px; /* Фиксированная ширина для всех кнопок */
             display: block; /* Блочный элемент для центрирования */
-            margin-left: auto;
-            margin-right: auto;
         }
 
         .game-btn:hover {
@@ -460,6 +458,12 @@
 
         /* Responsive Design */
         @media (max-width: 768px) {
+            #gameMenu {
+                padding: 30px 20px;
+                width: 90%;
+                max-width: 400px;
+            }
+            
             #gameMenu h1 {
                 font-size: 2rem;
             }
@@ -472,6 +476,7 @@
                 padding: 12px 25px;
                 font-size: 1rem;
                 width: 180px; /* Меньшая ширина для мобильных */
+                margin: 8px auto; /* Центрирование для мобильных */
             }
             
             #scoreDisplay {
@@ -565,7 +570,9 @@
 
         @media (max-width: 480px) {
             #gameMenu {
-                padding: 30px 20px;
+                padding: 25px 15px;
+                width: 95%;
+                max-width: 350px;
             }
             
             #gameMenu h1 {
@@ -575,12 +582,32 @@
             .game-btn {
                 padding: 10px 20px;
                 font-size: 0.9rem;
-                margin: 5px;
+                margin: 6px auto; /* Центрирование для маленьких экранов */
                 width: 160px; /* Еще меньшая ширина для маленьких экранов */
             }
-            .hero {
-                padding: 80px 0 60px;
+        }
+        
+                /* Tablet styles */
+        @media (min-width: 481px) and (max-width: 1024px) {
+            #gameMenu {
+                padding: 35px 25px;
+                width: 85%;
+                max-width: 500px;
             }
+            
+            .game-btn {
+                padding: 14px 28px;
+                font-size: 1.05rem;
+                margin: 10px auto;
+                width: 190px;
+            }
+            
+            #skinsScreen {
+                padding: 35px 25px;
+                min-width: 400px;
+                max-width: 600px;
+            }
+        }
             
             .hero h2 {
                 font-size: 2.5rem;
@@ -655,23 +682,7 @@
             text-align: center;
         }
 
-        /* Menu styles */
-        #gameMenu {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            background: rgba(26, 26, 46, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--game-border);
-            border-radius: 20px;
-            padding: 40px;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: var(--game-shadow);
-            z-index: 20;
-        }
+
         
         .menu-header {
             margin-bottom: 20px;
@@ -1111,17 +1122,10 @@
         
         // Function to adjust physics based on device
         function adjustPhysicsForDevice() {
-            if (isMobile) {
-                // Для мобильных устройств - медленное падение вперед
-                gravity = 0.25;
-                jumpForce = -6;
-                console.log('Mobile physics applied: gravity =', gravity, 'jumpForce =', jumpForce);
-            } else {
-                // Для десктопа - очень медленное падение вперед
-                gravity = 0.2;
-                jumpForce = -5.5;
-                console.log('Desktop physics applied: gravity =', gravity, 'jumpForce =', jumpForce);
-            }
+            // Унифицированная физика для всех устройств
+            gravity = 0.2;
+            jumpForce = -5.5;
+            console.log('Unified physics applied: gravity =', gravity, 'jumpForce =', jumpForce);
         }
         
         // Function to update bird position to left of center
@@ -1221,9 +1225,21 @@
             if (highScoreDisplay) highScoreDisplay.classList.add('hidden');
             if (instructions) instructions.classList.add('hidden');
             
-            // Add touch/click event listeners
-            canvas.addEventListener('click', handleJump);
-            canvas.addEventListener('touchstart', handleJump);
+            // Add touch/click event listeners with debouncing
+            let lastJumpTime = 0;
+            const jumpCooldown = 150; // Минимальный интервал между прыжками в мс
+            
+            function handleJumpWithCooldown(e) {
+                e.preventDefault();
+                const now = Date.now();
+                if (now - lastJumpTime > jumpCooldown) {
+                    lastJumpTime = now;
+                    handleJump();
+                }
+            }
+            
+            canvas.addEventListener('click', handleJumpWithCooldown);
+            canvas.addEventListener('touchstart', handleJumpWithCooldown, { passive: false });
             
             // Add keyboard support
             document.addEventListener('keydown', function(e) {
