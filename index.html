@@ -875,7 +875,7 @@
         let gameState = 'menu'; // menu, playing, paused, gameOver
         let score = 0;
         let highScore = localStorage.getItem('cryptoBirdHighScore') || 0;
-        let gameSpeed = 2;
+        let gameSpeed = 4; // Увеличена скорость игры
         let gravity = 0.3; // Уменьшена гравитация для более плавного падения
         let jumpForce = -6; // Уменьшена сила прыжка для более контролируемого движения
         
@@ -1781,7 +1781,7 @@
             
             // Добавляем движение вперед при падении только после первого прыжка
             if (bird.velocity > 0 && bird.hasJumped) {
-                bird.x += bird.velocity * 0.1; // Уменьшено движение вперед
+                bird.x += bird.velocity * 0.2; // Увеличено движение вперед
                 // Ограничиваем движение по горизонтали - птица всегда по центру
                 if (bird.x > bird.maxX) {
                     bird.x = bird.maxX;
@@ -1875,7 +1875,7 @@
             updateScore();
             
             // Increase game speed gradually
-            gameSpeed += 0.001;
+            gameSpeed += 0.002; // Увеличена скорость роста сложности
         }
         
         // Draw game
