@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Crypto Bird - Telegram Game</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Crypto Game Variables */
+        :root {
+            --game-bg: #0a0a0f;
+            --game-surface: #1a1a2e;
+            --game-card: #16213e;
+            --game-border: #0f3460;
+            --game-text: #ffffff;
+            --game-text-secondary: #8892b0;
+            --game-primary: #00d4ff;
+            --game-secondary: #7c3aed;
+            --game-accent: #06b6d4;
+            --game-success: #10b981;
+            --game-warning: #f59e0b;
+            --game-danger: #ef4444;
+            --game-gradient: linear-gradient(135deg, #00d4ff 0%, #7c3aed 50%, #06b6d4 100%);
+            --game-glow: 0 0 30px rgba(0, 212, 255, 0.5);
+            --game-shadow: 0 8px 32px rgba(0, 212, 255, 0.2);
+        }
+
+        /* Game Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--game-text);
+            background: var(--game-bg);
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            position: relative;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(124, 58, 237, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
+            z-index: -1;
+            animation: backgroundFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes backgroundFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(1deg); }
+        }
+
+        /* Game Container */
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: var(--game-bg);
+        }
+
+        /* Game Canvas */
+        #gameCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* UI Overlay */
+        #gameUI {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        /* Score Display */
+        #scoreDisplay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 15px 25px;
+            border-radius: 15px;
+            border: 1px solid var(--game-border);
+            pointer-events: none;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--game-text);
+            box-shadow: var(--game-shadow);
+        }
+
+        #scoreValue {
+            color: var(--game-primary);
+            font-weight: 900;
+        }
+
+        /* High Score */
+        #highScoreDisplay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 15px 25px;
+            border-radius: 15px;
+            border: 1px solid var(--game-border);
+            pointer-events: none;
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--game-text-secondary);
+        }
+
+        #highScoreValue {
+            color: var(--game-success);
+            font-weight: 700;
+        }
+
+        /* Game Menu */
+        #gameMenu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 25px;
+            border: 1px solid var(--game-border);
+            text-align: center;
+            box-shadow: var(--game-shadow);
+            z-index: 20;
+            pointer-events: auto;
+        }
+
+        #gameMenu h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+            background: var(--game-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        #gameMenu p {
+            color: var(--game-text-secondary);
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        /* Game Buttons */
+        .game-btn {
+            background: var(--game-gradient);
+            color: var(--game-text);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            margin: 10px;
+            box-shadow: var(--game-shadow);
+            pointer-events: auto;
+        }
+
+        .game-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.4);
+        }
+
+        .game-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Game Over Screen */
+        #gameOverScreen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 25px;
+            border: 1px solid var(--game-border);
+            text-align: center;
+            box-shadow: var(--game-shadow);
+            z-index: 20;
+            pointer-events: auto;
+            display: none;
+        }
+
+        #gameOverScreen h2 {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            color: var(--game-danger);
+        }
+
+        #finalScore {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--game-primary);
+        }
+
+        /* Daily Challenge */
+        #dailyChallenge {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            border-radius: 15px;
+            border: 1px solid var(--game-warning);
+            pointer-events: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--game-warning);
+            box-shadow: var(--game-shadow);
+        }
+
+        /* Instructions */
+        #instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 15px 25px;
+            border-radius: 15px;
+            border: 1px solid var(--game-border);
+            pointer-events: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--game-text-secondary);
+            text-align: center;
+        }
+
+        /* Sound Controls */
+        .sound-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 15;
+        }
+
+        .sound-btn {
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--game-border);
+            color: var(--game-text);
+            font-size: 1.2rem;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--game-shadow);
+        }
+
+        .sound-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.1);
+        }
+
+        .sound-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            #gameMenu h1 {
+                font-size: 2rem;
+            }
+            
+            #gameMenu p {
+                font-size: 1rem;
+            }
+            
+            .game-btn {
+                padding: 12px 25px;
+                font-size: 1rem;
+            }
+            
+            #scoreDisplay,
+            #highScoreDisplay {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+            
+            #dailyChallenge {
+                font-size: 0.8rem;
+                padding: 10px 15px;
+            }
+            
+            #instructions {
+                font-size: 0.8rem;
+                padding: 10px 20px;
+            }
+            .nav-menu {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .header-content {
+                justify-content: space-between;
+            }
+            
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .hero h2 {
+                font-size: 3rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .section-title {
+                font-size: 2.5rem;
+            }
+            
+            .advantages-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .projects-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .contact-content {
+                grid-template-columns: 1fr;
+                gap: 50px;
+                text-align: center;
+            }
+            
+            .contact-item {
+                justify-content: center;
+            }
+            
+            .btn-primary {
+                padding: 16px 32px;
+                font-size: 1rem;
+            }
+            
+            .sound-controls {
+                top: 10px;
+                right: 10px;
+                gap: 5px;
+            }
+            
+            .sound-btn {
+                padding: 8px;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #gameMenu {
+                padding: 30px 20px;
+            }
+            
+            #gameMenu h1 {
+                font-size: 1.8rem;
+            }
+            
+            .game-btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+                margin: 5px;
+            }
+            .hero {
+                padding: 80px 0 60px;
+            }
+            
+            .hero h2 {
+                font-size: 2.5rem;
+            }
+            
+            .advantages,
+            .projects,
+            .contact {
+                padding: 80px 0;
+            }
+            
+            .advantage-card,
+            .project-content {
+                padding: 25px;
+            }
+            
+            .logo {
+                font-size: 1.8rem;
+            }
+            
+            .sound-controls {
+                top: 5px;
+                right: 5px;
+            }
+            
+            .sound-btn {
+                padding: 6px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Hide UI elements during gameplay */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Game pause overlay */
+        #pauseOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            z-index: 15;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            pointer-events: auto;
+        }
+
+        #pauseText {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--game-text);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        
+        <div id="gameUI">
+            <div id="scoreDisplay">
+                Счет: <span id="scoreValue">0</span>
+            </div>
+            
+            <div id="highScoreDisplay">
+                Рекорд: <span id="highScoreValue">0</span>
+            </div>
+            
+            <div id="dailyChallenge">
+                🎯 Ежедневный вызов: Выживи в бычьем рынке!
+            </div>
+            
+            <div id="instructions">
+                💡 Нажмите на экран для прыжка
+            </div>
+            
+            <!-- Sound Controls -->
+            <div class="sound-controls">
+                <button class="sound-btn" id="soundBtn" onclick="toggleSound()" title="Звуковые эффекты">🔊</button>
+                <button class="sound-btn" id="musicBtn" onclick="toggleMusic()" title="Фоновая музыка">🎵</button>
+            </div>
+        </div>
+        
+        <div id="gameMenu">
+            <h1>🚀 Crypto Bird</h1>
+            <p>Помогите крипто-птице пролететь через рыночные препятствия!</p>
+            <button class="game-btn" onclick="startGame()">🎮 Начать игру</button>
+            <button class="game-btn" onclick="showRules()">📖 Правила</button>
+            <button class="game-btn" onclick="showLeaderboard()">🏆 Таблица лидеров</button>
+        </div>
+        
+        <div id="gameOverScreen">
+            <h2>💥 Игра окончена!</h2>
+            <div id="finalScore">Счет: 0</div>
+            <button class="game-btn" id="restartBtn">🔄 Играть снова</button>
+            <button class="game-btn" id="menuBtn">🏠 Главное меню</button>
+            <button class="game-btn" onclick="console.log('Test button clicked'); restartGame();" style="background: red;">🧪 ТЕСТ</button>
+        </div>
+        
+        <div id="pauseOverlay">
+            <div id="pauseText">⏸️ Пауза</div>
+        </div>
+    </div>
+
+    <script>
+        // Game variables
+        let canvas, ctx;
+        let gameState = 'menu'; // menu, playing, paused, gameOver
+        let score = 0;
+        let highScore = localStorage.getItem('cryptoBirdHighScore') || 0;
+        let gameSpeed = 2;
+        let gravity = 0.5;
+        let jumpForce = -8;
+        
+        // Sound settings
+        let soundEnabled = localStorage.getItem('cryptoBirdSound') !== 'false';
+        let musicEnabled = localStorage.getItem('cryptoBirdMusic') !== 'false';
+        let soundVolume = 0.3;
+        let musicVolume = 0.2;
+        
+        // Audio context and sounds
+        let audioContext;
+        let sounds = {};
+        let backgroundMusic;
+        
+        // Bird object
+        let bird = {
+            x: 100,
+            y: 300,
+            velocity: 0,
+            width: 30,
+            height: 30,
+            color: '#00d4ff'
+        };
+        
+        // Only tokens and particles (no obstacles)
+        let tokens = [];
+        let particles = [];
+        
+        // Game settings
+        let lastPipeX = 800;
+        
+        // Initialize Telegram Web App
+        let tg = window.Telegram.WebApp;
+        
+        function initTelegramApp() {
+            if (tg) {
+                tg.enableClosingConfirmation();
+                tg.expand();
+                tg.setHeaderColor('#00d4ff');
+                tg.setBackgroundColor('#0a0a0f');
+                tg.MainButton.setText('🎮 Играть в Crypto Bird');
+                tg.MainButton.show();
+                tg.MainButton.onClick(function() {
+                    startGame();
+                });
+                console.log('Crypto Bird Telegram Web App initialized');
+            } else {
+                console.log('Telegram Web App not available');
+            }
+        }
+        
+        // Initialize audio
+        function initAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                createSounds();
+                console.log('Audio initialized');
+            } catch (error) {
+                console.log('Audio not supported:', error);
+            }
+        }
+        
+        // Create sound effects
+        function createSounds() {
+            // Jump sound (sine wave with envelope)
+            sounds.jump = createTone(400, 0.1, 'sine');
+            
+            // Token collect sound (chime-like)
+            sounds.token = createTone(800, 0.2, 'triangle');
+            
+            // Particle sound (high frequency)
+            sounds.particle = createTone(1200, 0.05, 'square');
+            
+            // Background music (ambient)
+            createBackgroundMusic();
+        }
+        
+        // Create a tone
+        function createTone(frequency, duration, type = 'sine') {
+            return function() {
+                if (!soundEnabled || !audioContext) return;
+                
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                oscillator.type = type;
+                
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(soundVolume, audioContext.currentTime + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            };
+        }
+        
+        // Create background music
+        function createBackgroundMusic() {
+            try {
+                // Stop existing music if playing
+                if (backgroundMusic) {
+                    backgroundMusic.stop();
+                }
+                
+                // Create new background music
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(musicVolume, audioContext.currentTime + 0.1);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 2);
+                
+                backgroundMusic = {
+                    oscillator: oscillator,
+                    gainNode: gainNode,
+                    isPlaying: false,
+                    start: function() {
+                        if (!this.isPlaying) {
+                            try {
+                                this.oscillator.start();
+                                this.isPlaying = true;
+                                console.log('Background music started');
+                            } catch (error) {
+                                console.log('Background music already started or error:', error);
+                            }
+                        }
+                    },
+                    stop: function() {
+                        if (this.isPlaying) {
+                            try {
+                                this.oscillator.stop();
+                                this.isPlaying = false;
+                                console.log('Background music stopped');
+                            } catch (error) {
+                                console.log('Background music stop error:', error);
+                            }
+                        }
+                    }
+                };
+                
+                console.log('Background music created');
+            } catch (error) {
+                console.log('Error creating background music:', error);
+            }
+        }
+        
+        // Play sound
+        function playSound(soundName) {
+            if (sounds[soundName]) {
+                sounds[soundName]();
+            }
+        }
+        
+        // Toggle sound
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            localStorage.setItem('cryptoBirdSound', soundEnabled);
+            updateSoundButton();
+        }
+        
+        // Toggle music
+        function toggleMusic() {
+            musicEnabled = !musicEnabled;
+            localStorage.setItem('cryptoBirdMusic', musicEnabled);
+            updateMusicButton();
+            
+            if (backgroundMusic) {
+                if (musicEnabled) {
+                    backgroundMusic.start();
+                } else {
+                    backgroundMusic.stop();
+                }
+            }
+        }
+        
+        // Update sound button
+        function updateSoundButton() {
+            const soundBtn = document.getElementById('soundBtn');
+            if (soundBtn) {
+                soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
+            }
+        }
+        
+        // Update music button
+        function updateMusicButton() {
+            const musicBtn = document.getElementById('musicBtn');
+            if (musicBtn) {
+                musicBtn.textContent = musicEnabled ? '🎵' : '🎵';
+                musicBtn.style.opacity = musicEnabled ? '1' : '0.5';
+            }
+        }
+        
+        // Initialize game
+        function initGame() {
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+            
+            // Set canvas size
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Update high score display
+            document.getElementById('highScoreValue').textContent = highScore;
+            
+            // Add touch/click event listeners
+            canvas.addEventListener('click', handleJump);
+            canvas.addEventListener('touchstart', handleJump);
+            
+            // Add keyboard support
+            document.addEventListener('keydown', function(e) {
+                if (e.code === 'Space' && gameState === 'playing') {
+                    e.preventDefault();
+                    handleJump();
+                }
+            });
+            
+            // Initialize audio
+            initAudio();
+            
+            // Update sound buttons
+            updateSoundButton();
+            updateMusicButton();
+            
+            console.log('Crypto Bird game initialized');
+        }
+        
+        // Handle jump
+        function handleJump() {
+            if (gameState === 'playing') {
+                bird.velocity = jumpForce;
+                createJumpParticles();
+                playSound('jump');
+            }
+        }
+        
+        // Create jump particles
+        function createJumpParticles() {
+            for (let i = 0; i < 6; i++) {
+                particles.push({
+                    x: bird.x + bird.width / 2,
+                    y: bird.y + bird.height,
+                    vx: (Math.random() - 0.5) * 4,
+                    vy: Math.random() * 3 + 2,
+                    life: 20,
+                    color: '#00d4ff'
+                });
+            }
+            playSound('particle');
+        }
+        
+        // Start game
+        function startGame() {
+            console.log('startGame() called!');
+            
+            // Reset game state
+            gameState = 'playing';
+            
+            // Reset game variables
+            score = 0;
+            gameSpeed = 2;
+            gravity = 0.5;
+            
+            // Reset bird
+            bird.y = canvas.height / 2;
+            bird.velocity = 0;
+            
+            // Clear tokens and particles
+            tokens = [];
+            particles = [];
+            
+            // Recreate background music to avoid audio errors
+            if (audioContext && musicEnabled) {
+                createBackgroundMusic();
+                if (backgroundMusic) {
+                    backgroundMusic.start();
+                }
+            }
+            
+            // Hide menu
+            document.getElementById('gameMenu').style.display = 'none';
+            document.getElementById('gameOverScreen').style.display = 'none';
+            
+            // Show UI elements
+            document.getElementById('scoreDisplay').classList.remove('hidden');
+            document.getElementById('highScoreDisplay').classList.remove('hidden');
+            document.getElementById('dailyChallenge').classList.remove('hidden');
+            document.getElementById('instructions').classList.remove('hidden');
+            
+            // Start game loop
+            gameLoop();
+            
+            console.log('Game started');
+        }
+        
+        // Game over
+        function gameOver() {
+            console.log('gameOver() called!'); // Debug log
+            
+            if (gameState === 'gameOver') {
+                console.log('Game over already called, returning');
+                return; // Prevent multiple calls
+            }
+            
+            gameState = 'gameOver';
+            console.log('Game state set to gameOver:', gameState);
+            
+            // Stop background music
+            if (backgroundMusic) {
+                backgroundMusic.stop();
+                console.log('Background music stopped');
+            }
+            
+            // Update high score
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('cryptoBirdHighScore', highScore);
+                document.getElementById('highScoreValue').textContent = highScore;
+                console.log('New high score:', highScore);
+            }
+            
+            // Show game over screen
+            const finalScore = document.getElementById('finalScore');
+            const gameOverScreen = document.getElementById('gameOverScreen');
+            
+            if (finalScore) {
+                finalScore.textContent = `Счет: ${score}`;
+                console.log('Final score updated:', score);
+            }
+            
+            if (gameOverScreen) {
+                gameOverScreen.style.display = 'block';
+                console.log('Game over screen shown');
+            } else {
+                console.error('Game over screen not found!');
+            }
+            
+            // Hide UI elements
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            const highScoreDisplay = document.getElementById('highScoreDisplay');
+            const dailyChallenge = document.getElementById('dailyChallenge');
+            const instructions = document.getElementById('instructions');
+            
+            if (scoreDisplay) scoreDisplay.classList.add('hidden');
+            if (highScoreDisplay) highScoreDisplay.classList.add('hidden');
+            if (dailyChallenge) dailyChallenge.classList.add('hidden');
+            if (instructions) instructions.classList.add('hidden');
+            
+            console.log('UI elements hidden');
+            console.log('Game over. Score:', score);
+        }
+        
+        // Restart game
+        function restartGame() {
+            console.log('restartGame() called!'); // Debug log
+            
+            try {
+                // Reset game state
+                gameState = 'playing';
+                console.log('Game state set to playing:', gameState);
+                
+                // Hide game over screen with force
+                const gameOverScreen = document.getElementById('gameOverScreen');
+                if (gameOverScreen) {
+                    gameOverScreen.style.display = 'none';
+                    console.log('Game over screen hidden');
+                } else {
+                    console.error('Game over screen not found!');
+                }
+                
+                // Reset game variables
+                score = 0;
+                gameSpeed = 2;
+                gravity = 0.5;
+                console.log('Game variables reset');
+                
+                // Reset bird
+                bird.y = canvas.height / 2;
+                bird.velocity = 0;
+                console.log('Bird reset to center');
+                
+                // Clear tokens and particles
+                tokens = [];
+                particles = [];
+                console.log('Tokens and particles cleared');
+                
+                // Show UI elements with force
+                const scoreDisplay = document.getElementById('scoreDisplay');
+                const highScoreDisplay = document.getElementById('highScoreDisplay');
+                const dailyChallenge = document.getElementById('dailyChallenge');
+                const instructions = document.getElementById('instructions');
+                
+                if (scoreDisplay) scoreDisplay.classList.remove('hidden');
+                if (highScoreDisplay) highScoreDisplay.classList.remove('hidden');
+                if (dailyChallenge) dailyChallenge.classList.remove('hidden');
+                if (instructions) instructions.classList.remove('hidden');
+                console.log('UI elements shown');
+                
+                // Update score display immediately
+                updateScore();
+                
+                // Start background music
+                if (audioContext && musicEnabled) {
+                    createBackgroundMusic();
+                    if (backgroundMusic) {
+                        backgroundMusic.start();
+                        console.log('Background music started');
+                    }
+                }
+                
+                // Force canvas clear and redraw
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Start game loop with delay to ensure everything is ready
+                console.log('Starting game loop...');
+                setTimeout(() => {
+                    gameLoop();
+                    console.log('Game loop started after delay');
+                }, 100);
+                
+                console.log('Game restarted successfully');
+                
+            } catch (error) {
+                console.error('Error in restartGame:', error);
+                // Fallback: try to start game from beginning
+                console.log('Trying fallback restart...');
+                startGame();
+            }
+        }
+        
+        // Show menu
+        function showMenu() {
+            // Reset game state
+            gameState = 'menu';
+            
+            // Stop background music
+            if (backgroundMusic) {
+                backgroundMusic.stop();
+            }
+            
+            // Hide game over screen
+            document.getElementById('gameOverScreen').style.display = 'none';
+            
+            // Show menu
+            document.getElementById('gameMenu').style.display = 'block';
+            
+            // Hide UI elements
+            document.getElementById('scoreDisplay').classList.add('hidden');
+            document.getElementById('highScoreDisplay').classList.add('hidden');
+            document.getElementById('dailyChallenge').classList.add('hidden');
+            document.getElementById('instructions').classList.add('hidden');
+            
+            console.log('Returned to menu');
+        }
+        
+        // Show rules
+        function showRules() {
+            try {
+                if (tg && tg.showAlert) {
+                    tg.showAlert('🎮 Crypto Bird - Правила игры\n\n' +
+                        '• Нажимайте на экран, чтобы птица подпрыгивала\n' +
+                        '• Собирайте золотые токены для бонусных очков\n' +
+                        '• Избегайте падения на дно экрана\n' +
+                        '• Чем дольше играете, тем выше счет\n' +
+                        '• Используйте кнопки звука для настройки аудио\n\n' +
+                        'Удачи в игре! 🚀');
+                } else {
+                    alert('🎮 Crypto Bird - Правила игры\n\n' +
+                        '• Нажимайте на экран, чтобы птица подпрыгивала\n' +
+                        '• Собирайте золотые токены для бонусных очков\n' +
+                        '• Избегайте падения на дно экрана\n' +
+                        '• Чем дольше играете, тем выше счет\n' +
+                        '• Используйте кнопки звука для настройки аудио\n\n' +
+                        'Удачи в игре! 🚀');
+                }
+            } catch (error) {
+                console.log('Error showing rules:', error);
+                alert('🎮 Crypto Bird - Правила игры\n\n' +
+                    '• Нажимайте на экран, чтобы птица подпрыгивала\n' +
+                    '• Собирайте золотые токены для бонусных очков\n' +
+                    '• Избегайте падения на дно экрана\n' +
+                    '• Чем дольше играете, тем выше счет\n' +
+                    '• Используйте кнопки звука для настройки аудио\n\n' +
+                    'Удачи в игре! 🚀');
+            }
+        }
+        
+        // Show leaderboard
+        function showLeaderboard() {
+            try {
+                if (tg && tg.showAlert) {
+                    tg.showAlert('🏆 Таблица лидеров\n\n' +
+                        `Ваш лучший счет: ${highScore}\n\n` +
+                        'Попробуйте побить свой рекорд! 🚀');
+                } else {
+                    alert('🏆 Таблица лидеров\n\n' +
+                        `Ваш лучший счет: ${highScore}\n\n` +
+                        'Попробуйте побить свой рекорд! 🚀');
+                }
+            } catch (error) {
+                console.log('Error showing leaderboard:', error);
+                alert('🏆 Таблица лидеров\n\n' +
+                    `Ваш лучший счет: ${highScore}\n\n` +
+                    'Попробуйте побить свой рекорд! 🚀');
+            }
+        }
+        
+        // Initialize modern app
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Crypto Bird - DOM loaded, initializing...');
+            
+            initTelegramApp();
+            initGame();
+            
+            console.log('Crypto Bird game ready!');
+        });
+        
+        // Export functions for global access
+        window.startGame = startGame;
+        window.showRules = showRules;
+        window.showLeaderboard = showLeaderboard;
+        window.toggleSound = toggleSound;
+        window.toggleMusic = toggleMusic;
+
+        // Game loop
+        function gameLoop() {
+            if (gameState !== 'playing') {
+                console.log('Game loop stopped - gameState:', gameState);
+                return;
+            }
+            
+            update();
+            draw();
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Update game state
+        function update() {
+            // Update bird
+            bird.velocity += gravity;
+            bird.y += bird.velocity;
+            
+            // Check bird boundaries
+            if (bird.y < 0) {
+                bird.y = 0;
+                bird.velocity = 0;
+            }
+            if (bird.y + bird.height > canvas.height) {
+                gameOver();
+                return;
+            }
+            
+            // Update particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const particle = particles[i];
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.vy += 0.15;
+                particle.life--;
+                
+                if (particle.life <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+            
+            // Generate tokens more frequently since no obstacles
+            if (Math.random() < 0.03) {
+                generateToken();
+            }
+            
+            // Update tokens
+            for (let i = tokens.length - 1; i >= 0; i--) {
+                const token = tokens[i];
+                token.x -= gameSpeed;
+                token.y += Math.sin(Date.now() * 0.005) * 0.5;
+                
+                // Check collision with bird
+                if (checkCollision(bird, token)) {
+                    tokens.splice(i, 1);
+                    score += 50;
+                    updateScore();
+                    createTokenParticles(token.x, token.y);
+                    playSound('token');
+                }
+                
+                // Remove off-screen tokens
+                if (token.x + token.width < 0) {
+                    tokens.splice(i, 1);
+                }
+            }
+            
+            // Increase score over time since no obstacles
+            score += 1;
+            updateScore();
+            
+            // Increase game speed gradually
+            gameSpeed += 0.001;
+        }
+        
+        // Draw game
+        function draw() {
+            // Clear canvas with fade effect
+            ctx.fillStyle = 'rgba(10, 10, 15, 0.2)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw background grid
+            drawGrid();
+            
+            // Draw bird
+            drawBird();
+            
+            // Draw tokens
+            tokens.forEach(token => {
+                drawToken(token);
+            });
+            
+            // Draw particles
+            particles.forEach(particle => {
+                drawParticle(particle);
+            });
+        }
+        
+        // Draw grid background
+        function drawGrid() {
+            ctx.strokeStyle = 'rgba(0, 212, 255, 0.05)';
+            ctx.lineWidth = 1;
+            
+            for (let x = 0; x < canvas.width; x += 80) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            
+            for (let y = 0; y < canvas.height; y += 80) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+        }
+        
+        // Draw bird
+        function drawBird() {
+            // Bird shadow
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.beginPath();
+            ctx.arc(bird.x + bird.width / 2 + 2, bird.y + bird.height + 2, bird.width / 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Bird body
+            ctx.fillStyle = bird.color;
+            ctx.beginPath();
+            ctx.arc(bird.x + bird.width / 2, bird.y + bird.height / 2, bird.width / 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Bird glow
+            ctx.shadowColor = bird.color;
+            ctx.shadowBlur = 20;
+            ctx.beginPath();
+            ctx.arc(bird.x + bird.width / 2, bird.y + bird.height / 2, bird.width / 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            
+            // Bird eye
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(bird.x + bird.width / 2 + 5, bird.y + bird.height / 2 - 5, 3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Bird pupil
+            ctx.fillStyle = '#000000';
+            ctx.beginPath();
+            ctx.arc(bird.x + bird.width / 2 + 5, bird.y + bird.height / 2 - 5, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Bird wing
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.beginPath();
+            ctx.arc(bird.x + bird.width / 2 - 6, bird.y + bird.height / 2 + 6, 6, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        // Draw token
+        function drawToken(token) {
+            // Token shadow
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+            ctx.beginPath();
+            ctx.arc(token.x + token.width / 2 + 2, token.y + token.height / 2 + 2, token.width / 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Token glow
+            ctx.shadowColor = token.color;
+            ctx.shadowBlur = 20;
+            
+            // Token body
+            ctx.fillStyle = token.color;
+            ctx.beginPath();
+            ctx.arc(token.x + token.width / 2, token.y + token.height / 2, token.width / 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Token symbol
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 16px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText('₿', token.x + token.width / 2, token.y + token.height / 2 + 5);
+            
+            ctx.shadowBlur = 0;
+        }
+        
+        // Draw particle
+        function drawParticle(particle) {
+            ctx.globalAlpha = particle.life / 20;
+            ctx.fillStyle = particle.color;
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+        }
+        
+        // Generate token
+        function generateToken() {
+            const tokenY = Math.random() * (canvas.height - 100) + 50;
+            tokens.push({
+                x: canvas.width + 50,
+                y: tokenY,
+                width: 25,
+                height: 25,
+                color: '#f59e0b'
+            });
+        }
+        
+        // Check collision with improved precision
+        function checkCollision(rect1, rect2) {
+            const margin = 3; // More forgiving collision for tokens
+            return rect1.x + margin < rect2.x + rect2.width &&
+                   rect1.x + rect1.width - margin > rect2.x &&
+                   rect1.y + margin < rect2.y + rect2.height &&
+                   rect1.y + rect1.height - margin > rect2.y;
+        }
+        
+        // Create token particles
+        function createTokenParticles(x, y) {
+            for (let i = 0; i < 10; i++) {
+                particles.push({
+                    x: x + 12,
+                    y: y + 12,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    life: 30,
+                    color: '#f59e0b'
+                });
+            }
+        }
+        
+        // Update score
+        function updateScore() {
+            document.getElementById('scoreValue').textContent = score;
+        }
+        
+        // Export functions to global scope for HTML onclick (after all functions are defined)
+        window.restartGame = restartGame;
+        window.showMenu = showMenu;
+        
+        // Debug: Check if functions are properly exported
+        console.log('Function exports check:');
+        console.log('window.restartGame:', typeof window.restartGame);
+        console.log('window.showMenu:', typeof window.showMenu);
+        console.log('restartGame function:', typeof restartGame);
+        
+        // Alternative event binding for buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Content Loaded - setting up event listeners');
+            
+            // Find restart button and add event listener
+            const restartBtn = document.getElementById('restartBtn');
+            if (restartBtn) {
+                restartBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Restart button clicked via addEventListener');
+                    
+                    // Force call restartGame function
+                    if (typeof restartGame === 'function') {
+                        console.log('Calling restartGame function...');
+                        restartGame();
+                    } else {
+                        console.error('restartGame function not found!');
+                        // Try alternative approach
+                        window.restartGame && window.restartGame();
+                    }
+                });
+                console.log('Restart button event listener added');
+            } else {
+                console.error('Restart button not found!');
+            }
+            
+            // Find menu button and add event listener
+            const menuBtn = document.getElementById('menuBtn');
+            if (menuBtn) {
+                menuBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Menu button clicked via addEventListener');
+                    
+                    // Force call showMenu function
+                    if (typeof showMenu === 'function') {
+                        console.log('Calling showMenu function...');
+                        showMenu();
+                    } else {
+                        console.error('showMenu function not found!');
+                        // Try alternative approach
+                        window.showMenu && window.showMenu();
+                    }
+                });
+                console.log('Menu button event listener added');
+            } else {
+                console.error('Menu button not found!');
+            }
+            
+            // Debug: Check all buttons
+            const allButtons = document.querySelectorAll('button');
+            console.log('All buttons found:', allButtons.length);
+            allButtons.forEach((btn, index) => {
+                console.log(`Button ${index}:`, btn.textContent, btn.id, btn.onclick);
+            });
+            
+            // Debug: Check if functions exist
+            console.log('Function availability check:');
+            console.log('restartGame function:', typeof restartGame);
+            console.log('showMenu function:', typeof showMenu);
+            console.log('window.restartGame:', typeof window.restartGame);
+            console.log('window.showMenu:', typeof window.showMenu);
+        });
+    </script>
+</body>
+</html> 
