@@ -4,8 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Crypto Bird - Telegram Game</title>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" as="style">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    </noscript>
     
     <style>
         /* Crypto Game Variables */
@@ -35,9 +43,18 @@
             -webkit-tap-highlight-color: transparent;
             user-select: none;
         }
+        
+        /* Font loading optimization */
+        .font-loading {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+        }
+        
+        .font-loaded {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+        }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, 'Helvetica Neue', Arial, sans-serif;
             line-height: 1.6;
             color: var(--game-text);
             background: var(--game-bg);
@@ -529,7 +546,7 @@
         }
     </style>
 </head>
-<body>
+<body class="font-loading">
     <div id="gameContainer">
         <canvas id="gameCanvas"></canvas>
         
@@ -593,14 +610,43 @@
         console.log('Document ready state:', document.readyState);
         console.log('Window loaded:', window.loaded);
         
+        // Check font loading
+        if ('fonts' in document) {
+            document.fonts.ready.then(() => {
+                console.log('✅ Fonts loaded successfully');
+                document.body.classList.add('font-loaded');
+                document.body.classList.remove('font-loading');
+            }).catch(error => {
+                console.warn('⚠️ Font loading warning:', error);
+                document.body.classList.add('font-loading');
+            });
+        } else {
+            // Fallback for browsers without font loading API
+            setTimeout(() => {
+                document.body.classList.add('font-loaded');
+                document.body.classList.remove('font-loading');
+            }, 1000);
+        }
+        
         // Global error handler
         window.addEventListener('error', function(e) {
             console.error('Global error caught:', e.error);
             console.error('Error details:', e.filename, e.lineno, e.colno);
+            
+            // Handle network errors gracefully
+            if (e.error && e.error.message && e.error.message.includes('network')) {
+                console.warn('Network error detected, continuing with fallback resources');
+            }
         });
         
         window.addEventListener('unhandledrejection', function(e) {
             console.error('Unhandled promise rejection:', e.reason);
+            
+            // Handle font loading rejections
+            if (e.reason && e.reason.message && e.reason.message.includes('font')) {
+                console.warn('Font loading failed, using fallback fonts');
+                document.body.classList.add('font-loading');
+            }
         });
         
         // Try to initialize Telegram Web App
