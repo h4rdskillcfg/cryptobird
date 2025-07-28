@@ -647,10 +647,19 @@
                 font-size: 0.9rem;
             }
             
-            .sound-btn {
-                padding: 6px;
-                font-size: 0.9rem;
-            }
+                    .sound-btn {
+            padding: 6px;
+            font-size: 0.9rem;
+        }
+        
+        /* Исправляем розовый попугай на мобильных */
+        .skin-card.locked[data-skin-id="diamond"] {
+            opacity: 0.8;
+            filter: none;
+            border-color: #ec4899;
+            background: rgba(236, 72, 153, 0.05);
+            box-shadow: 0 0 15px rgba(236, 72, 153, 0.3);
+            animation: pinkGlow 1.2s ease-in-out infinite;
         }
 
         /* Hide UI elements during gameplay */
@@ -1223,7 +1232,10 @@
             
             if (scoreDisplay) scoreDisplay.classList.add('hidden');
             if (highScoreDisplay) highScoreDisplay.classList.add('hidden');
-            if (instructions) instructions.classList.add('hidden');
+            if (instructions) {
+                instructions.classList.add('hidden');
+                instructions.style.display = 'none'; // Принудительно скрываем
+            }
             
             // Add touch/click event listeners with debouncing
             let lastJumpTime = 0;
@@ -1762,7 +1774,7 @@
             bird.velocity += gravity;
             
             // Ограничиваем максимальную скорость падения
-            const maxFallSpeed = isMobile ? 8 : 6; // Очень медленное падение
+            const maxFallSpeed = 6; // Унифицированная скорость падения
             if (bird.velocity > maxFallSpeed) {
                 bird.velocity = maxFallSpeed;
             }
