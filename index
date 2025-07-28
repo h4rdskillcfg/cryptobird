@@ -478,6 +478,55 @@
             color: var(--game-text);
             text-align: center;
         }
+
+        /* Menu styles */
+        #gameMenu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--game-border);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: var(--game-shadow);
+            z-index: 20;
+        }
+        
+        .menu-header {
+            margin-bottom: 20px;
+        }
+        
+        .menu-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--game-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: var(--game-text-secondary);
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+        
+        .mode-indicator {
+            display: inline-block;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid var(--game-primary);
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 0.8rem;
+            color: var(--game-primary);
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -509,7 +558,11 @@
         </div>
         
         <div id="gameMenu">
-            <h1>🚀 Crypto Bird</h1>
+            <div class="menu-header">
+                <h1>🐦 Crypto Bird</h1>
+                <p class="subtitle">Крипто-игра в стиле Flappy Bird</p>
+                <div id="modeIndicator" class="mode-indicator">🌐 Браузерный режим</div>
+            </div>
             <p>Помогите крипто-птице пролететь через рыночные препятствия!</p>
             <button class="game-btn" onclick="startGame()">🎮 Начать игру</button>
             <button class="game-btn" onclick="showRules()">📖 Правила</button>
@@ -530,6 +583,40 @@
     </div>
 
     <script>
+        // Check if running in Telegram Web App
+        let isTelegramApp = false;
+        let tg = null;
+        
+        // Try to initialize Telegram Web App
+        function initTelegramApp() {
+            try {
+                // Check if Telegram Web App is available
+                if (window.Telegram && window.Telegram.WebApp) {
+                    tg = window.Telegram.WebApp;
+                    isTelegramApp = true;
+                    
+                    // Initialize Telegram Web App
+                    tg.enableClosingConfirmation();
+                    tg.expand();
+                    tg.setHeaderColor('#00d4ff');
+                    tg.setBackgroundColor('#0a0a0f');
+                    tg.MainButton.setText('🎮 Играть в Crypto Bird');
+                    tg.MainButton.show();
+                    tg.MainButton.onClick(function() {
+                        startGame();
+                    });
+                    
+                    console.log('✅ Telegram Web App initialized successfully');
+                } else {
+                    console.log('⚠️ Telegram Web App not available, running in browser mode');
+                    isTelegramApp = false;
+                }
+            } catch (error) {
+                console.log('⚠️ Error initializing Telegram Web App:', error);
+                isTelegramApp = false;
+            }
+        }
+        
         // Game variables
         let canvas, ctx;
         let gameState = 'menu'; // menu, playing, paused, gameOver
@@ -568,24 +655,7 @@
         let lastPipeX = 800;
         
         // Initialize Telegram Web App
-        let tg = window.Telegram.WebApp;
-        
-        function initTelegramApp() {
-            if (tg) {
-                tg.enableClosingConfirmation();
-                tg.expand();
-                tg.setHeaderColor('#00d4ff');
-                tg.setBackgroundColor('#0a0a0f');
-                tg.MainButton.setText('🎮 Играть в Crypto Bird');
-                tg.MainButton.show();
-                tg.MainButton.onClick(function() {
-                    startGame();
-                });
-                console.log('Crypto Bird Telegram Web App initialized');
-            } else {
-                console.log('Telegram Web App not available');
-            }
-        }
+        // initTelegramApp(); // This is now handled by DOMContentLoaded
         
         // Initialize audio
         function initAudio() {
@@ -738,8 +808,11 @@
             }
         }
         
-        // Initialize game
-        function initGame() {
+        // Initialize game when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Crypto Bird game initializing...');
+            
+            // Initialize canvas
             canvas = document.getElementById('gameCanvas');
             ctx = canvas.getContext('2d');
             
@@ -747,13 +820,43 @@
             function resizeCanvas() {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
+                console.log('Canvas resized to:', canvas.width, 'x', canvas.height);
             }
             
             resizeCanvas();
             window.addEventListener('resize', resizeCanvas);
             
+            // Initialize Telegram Web App
+            initTelegramApp();
+            
+            // Update mode indicator
+            const modeIndicator = document.getElementById('modeIndicator');
+            if (modeIndicator) {
+                if (isTelegramApp) {
+                    modeIndicator.textContent = '📱 Telegram режим';
+                    modeIndicator.style.background = 'rgba(16, 185, 129, 0.1)';
+                    modeIndicator.style.borderColor = '#10b981';
+                    modeIndicator.style.color = '#10b981';
+                } else {
+                    modeIndicator.textContent = '🌐 Браузерный режим';
+                    modeIndicator.style.background = 'rgba(0, 212, 255, 0.1)';
+                    modeIndicator.style.borderColor = '#00d4ff';
+                    modeIndicator.style.color = '#00d4ff';
+                }
+            }
+            
+            // Initialize audio
+            initAudio();
+            
             // Update high score display
             document.getElementById('highScoreValue').textContent = highScore;
+            
+            // Update sound buttons
+            updateSoundButton();
+            updateMusicButton();
+            
+            // Show menu by default
+            document.getElementById('gameMenu').style.display = 'block';
             
             // Add touch/click event listeners
             canvas.addEventListener('click', handleJump);
@@ -767,15 +870,10 @@
                 }
             });
             
-            // Initialize audio
-            initAudio();
-            
-            // Update sound buttons
-            updateSoundButton();
-            updateMusicButton();
-            
-            console.log('Crypto Bird game initialized');
-        }
+            console.log('✅ Crypto Bird game ready!');
+            console.log('Game state:', gameState);
+            console.log('Is Telegram App:', isTelegramApp);
+        });
         
         // Handle jump
         function handleJump() {
@@ -1008,7 +1106,7 @@
         // Show rules
         function showRules() {
             try {
-                if (tg && tg.showAlert) {
+                if (isTelegramApp && tg && tg.showAlert) {
                     tg.showAlert('🎮 Crypto Bird - Правила игры\n\n' +
                         '• Нажимайте на экран, чтобы птица подпрыгивала\n' +
                         '• Собирайте золотые токены для бонусных очков\n' +
@@ -1040,7 +1138,7 @@
         // Show leaderboard
         function showLeaderboard() {
             try {
-                if (tg && tg.showAlert) {
+                if (isTelegramApp && tg && tg.showAlert) {
                     tg.showAlert('🏆 Таблица лидеров\n\n' +
                         `Ваш лучший счет: ${highScore}\n\n` +
                         'Попробуйте побить свой рекорд! 🚀');
@@ -1058,14 +1156,14 @@
         }
         
         // Initialize modern app
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Crypto Bird - DOM loaded, initializing...');
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     console.log('Crypto Bird - DOM loaded, initializing...');
             
-            initTelegramApp();
-            initGame();
+        //     initTelegramApp();
+        //     initGame();
             
-            console.log('Crypto Bird game ready!');
-        });
+        //     console.log('Crypto Bird game ready!');
+        // });
         
         // Export functions for global access
         window.startGame = startGame;
