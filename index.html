@@ -2119,6 +2119,9 @@
                 // Логируем FPS каждые 5 секунд
                 if (fps % 5 === 0) {
                     console.log('Current FPS:', fps);
+                    if (fps < 50) {
+                        console.warn('Low FPS detected! Performance issues.');
+                    }
                 }
             }
             
@@ -2248,11 +2251,12 @@
             for (let i = tokens.length - 1; i >= 0; i--) {
                 const token = tokens[i];
                 token.x -= gameSpeed;
-                token.y += Math.sin(Date.now() * 0.005 + token.x * 0.01) * 0.8;
+                // Убрана анимация движения для максимальной производительности
+                // token.y += Math.sin(Date.now() * 0.005 + token.x * 0.01) * 0.8;
                 
-                // Добавляем пульсацию для токенов
-                if (!token.pulse) token.pulse = 0;
-                token.pulse += 0.1;
+                // Убрана пульсация для максимальной производительности
+                // if (!token.pulse) token.pulse = 0;
+                // token.pulse += 0.1;
                 
                 // Check collision with bird
                 if (checkCollision(bird, token)) {
@@ -2315,19 +2319,19 @@
                     drawParticle(particle);
                 });
                 
-                // Draw FPS counter (always show for debugging)
-                if (gameState === 'playing') {
-                    ctx.fillStyle = fps < 50 ? 'rgba(255, 100, 100, 0.8)' : 'rgba(255, 255, 255, 0.7)';
-                    ctx.font = '12px Inter';
-                    ctx.textAlign = 'left';
-                    ctx.fillText(`FPS: ${fps}`, 10, 20);
-                    
-                    // Show performance tips if FPS is low
-                    if (fps < 50) {
-                        ctx.fillStyle = 'rgba(255, 100, 100, 0.8)';
-                        ctx.fillText('Low FPS detected', 10, 35);
-                    }
-                }
+                // Убран FPS счетчик для максимальной производительности
+                // if (gameState === 'playing') {
+                //     ctx.fillStyle = fps < 50 ? 'rgba(255, 100, 100, 0.8)' : 'rgba(255, 255, 255, 0.7)';
+                //     ctx.font = '12px Inter';
+                //     ctx.textAlign = 'left';
+                //     ctx.fillText(`FPS: ${fps}`, 10, 20);
+                //     
+                //     // Show performance tips if FPS is low
+                //     if (fps < 50) {
+                //         ctx.fillStyle = 'rgba(255, 100, 100, 0.8)';
+                //         ctx.fillText('Low FPS detected', 10, 35);
+                //     }
+                // }
             } catch (error) {
                 console.error('Error in draw function:', error);
             }
@@ -2335,28 +2339,29 @@
         
         // Draw grid background optimized for 60 FPS
         function drawGrid() {
-            try {
-                // Минимальная сетка для максимальной производительности
-                ctx.strokeStyle = 'rgba(0, 212, 255, 0.01)';
-                ctx.lineWidth = 0.3;
-                
-                // Очень редкие линии для лучшей производительности
-                for (let x = 0; x < canvas.width; x += 240) {
-                    ctx.beginPath();
-                    ctx.moveTo(x, 0);
-                    ctx.lineTo(x, canvas.height);
-                    ctx.stroke();
-                }
-                
-                for (let y = 0; y < canvas.height; y += 240) {
-                    ctx.beginPath();
-                    ctx.moveTo(0, y);
-                    ctx.lineTo(canvas.width, y);
-                    ctx.stroke();
-                }
-            } catch (error) {
-                console.error('Error drawing grid:', error);
-            }
+            // Полностью убрана сетка для максимальной производительности
+            // try {
+            //     // Минимальная сетка для максимальной производительности
+            //     ctx.strokeStyle = 'rgba(0, 212, 255, 0.01)';
+            //     ctx.lineWidth = 0.3;
+            //     
+            //     // Очень редкие линии для лучшей производительности
+            //     for (let x = 0; x < canvas.width; x += 240) {
+            //         ctx.beginPath();
+            //         ctx.moveTo(x, 0);
+            //         ctx.lineTo(x, canvas.height);
+            //         ctx.stroke();
+            //     }
+            //     
+            //     for (let y = 0; y < canvas.height; y += 240) {
+            //         ctx.beginPath();
+            //         ctx.moveTo(0, y);
+            //         ctx.lineTo(canvas.width, y);
+            //         ctx.stroke();
+            //     }
+            // } catch (error) {
+            //     console.error('Error drawing grid:', error);
+            // }
         }
         
         // Draw bird
@@ -2371,11 +2376,11 @@
                 ctx.translate(bird.x + bird.width / 2, bird.y + bird.height / 2);
                 ctx.rotate(rotation);
                 
-                // Bird shadow
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-                ctx.beginPath();
-                ctx.arc(2, 2, bird.width / 2, 0, Math.PI * 2);
-                ctx.fill();
+                // Убрана тень птицы для максимальной производительности
+                // ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                // ctx.beginPath();
+                // ctx.arc(2, 2, bird.width / 2, 0, Math.PI * 2);
+                // ctx.fill();
                 
                 // Bird body
                 ctx.fillStyle = bird.color;
@@ -2392,23 +2397,23 @@
                 // ctx.fill();
                 // ctx.shadowBlur = 0;
                 
-                // Bird eye
-                ctx.fillStyle = '#ffffff';
-                ctx.beginPath();
-                ctx.arc(5, -5, 3, 0, Math.PI * 2);
-                ctx.fill();
+                // Убран глаз птицы для максимальной производительности
+                // ctx.fillStyle = '#ffffff';
+                // ctx.beginPath();
+                // ctx.arc(5, -5, 3, 0, Math.PI * 2);
+                // ctx.fill();
                 
                 // Bird pupil
-                ctx.fillStyle = '#000000';
-                ctx.beginPath();
-                ctx.arc(5, -5, 1.5, 0, Math.PI * 2);
-                ctx.fill();
+                // ctx.fillStyle = '#000000';
+                // ctx.beginPath();
+                // ctx.arc(5, -5, 1.5, 0, Math.PI * 2);
+                // ctx.fill();
                 
-                // Bird wing
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-                ctx.beginPath();
-                ctx.arc(-6, 6, 6, 0, Math.PI * 2);
-                ctx.fill();
+                // Убрано крыло птицы для максимальной производительности
+                // ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                // ctx.beginPath();
+                // ctx.arc(-6, 6, 6, 0, Math.PI * 2);
+                // ctx.fill();
                 
                 // Restore context
                 ctx.restore();
@@ -2419,50 +2424,43 @@
         
         // Draw crypto token with mobile optimization
         function drawToken(token) {
-            // Пульсация токена с мобильной оптимизацией
-            const pulseScale = token.pulse ? 1 + Math.sin(token.pulse) * 0.15 : 1; // Увеличена амплитуда пульсации
-            const tokenSize = (token.width / 2) * pulseScale;
+            // Убрана пульсация для максимальной производительности
+            // const pulseScale = token.pulse ? 1 + Math.sin(token.pulse) * 0.15 : 1;
+            const tokenSize = token.width / 2; // Фиксированный размер
             
-            // Token shadow
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-            ctx.beginPath();
-            ctx.arc(token.x + token.width / 2 + 2, token.y + token.height / 2 + 2, tokenSize, 0, Math.PI * 2);
-            ctx.fill();
+            // Убрана тень для максимальной производительности
+            // ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+            // ctx.beginPath();
+            // ctx.arc(token.x + token.width / 2 + 2, token.y + token.height / 2 + 2, tokenSize, 0, Math.PI * 2);
+            // ctx.fill();
             
             // Token glow optimized for 60 FPS
             // Убрано свечение для максимальной производительности
             // ctx.shadowColor = token.color;
             // ctx.shadowBlur = 8 + Math.sin(token.pulse || 0) * 2;
             
-            // Token body with gradient
-            const gradient = ctx.createRadialGradient(
-                token.x + token.width / 2, token.y + token.height / 2, 0,
-                token.x + token.width / 2, token.y + token.height / 2, tokenSize
-            );
-            gradient.addColorStop(0, token.color);
-            gradient.addColorStop(1, '#ffffff');
-            
-            ctx.fillStyle = gradient;
+            // Token body (убраны градиенты для производительности)
+            ctx.fillStyle = token.color;
             ctx.beginPath();
             ctx.arc(token.x + token.width / 2, token.y + token.height / 2, tokenSize, 0, Math.PI * 2);
             ctx.fill();
             
-            // Token border
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 2;
-            ctx.stroke();
+            // Убрана обводка для максимальной производительности
+            // ctx.strokeStyle = '#ffffff';
+            // ctx.lineWidth = 2;
+            // ctx.stroke();
             
             // Token symbol (используем символ из токена) - увеличен размер
             ctx.fillStyle = '#ffffff';
-            ctx.font = `bold ${20 * pulseScale}px Inter`; // Увеличен размер шрифта
+            ctx.font = `bold 20px Inter`; // Фиксированный размер шрифта
             ctx.textAlign = 'center';
             ctx.fillText(token.symbol || '₿', token.x + token.width / 2, token.y + token.height / 2 + 6);
             
-            // Добавляем дополнительный символ для разнообразия
-            if (token.symbol && token.symbol !== '₿') {
-                ctx.font = `bold ${14 * pulseScale}px Inter`;
-                ctx.fillText('₿', token.x + token.width / 2, token.y + token.height / 2 - 8);
-            }
+            // Убран дополнительный символ для максимальной производительности
+            // if (token.symbol && token.symbol !== '₿') {
+            //     ctx.font = `bold ${14 * pulseScale}px Inter`;
+            //     ctx.fillText('₿', token.x + token.width / 2, token.y + token.height / 2 - 8);
+            // }
             
             ctx.shadowBlur = 0;
         }
@@ -2489,14 +2487,14 @@
                     return; // Не рисуем трубы за пределами экрана
                 }
                 
-                // Градиент для труб
-                const gradient = ctx.createLinearGradient(pipe.x, 0, pipe.x + pipe.width, 0);
-                gradient.addColorStop(0, '#1a1a2e');
-                gradient.addColorStop(0.5, '#16213e');
-                gradient.addColorStop(1, '#0f3460');
+                // Простой цвет для труб (убраны градиенты для производительности)
+                // const gradient = ctx.createLinearGradient(pipe.x, 0, pipe.x + pipe.width, 0);
+                // gradient.addColorStop(0, '#1a1a2e');
+                // gradient.addColorStop(0.5, '#16213e');
+                // gradient.addColorStop(1, '#0f3460');
                 
                 // Верхняя труба без свечения для максимальной производительности
-                ctx.fillStyle = gradient;
+                ctx.fillStyle = '#1a1a2e'; // Простой цвет вместо градиента
                 // Убрано свечение для максимальной производительности
                 // ctx.shadowColor = '#00d4ff';
                 // ctx.shadowBlur = 3;
@@ -2514,13 +2512,13 @@
                 ctx.strokeRect(pipe.x, 0, pipe.width, pipe.topHeight);
                 ctx.strokeRect(pipe.x, pipe.bottomY, pipe.width, canvas.height - pipe.bottomY);
                 
-                // Капительки труб в крипто-стиле
-                const capGradient = ctx.createLinearGradient(pipe.x - 5, 0, pipe.x + pipe.width + 5, 0);
-                capGradient.addColorStop(0, '#7c3aed');
-                capGradient.addColorStop(0.5, '#06b6d4');
-                capGradient.addColorStop(1, '#00d4ff');
+                // Капительки труб в крипто-стиле (убраны градиенты для производительности)
+                // const capGradient = ctx.createLinearGradient(pipe.x - 5, 0, pipe.x + pipe.width + 5, 0);
+                // capGradient.addColorStop(0, '#7c3aed');
+                // capGradient.addColorStop(0.5, '#06b6d4');
+                // capGradient.addColorStop(1, '#00d4ff');
                 
-                ctx.fillStyle = capGradient;
+                ctx.fillStyle = '#7c3aed'; // Простой цвет вместо градиента
                 // Убрано свечение для максимальной производительности
                 // ctx.shadowColor = '#7c3aed';
                 // ctx.shadowBlur = 6;
@@ -2616,8 +2614,9 @@
                 height: 35, // Увеличены размеры токенов
                 color: randomCoin.color,
                 symbol: randomCoin.symbol,
-                name: randomCoin.name,
-                pulse: Date.now() * 0.005 // Добавляем анимацию пульсации
+                name: randomCoin.name
+                // Убрана анимация пульсации для максимальной производительности
+                // pulse: Date.now() * 0.005
             });
             
             // Ограничиваем количество токенов для производительности
