@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
     <title>Crypto Bird - Telegram Game</title>
     
     <!-- Preload critical resources -->
@@ -72,6 +72,11 @@
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
+            /* Учитываем безопасную зону для устройств с вырезами */
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
         }
 
         /* Animated Background */
@@ -122,6 +127,94 @@
         .fullscreen-mode #gameOverScreen,
         .fullscreen-mode #skinsScreen {
             z-index: 10001 !important;
+        }
+        
+        /* Mobile fullscreen optimizations */
+        @media (max-width: 768px) {
+            .fullscreen-mode {
+                /* Учитываем безопасную зону для мобильных устройств */
+                padding-top: env(safe-area-inset-top) !important;
+                padding-bottom: env(safe-area-inset-bottom) !important;
+                padding-left: env(safe-area-inset-left) !important;
+                padding-right: env(safe-area-inset-right) !important;
+            }
+            
+            .fullscreen-mode #scoreDisplay {
+                top: calc(10px + env(safe-area-inset-top)) !important;
+                left: calc(10px + env(safe-area-inset-left)) !important;
+                padding: 8px 15px !important;
+                font-size: 0.9rem !important;
+            }
+            
+            .fullscreen-mode #highScoreDisplay {
+                top: calc(60px + env(safe-area-inset-top)) !important;
+                left: calc(10px + env(safe-area-inset-left)) !important;
+                padding: 8px 15px !important;
+                font-size: 0.8rem !important;
+            }
+            
+            .fullscreen-mode .sound-controls {
+                top: calc(10px + env(safe-area-inset-top)) !important;
+                right: calc(10px + env(safe-area-inset-right)) !important;
+                padding: 8px 12px !important;
+            }
+            
+            .fullscreen-mode #instructions {
+                bottom: calc(10px + env(safe-area-inset-bottom)) !important;
+                padding: 10px 15px !important;
+                font-size: 0.8rem !important;
+            }
+            
+            .fullscreen-mode #gameMenu {
+                padding: 25px 20px !important;
+                width: 90% !important;
+                max-width: 350px !important;
+            }
+            
+            .fullscreen-mode #gameMenu h1 {
+                font-size: 2rem !important;
+            }
+            
+            .fullscreen-mode .game-btn {
+                padding: 12px 20px !important;
+                font-size: 0.9rem !important;
+                width: 160px !important;
+                margin: 6px auto !important;
+            }
+            
+            .fullscreen-mode #gameOverScreen {
+                padding: 25px 20px !important;
+                width: 90% !important;
+                max-width: 350px !important;
+            }
+            
+            .fullscreen-mode #skinsScreen {
+                padding: 20px 15px !important;
+                width: 95% !important;
+                max-width: 400px !important;
+                max-height: 70vh !important;
+            }
+            
+            .fullscreen-mode .skins-container {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)) !important;
+                gap: 15px !important;
+            }
+            
+            .fullscreen-mode .skin-card {
+                padding: 10px !important;
+            }
+            
+            .fullscreen-mode .skin-icon {
+                font-size: 2.5rem !important;
+            }
+            
+            .fullscreen-mode .skin-name {
+                font-size: 0.8rem !important;
+            }
+            
+            .fullscreen-mode .skin-requirement {
+                font-size: 0.6rem !important;
+            }
         }
 
         /* Game Canvas */
@@ -520,6 +613,25 @@
                 font-size: 1rem;
                 top: 80px;
                 left: 10px;
+            }
+            
+            /* Дополнительные оптимизации для мобильных */
+            .sound-controls {
+                top: 15px;
+                right: 15px;
+                gap: 8px;
+                padding: 10px 15px;
+            }
+            
+            .sound-btn {
+                padding: 8px 10px;
+                font-size: 1rem;
+            }
+            
+            #instructions {
+                font-size: 0.85rem;
+                padding: 12px 20px;
+                bottom: 15px;
             }
             
 
@@ -1231,14 +1343,14 @@
             }
         }
         
-        // Function to update bird position to center
+        // Function to update bird position to left side
         function updateBirdCenter() {
             if (canvas) {
-                const centerX = canvas.width / 2;
-                bird.x = centerX; // Птица точно по центру
-                bird.centerX = centerX; // Сохраняем центр
-                bird.minX = centerX - 30; // Ограничения по горизонтали
-                bird.maxX = centerX + 30;
+                const leftOffset = isMobile ? 120 : 150; // Ближе к левому краю на мобильных
+                bird.x = leftOffset; // Птица ближе к левому краю
+                bird.centerX = leftOffset; // Сохраняем позицию
+                bird.minX = leftOffset - 30; // Ограничения по горизонтали
+                bird.maxX = leftOffset + 30;
             }
         }
         
@@ -2312,16 +2424,19 @@
             ctx.shadowBlur = 0;
         }
         
-        // Generate token along center path
+        // Generate token along bird's path
         function generateToken() {
-            // Генерируем токен в центре экрана на уровне птицы
+            // Генерируем токен на пути птицы (ближе к левому краю)
             const birdLevel = bird.y + bird.height / 2;
             const variation = 60; // Уменьшенный разброс по вертикали
             const tokenY = Math.max(50, Math.min(canvas.height - 75, 
                 birdLevel + (Math.random() - 0.5) * variation));
             
+            // Токены появляются на уровне птицы, но справа от неё
+            const tokenX = canvas.width + 50;
+            
             tokens.push({
-                x: canvas.width + 50,
+                x: tokenX,
                 y: tokenY,
                 width: 25,
                 height: 25,
