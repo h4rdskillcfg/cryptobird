@@ -2172,18 +2172,18 @@
                 console.error('Error in update function:', error);
             }
             
-            // Update particles
-            for (let i = particles.length - 1; i >= 0; i--) {
-                const particle = particles[i];
-                particle.x += particle.vx;
-                particle.y += particle.vy;
-                particle.vy += 0.15;
-                particle.life--;
-                
-                if (particle.life <= 0) {
-                    particles.splice(i, 1);
-                }
-            }
+            // Убрано обновление частиц для максимальной производительности
+            // for (let i = particles.length - 1; i >= 0; i--) {
+            //     const particle = particles[i];
+            //     particle.x += particle.vx;
+            //     particle.y += particle.vy;
+            //     particle.vy += 0.15;
+            //     particle.life--;
+            //     
+            //     if (particle.life <= 0) {
+            //         particles.splice(i, 1);
+            //     }
+            // }
             
             // Generate pipes less frequently with performance optimization
             if (pipes.length === 0 || (pipes[pipes.length - 1] && pipes[pipes.length - 1].x < canvas.width - 600)) {
@@ -2263,7 +2263,8 @@
                     tokens.splice(i, 1);
                     score += 50;
                     updateScore();
-                    createTokenParticles(token.x, token.y, token.color);
+                    // Убраны частицы для максимальной производительности
+                    // createTokenParticles(token.x, token.y, token.color);
                     playSound('token');
                 }
                 
@@ -2314,10 +2315,10 @@
                     });
                 }
                 
-                // Draw particles
-                particles.forEach(particle => {
-                    drawParticle(particle);
-                });
+                // Убрана отрисовка частиц для максимальной производительности
+                // particles.forEach(particle => {
+                //     drawParticle(particle);
+                // });
                 
                 // Убран FPS счетчик для максимальной производительности
                 // if (gameState === 'playing') {
@@ -2465,19 +2466,19 @@
             ctx.shadowBlur = 0;
         }
         
-        // Draw particle optimized for 60 FPS
-        function drawParticle(particle) {
-            if (particle.life < 3) {
-                return; // Пропускаем частицы с малым временем жизни для 60 FPS
-            }
-            
-            ctx.globalAlpha = particle.life / 20;
-            ctx.fillStyle = particle.color;
-            ctx.beginPath();
-            ctx.arc(particle.x, particle.y, 1, 0, Math.PI * 2); // Минимальный размер для максимальной производительности
-            ctx.fill();
-            ctx.globalAlpha = 1;
-        }
+        // Убрана функция отрисовки частиц для максимальной производительности
+        // function drawParticle(particle) {
+        //     if (particle.life < 3) {
+        //         return; // Пропускаем частицы с малым временем жизни для 60 FPS
+        //     }
+        //     
+        //     ctx.globalAlpha = particle.life / 20;
+        //     ctx.fillStyle = particle.color;
+        //     ctx.beginPath();
+        //     ctx.arc(particle.x, particle.y, 1, 0, Math.PI * 2); // Минимальный размер для максимальной производительности
+        //     ctx.fill();
+        //     ctx.globalAlpha = 1;
+        // }
         
         // Draw pipe in crypto style with performance optimization
         function drawPipe(pipe) {
@@ -2681,21 +2682,21 @@
             return false;
         }
         
-        // Create token particles optimized for 60 FPS
-        function createTokenParticles(x, y, tokenColor = '#f59e0b') {
-            const particleCount = 3; // Минимальное количество частиц для максимальной производительности
-            
-            for (let i = 0; i < particleCount; i++) {
-                particles.push({
-                    x: x + 17, // Обновлено для увеличенных токенов
-                    y: y + 17, // Обновлено для увеличенных токенов
-                    vx: (Math.random() - 0.5) * 4,
-                    vy: (Math.random() - 0.5) * 4,
-                    life: 12, // Минимальное время жизни для максимальной производительности
-                    color: tokenColor
-                });
-            }
-        }
+        // Убрана функция создания частиц для максимальной производительности
+        // function createTokenParticles(x, y, tokenColor = '#f59e0b') {
+        //     const particleCount = 3; // Минимальное количество частиц для максимальной производительности
+        //     
+        //     for (let i = 0; i < particleCount; i++) {
+        //         particles.push({
+        //             x: x + 17, // Обновлено для увеличенных токенов
+        //             y: y + 17, // Обновлено для увеличенных токенов
+        //             vx: (Math.random() - 0.5) * 4,
+        //             vy: (Math.random() - 0.5) * 4,
+        //             life: 12, // Минимальное время жизни для максимальной производительности
+        //             color: tokenColor
+        //         });
+        //     }
+        // }
         
         // Update score
         function updateScore() {
