@@ -881,12 +881,16 @@
                         // Enable fullscreen mode
                         tg.enableFullscreen();
                         
-                        // Add fullscreen toggle button
-                        tg.MainButton.setText('🎮 Играть в Crypto Bird');
-                        tg.MainButton.show();
-                        tg.MainButton.onClick(function() {
+                                            // Add fullscreen toggle button
+                    tg.MainButton.setText('🎮 Играть в Crypto Bird');
+                    tg.MainButton.show();
+                    tg.MainButton.onClick(function() {
+                        if (gameState === 'menu') {
                             startGame();
-                        });
+                        } else if (gameState === 'gameOver') {
+                            restartGame();
+                        }
+                    });
                         
                         // Add fullscreen toggle functionality
                         tg.BackButton.setText('📱 Обычный режим');
@@ -920,7 +924,11 @@
                         tg.MainButton.setText('🎮 Играть в Crypto Bird');
                         tg.MainButton.show();
                         tg.MainButton.onClick(function() {
-                            startGame();
+                            if (gameState === 'menu') {
+                                startGame();
+                            } else if (gameState === 'gameOver') {
+                                restartGame();
+                            }
                         });
                     }
                     
@@ -1455,6 +1463,14 @@
                 }
             }
             
+            // Hide Telegram buttons during gameplay
+            if (isTelegramApp && tg) {
+                tg.MainButton.hide();
+                if (tg.BackButton) {
+                    tg.BackButton.hide();
+                }
+            }
+            
             // Reset game state
             gameState = 'playing';
             
@@ -1554,6 +1570,16 @@
                 console.error('Game over screen not found!');
             }
             
+            // Show Telegram buttons on game over
+            if (isTelegramApp && tg) {
+                tg.MainButton.setText('🔄 Играть снова');
+                tg.MainButton.show();
+                if (tg.BackButton && tg.isFullscreenSupported && tg.isFullscreenSupported()) {
+                    tg.BackButton.setText('📱 Обычный режим');
+                    tg.BackButton.show();
+                }
+            }
+            
             // Hide UI elements
             const scoreDisplay = document.getElementById('scoreDisplay');
             const highScoreDisplay = document.getElementById('highScoreDisplay');
@@ -1634,6 +1660,14 @@
                     }
                 }
                 
+                // Hide Telegram buttons during gameplay
+                if (isTelegramApp && tg) {
+                    tg.MainButton.hide();
+                    if (tg.BackButton) {
+                        tg.BackButton.hide();
+                    }
+                }
+                
                 // Force canvas clear and redraw
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
@@ -1662,6 +1696,16 @@
             // Stop background music
             if (backgroundMusic) {
                 backgroundMusic.stop();
+            }
+            
+            // Show Telegram buttons when returning to menu
+            if (isTelegramApp && tg) {
+                tg.MainButton.setText('🎮 Играть в Crypto Bird');
+                tg.MainButton.show();
+                if (tg.BackButton && tg.isFullscreenSupported && tg.isFullscreenSupported()) {
+                    tg.BackButton.setText('📱 Обычный режим');
+                    tg.BackButton.show();
+                }
             }
             
             // Hide game over screen
@@ -1757,6 +1801,14 @@
             const skinsScreen = document.getElementById('skinsScreen');
             skinsScreen.style.display = 'block';
             
+            // Hide Telegram buttons during skins screen
+            if (isTelegramApp && tg) {
+                tg.MainButton.hide();
+                if (tg.BackButton) {
+                    tg.BackButton.hide();
+                }
+            }
+            
             // Hide UI elements
             const scoreDisplay = document.getElementById('scoreDisplay');
             const highScoreDisplay = document.getElementById('highScoreDisplay');
@@ -1777,6 +1829,16 @@
             
             // Show menu
             document.getElementById('gameMenu').style.display = 'block';
+            
+            // Show Telegram buttons when returning to menu
+            if (isTelegramApp && tg) {
+                tg.MainButton.setText('🎮 Играть в Crypto Bird');
+                tg.MainButton.show();
+                if (tg.BackButton && tg.isFullscreenSupported && tg.isFullscreenSupported()) {
+                    tg.BackButton.setText('📱 Обычный режим');
+                    tg.BackButton.show();
+                }
+            }
         }
         
         // Load skins
