@@ -2193,7 +2193,7 @@
             }
             
             // Generate tokens more frequently along flight path (but not in pipes)
-            if (Math.random() < 0.015) { // Уменьшена частота генерации для 60 FPS
+            if (Math.random() < 0.01) { // Минимальная частота генерации для максимальной производительности
                 // Проверяем, что токен не появится в трубе
                 const tokenX = canvas.width + 50;
                 const birdLevel = bird.y + bird.height / 2;
@@ -2288,8 +2288,10 @@
                 ctx.fillStyle = '#0a0a0f';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
-                // Draw background grid
-                drawGrid();
+                // Draw background grid (only in menu for performance)
+                if (gameState === 'menu') {
+                    drawGrid();
+                }
                 
                 // Draw bird (even in menu state)
                 drawBird();
@@ -2313,12 +2315,18 @@
                     drawParticle(particle);
                 });
                 
-                // Draw FPS counter (only for debugging)
-                if (gameState === 'playing' && fps < 50) {
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                // Draw FPS counter (always show for debugging)
+                if (gameState === 'playing') {
+                    ctx.fillStyle = fps < 50 ? 'rgba(255, 100, 100, 0.8)' : 'rgba(255, 255, 255, 0.7)';
                     ctx.font = '12px Inter';
                     ctx.textAlign = 'left';
                     ctx.fillText(`FPS: ${fps}`, 10, 20);
+                    
+                    // Show performance tips if FPS is low
+                    if (fps < 50) {
+                        ctx.fillStyle = 'rgba(255, 100, 100, 0.8)';
+                        ctx.fillText('Low FPS detected', 10, 35);
+                    }
                 }
             } catch (error) {
                 console.error('Error in draw function:', error);
@@ -2328,19 +2336,19 @@
         // Draw grid background optimized for 60 FPS
         function drawGrid() {
             try {
-                // Упрощенная сетка для всех устройств для достижения 60 FPS
-                ctx.strokeStyle = 'rgba(0, 212, 255, 0.02)';
-                ctx.lineWidth = 0.5;
+                // Минимальная сетка для максимальной производительности
+                ctx.strokeStyle = 'rgba(0, 212, 255, 0.01)';
+                ctx.lineWidth = 0.3;
                 
-                // Меньше линий для лучшей производительности
-                for (let x = 0; x < canvas.width; x += 160) {
+                // Очень редкие линии для лучшей производительности
+                for (let x = 0; x < canvas.width; x += 240) {
                     ctx.beginPath();
                     ctx.moveTo(x, 0);
                     ctx.lineTo(x, canvas.height);
                     ctx.stroke();
                 }
                 
-                for (let y = 0; y < canvas.height; y += 160) {
+                for (let y = 0; y < canvas.height; y += 240) {
                     ctx.beginPath();
                     ctx.moveTo(0, y);
                     ctx.lineTo(canvas.width, y);
@@ -2376,12 +2384,13 @@
                 ctx.fill();
                 
                 // Bird glow optimized for 60 FPS
-                ctx.shadowColor = bird.color;
-                ctx.shadowBlur = 8; // Уменьшенное свечение для 60 FPS
-                ctx.beginPath();
-                ctx.arc(0, 0, bird.width / 2, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.shadowBlur = 0;
+                // Убрано свечение для максимальной производительности
+                // ctx.shadowColor = bird.color;
+                // ctx.shadowBlur = 8;
+                // ctx.beginPath();
+                // ctx.arc(0, 0, bird.width / 2, 0, Math.PI * 2);
+                // ctx.fill();
+                // ctx.shadowBlur = 0;
                 
                 // Bird eye
                 ctx.fillStyle = '#ffffff';
@@ -2411,7 +2420,7 @@
         // Draw crypto token with mobile optimization
         function drawToken(token) {
             // Пульсация токена с мобильной оптимизацией
-            const pulseScale = token.pulse ? 1 + Math.sin(token.pulse) * 0.1 : 1;
+            const pulseScale = token.pulse ? 1 + Math.sin(token.pulse) * 0.15 : 1; // Увеличена амплитуда пульсации
             const tokenSize = (token.width / 2) * pulseScale;
             
             // Token shadow
@@ -2421,20 +2430,39 @@
             ctx.fill();
             
             // Token glow optimized for 60 FPS
-            ctx.shadowColor = token.color;
-            ctx.shadowBlur = 8 + Math.sin(token.pulse || 0) * 2; // Уменьшенное свечение для 60 FPS
+            // Убрано свечение для максимальной производительности
+            // ctx.shadowColor = token.color;
+            // ctx.shadowBlur = 8 + Math.sin(token.pulse || 0) * 2;
             
-            // Token body
-            ctx.fillStyle = token.color;
+            // Token body with gradient
+            const gradient = ctx.createRadialGradient(
+                token.x + token.width / 2, token.y + token.height / 2, 0,
+                token.x + token.width / 2, token.y + token.height / 2, tokenSize
+            );
+            gradient.addColorStop(0, token.color);
+            gradient.addColorStop(1, '#ffffff');
+            
+            ctx.fillStyle = gradient;
             ctx.beginPath();
             ctx.arc(token.x + token.width / 2, token.y + token.height / 2, tokenSize, 0, Math.PI * 2);
             ctx.fill();
             
-            // Token symbol (используем символ из токена)
+            // Token border
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Token symbol (используем символ из токена) - увеличен размер
             ctx.fillStyle = '#ffffff';
-            ctx.font = `bold ${16 * pulseScale}px Inter`;
+            ctx.font = `bold ${20 * pulseScale}px Inter`; // Увеличен размер шрифта
             ctx.textAlign = 'center';
-            ctx.fillText(token.symbol || '₿', token.x + token.width / 2, token.y + token.height / 2 + 5);
+            ctx.fillText(token.symbol || '₿', token.x + token.width / 2, token.y + token.height / 2 + 6);
+            
+            // Добавляем дополнительный символ для разнообразия
+            if (token.symbol && token.symbol !== '₿') {
+                ctx.font = `bold ${14 * pulseScale}px Inter`;
+                ctx.fillText('₿', token.x + token.width / 2, token.y + token.height / 2 - 8);
+            }
             
             ctx.shadowBlur = 0;
         }
@@ -2448,7 +2476,7 @@
             ctx.globalAlpha = particle.life / 20;
             ctx.fillStyle = particle.color;
             ctx.beginPath();
-            ctx.arc(particle.x, particle.y, 1.5, 0, Math.PI * 2); // Уменьшенный размер для 60 FPS
+            ctx.arc(particle.x, particle.y, 1, 0, Math.PI * 2); // Минимальный размер для максимальной производительности
             ctx.fill();
             ctx.globalAlpha = 1;
         }
@@ -2467,17 +2495,18 @@
                 gradient.addColorStop(0.5, '#16213e');
                 gradient.addColorStop(1, '#0f3460');
                 
-                // Верхняя труба с оптимизированным свечением для 60 FPS
+                // Верхняя труба без свечения для максимальной производительности
                 ctx.fillStyle = gradient;
-                ctx.shadowColor = '#00d4ff';
-                ctx.shadowBlur = 3; // Уменьшенное свечение для 60 FPS
+                // Убрано свечение для максимальной производительности
+                // ctx.shadowColor = '#00d4ff';
+                // ctx.shadowBlur = 3;
                 ctx.fillRect(pipe.x, 0, pipe.width, pipe.topHeight);
                 
-                // Нижняя труба с оптимизированным свечением для 60 FPS
+                // Нижняя труба без свечения для максимальной производительности
                 ctx.fillRect(pipe.x, pipe.bottomY, pipe.width, canvas.height - pipe.bottomY);
                 
                 // Сброс свечения для градиентов
-                ctx.shadowBlur = 0;
+                // ctx.shadowBlur = 0;
                 
                 // Обводка труб в крипто-стиле - более заметная
                 ctx.strokeStyle = '#00d4ff';
@@ -2492,13 +2521,14 @@
                 capGradient.addColorStop(1, '#00d4ff');
                 
                 ctx.fillStyle = capGradient;
-                ctx.shadowColor = '#7c3aed';
-                ctx.shadowBlur = 6; // Уменьшенное свечение для 60 FPS
+                // Убрано свечение для максимальной производительности
+                // ctx.shadowColor = '#7c3aed';
+                // ctx.shadowBlur = 6;
                 ctx.fillRect(pipe.x - 5, pipe.topHeight - 20, pipe.width + 10, 20);
                 ctx.fillRect(pipe.x - 5, pipe.bottomY, pipe.width + 10, 20);
                 
                 // Сброс свечения для капителек
-                ctx.shadowBlur = 0;
+                // ctx.shadowBlur = 0;
                 
                 // Обводка капителек - более заметная
                 ctx.strokeStyle = '#00d4ff';
@@ -2506,35 +2536,35 @@
                 ctx.strokeRect(pipe.x - 5, pipe.topHeight - 20, pipe.width + 10, 20);
                 ctx.strokeRect(pipe.x - 5, pipe.bottomY, pipe.width + 10, 20);
                 
-                // Крипто-символы на капительках с свечением
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 12px Inter';
-                ctx.textAlign = 'center';
-                ctx.shadowColor = '#00d4ff';
-                ctx.shadowBlur = 8;
+                // Крипто-символы на капительках (убраны для производительности)
+                // ctx.fillStyle = '#ffffff';
+                // ctx.font = 'bold 12px Inter';
+                // ctx.textAlign = 'center';
+                // ctx.shadowColor = '#00d4ff';
+                // ctx.shadowBlur = 8;
                 
                 // Символы на верхней капительке
-                ctx.fillText('₿', pipe.x + pipe.width / 2, pipe.topHeight - 8);
-                ctx.fillText('Ξ', pipe.x + pipe.width / 2 - 15, pipe.topHeight - 8);
-                ctx.fillText('◈', pipe.x + pipe.width / 2 + 15, pipe.topHeight - 8);
+                // ctx.fillText('₿', pipe.x + pipe.width / 2, pipe.topHeight - 8);
+                // ctx.fillText('Ξ', pipe.x + pipe.width / 2 - 15, pipe.topHeight - 8);
+                // ctx.fillText('◈', pipe.x + pipe.width / 2 + 15, pipe.topHeight - 8);
                 
                 // Символы на нижней капительке
-                ctx.fillText('₿', pipe.x + pipe.width / 2, pipe.bottomY + 12);
-                ctx.fillText('Ξ', pipe.x + pipe.width / 2 - 15, pipe.bottomY + 12);
-                ctx.fillText('◈', pipe.x + pipe.width / 2 + 15, pipe.bottomY + 12);
+                // ctx.fillText('₿', pipe.x + pipe.width / 2, pipe.bottomY + 12);
+                // ctx.fillText('Ξ', pipe.x + pipe.width / 2 - 15, pipe.bottomY + 12);
+                // ctx.fillText('◈', pipe.x + pipe.width / 2 + 15, pipe.bottomY + 12);
                 
                 // Сброс свечения для текста
-                ctx.shadowBlur = 0;
+                // ctx.shadowBlur = 0;
                 
-                // Добавляем оптимизированное свечение для 60 FPS
-                ctx.shadowColor = '#00d4ff';
-                ctx.shadowBlur = 8; // Уменьшенное свечение для 60 FPS
+                // Добавляем обводку без свечения для максимальной производительности
+                // ctx.shadowColor = '#00d4ff';
+                // ctx.shadowBlur = 8;
                 ctx.strokeRect(pipe.x, 0, pipe.width, pipe.topHeight);
                 ctx.strokeRect(pipe.x, pipe.bottomY, pipe.width, canvas.height - pipe.bottomY);
                 
-                // Дополнительное свечение для капителек
-                ctx.shadowColor = '#7c3aed';
-                ctx.shadowBlur = 5; // Уменьшенное свечение для 60 FPS
+                // Дополнительная обводка для капителек без свечения
+                // ctx.shadowColor = '#7c3aed';
+                // ctx.shadowBlur = 5;
                 ctx.strokeRect(pipe.x - 5, pipe.topHeight - 20, pipe.width + 10, 20);
                 ctx.strokeRect(pipe.x - 5, pipe.bottomY, pipe.width + 10, 20);
                 
@@ -2557,7 +2587,7 @@
             // Токены появляются на уровне птицы, но справа от неё
             const tokenX = canvas.width + 50;
             
-            // Разнообразие криптомонет
+            // Разнообразие криптомонет с большим количеством символов
             const cryptoCoins = [
                 { symbol: '₿', name: 'Bitcoin', color: '#f7931a' },
                 { symbol: 'Ξ', name: 'Ethereum', color: '#627eea' },
@@ -2566,7 +2596,15 @@
                 { symbol: '◆', name: 'Token', color: '#06b6d4' },
                 { symbol: '●', name: 'Coin', color: '#10b981' },
                 { symbol: '★', name: 'Star', color: '#f59e0b' },
-                { symbol: '♦', name: 'Gem', color: '#ec4899' }
+                { symbol: '♦', name: 'Gem', color: '#ec4899' },
+                { symbol: '⚡', name: 'Lightning', color: '#ffd700' },
+                { symbol: '💎', name: 'Crystal', color: '#8b5cf6' },
+                { symbol: '🔥', name: 'Fire', color: '#ef4444' },
+                { symbol: '⭐', name: 'Sparkle', color: '#f97316' },
+                { symbol: '🌙', name: 'Moon', color: '#06b6d4' },
+                { symbol: '🚀', name: 'Rocket', color: '#ec4899' },
+                { symbol: '⚔️', name: 'Sword', color: '#10b981' },
+                { symbol: '🛡️', name: 'Shield', color: '#8b5cf6' }
             ];
             
             const randomCoin = cryptoCoins[Math.floor(Math.random() * cryptoCoins.length)];
@@ -2574,15 +2612,16 @@
             tokens.push({
                 x: tokenX,
                 y: tokenY,
-                width: 25,
-                height: 25,
+                width: 35, // Увеличены размеры токенов
+                height: 35, // Увеличены размеры токенов
                 color: randomCoin.color,
                 symbol: randomCoin.symbol,
-                name: randomCoin.name
+                name: randomCoin.name,
+                pulse: Date.now() * 0.005 // Добавляем анимацию пульсации
             });
             
             // Ограничиваем количество токенов для производительности
-            if (tokens.length > 4) {
+            if (tokens.length > 2) {
                 tokens.shift(); // Удаляем самый старый токен
             }
         }
@@ -2608,7 +2647,7 @@
                 pipes.push(newPipe);
                 
                 // Ограничиваем количество труб для производительности
-                if (pipes.length > 6) {
+                if (pipes.length > 4) {
                     pipes.shift(); // Удаляем самую старую трубу
                 }
                 
@@ -2645,15 +2684,15 @@
         
         // Create token particles optimized for 60 FPS
         function createTokenParticles(x, y, tokenColor = '#f59e0b') {
-            const particleCount = 6; // Оптимальное количество частиц для 60 FPS
+            const particleCount = 3; // Минимальное количество частиц для максимальной производительности
             
             for (let i = 0; i < particleCount; i++) {
                 particles.push({
-                    x: x + 12,
-                    y: y + 12,
-                    vx: (Math.random() - 0.5) * 6,
-                    vy: (Math.random() - 0.5) * 6,
-                    life: 18, // Оптимальное время жизни для 60 FPS
+                    x: x + 17, // Обновлено для увеличенных токенов
+                    y: y + 17, // Обновлено для увеличенных токенов
+                    vx: (Math.random() - 0.5) * 4,
+                    vy: (Math.random() - 0.5) * 4,
+                    life: 12, // Минимальное время жизни для максимальной производительности
                     color: tokenColor
                 });
             }
@@ -2668,21 +2707,31 @@
         function toggleFullscreen() {
             if (isTelegramApp && tg) {
                 try {
+                    console.log('Attempting to toggle fullscreen...');
+                    console.log('tg.isFullscreenSupported:', typeof tg.isFullscreenSupported);
+                    console.log('tg.isFullscreen:', typeof tg.isFullscreen);
+                    
                     // Проверяем поддержку полноэкранного режима
-                    if (tg.isFullscreenSupported && typeof tg.isFullscreenSupported === 'function' && tg.isFullscreenSupported()) {
-                        if (tg.isFullscreen && typeof tg.isFullscreen === 'function' && tg.isFullscreen()) {
+                    if (typeof tg.isFullscreenSupported === 'function' && tg.isFullscreenSupported()) {
+                        console.log('Fullscreen is supported');
+                        
+                        if (typeof tg.isFullscreen === 'function' && tg.isFullscreen()) {
+                            console.log('Currently in fullscreen, exiting...');
                             tg.exitFullscreen();
                             updateFullscreenButton('📱 Полноэкранный режим');
                             document.body.classList.remove('fullscreen-mode');
                             console.log('Exited fullscreen mode');
                         } else {
+                            console.log('Currently not in fullscreen, entering...');
                             tg.enableFullscreen();
                             updateFullscreenButton('📱 Обычный режим');
                             document.body.classList.add('fullscreen-mode');
                             console.log('Entered fullscreen mode');
                         }
                     } else {
-                        console.log('Fullscreen not supported - isFullscreenSupported:', tg.isFullscreenSupported);
+                        console.log('Fullscreen not supported');
+                        console.log('tg.isFullscreenSupported type:', typeof tg.isFullscreenSupported);
+                        console.log('tg.isFullscreenSupported value:', tg.isFullscreenSupported);
                         alert('Полноэкранный режим не поддерживается в вашей версии Telegram');
                     }
                 } catch (error) {
@@ -2690,6 +2739,7 @@
                     alert('Ошибка переключения полноэкранного режима: ' + error.message);
                 }
             } else {
+                console.log('Not in Telegram app');
                 alert('Полноэкранный режим доступен только в Telegram Mini App');
             }
         }
