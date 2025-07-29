@@ -1076,8 +1076,8 @@
         let score = 0;
         let highScore = localStorage.getItem('cryptoBirdHighScore') || 0;
         let gameSpeed = 12; // Увеличена начальная скорость игры в 2 раза
-        let gravity = 0.5; // Увеличена гравитация для более быстрого падения
-        let jumpForce = -7; // Увеличена сила прыжка для лучшего контроля
+        let gravity = 0.7; // Увеличена гравитация для более быстрого падения
+        let jumpForce = -8; // Увеличена сила прыжка для лучшего контроля
         
         // Skins system
         let currentSkin = localStorage.getItem('cryptoBirdSkin') || 'default';
@@ -1335,13 +1335,13 @@
         function adjustPhysicsForDevice() {
             if (isMobile) {
                 // Оптимизированная физика для мобильных устройств
-                gravity = 0.35; // Уменьшена гравитация для более плавного падения
-                jumpForce = -5.8; // Оптимизирована сила прыжка для мобильных
+                gravity = 0.6; // Увеличена гравитация для более быстрого падения
+                jumpForce = -7.2; // Увеличена сила прыжка для мобильных
                 console.log('Mobile physics applied: gravity =', gravity, 'jumpForce =', jumpForce);
             } else {
                 // Физика для десктопа
-                gravity = 0.45; // Стандартная гравитация
-                jumpForce = -6.5; // Стандартная сила прыжка
+                gravity = 0.7; // Увеличена гравитация для более быстрого падения
+                jumpForce = -8.5; // Увеличена сила прыжка для десктопа
                 console.log('Desktop physics applied: gravity =', gravity, 'jumpForce =', jumpForce);
             }
         }
@@ -2107,7 +2107,7 @@
             bird.velocity += gravity;
             
             // Ограничиваем максимальную скорость падения
-            const maxFallSpeed = isMobile ? 6 : 8; // Меньшая скорость для мобильных
+            const maxFallSpeed = isMobile ? 9 : 12; // Увеличена максимальная скорость падения
             if (bird.velocity > maxFallSpeed) {
                 bird.velocity = maxFallSpeed;
             }
@@ -2233,7 +2233,7 @@
             updateScore();
             
             // Increase game speed gradually
-            gameSpeed += 0.004; // Увеличена скорость роста сложности
+            gameSpeed += 0.006; // Увеличена скорость роста сложности
         }
         
         // Draw game
