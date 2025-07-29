@@ -95,6 +95,26 @@
             overflow: hidden;
             background: var(--game-bg);
         }
+        
+        /* Fullscreen styles */
+        .fullscreen-mode {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 9999 !important;
+        }
+        
+        .fullscreen-mode #gameUI {
+            z-index: 10000 !important;
+        }
+        
+        .fullscreen-mode #gameMenu,
+        .fullscreen-mode #gameOverScreen,
+        .fullscreen-mode #skinsScreen {
+            z-index: 10001 !important;
+        }
 
         /* Game Canvas */
         #gameCanvas {
@@ -762,6 +782,7 @@
             <button class="game-btn" onclick="showSkins()">🎨 Скины</button>
             <button class="game-btn" onclick="showRules()">📖 Правила</button>
             <button class="game-btn" onclick="showLeaderboard()">🏆 Таблица лидеров</button>
+            <button class="game-btn" onclick="toggleFullscreen()" id="fullscreenBtn" style="background: var(--game-secondary);">📱 Полноэкранный режим</button>
             <button class="game-btn" onclick="debugGame()" style="background: var(--game-warning);">🐛 Отладка</button>
         </div>
         
@@ -853,11 +874,55 @@
                     tg.expand();
                     tg.setHeaderColor('#00d4ff');
                     tg.setBackgroundColor('#0a0a0f');
-                    tg.MainButton.setText('🎮 Играть в Crypto Bird');
-                    tg.MainButton.show();
-                    tg.MainButton.onClick(function() {
-                        startGame();
-                    });
+                    
+                    // Check if fullscreen mode is available (Mini App 2.0)
+                    if (tg.isFullscreenSupported && tg.isFullscreenSupported()) {
+                        console.log('✅ Fullscreen mode supported');
+                        // Enable fullscreen mode
+                        tg.enableFullscreen();
+                        
+                        // Add fullscreen toggle button
+                        tg.MainButton.setText('🎮 Играть в Crypto Bird');
+                        tg.MainButton.show();
+                        tg.MainButton.onClick(function() {
+                            startGame();
+                        });
+                        
+                        // Add fullscreen toggle functionality
+                        tg.BackButton.setText('📱 Обычный режим');
+                        tg.BackButton.show();
+                        tg.BackButton.onClick(function() {
+                            if (tg.isFullscreen()) {
+                                tg.exitFullscreen();
+                                tg.BackButton.setText('📱 Обычный режим');
+                                document.body.classList.remove('fullscreen-mode');
+                                updateFullscreenButton('📱 Полноэкранный режим');
+                            } else {
+                                tg.enableFullscreen();
+                                tg.BackButton.setText('📱 Обычный режим');
+                                document.body.classList.add('fullscreen-mode');
+                                updateFullscreenButton('📱 Обычный режим');
+                            }
+                        });
+                        
+                        // Listen for fullscreen state changes
+                        tg.onEvent('viewportChanged', function() {
+                            if (tg.isFullscreen && tg.isFullscreen()) {
+                                document.body.classList.add('fullscreen-mode');
+                                updateFullscreenButton('📱 Обычный режим');
+                            } else {
+                                document.body.classList.remove('fullscreen-mode');
+                                updateFullscreenButton('📱 Полноэкранный режим');
+                            }
+                        });
+                    } else {
+                        console.log('⚠️ Fullscreen mode not supported, using standard mode');
+                        tg.MainButton.setText('🎮 Играть в Crypto Bird');
+                        tg.MainButton.show();
+                        tg.MainButton.onClick(function() {
+                            startGame();
+                        });
+                    }
                     
                     console.log('✅ Telegram Web App initialized successfully');
                 } else {
@@ -1176,19 +1241,46 @@
             window.addEventListener('resize', function() {
                 resizeCanvas();
                 updateBirdCenter(); // Обновляем центр при изменении размера окна
+                
+                // Update fullscreen button if in Telegram
+                if (isTelegramApp && tg && tg.isFullscreenSupported && tg.isFullscreenSupported()) {
+                    if (tg.isFullscreen && tg.isFullscreen()) {
+                        updateFullscreenButton('📱 Обычный режим');
+                    } else {
+                        updateFullscreenButton('📱 Полноэкранный режим');
+                    }
+                }
             });
             
             // Initialize Telegram Web App
             initTelegramApp();
             
+            // Update fullscreen button based on current state
+            if (isTelegramApp && tg && tg.isFullscreenSupported && tg.isFullscreenSupported()) {
+                if (tg.isFullscreen && tg.isFullscreen()) {
+                    updateFullscreenButton('📱 Обычный режим');
+                    document.body.classList.add('fullscreen-mode');
+                } else {
+                    updateFullscreenButton('📱 Полноэкранный режим');
+                    document.body.classList.remove('fullscreen-mode');
+                }
+            }
+            
             // Update mode indicator
             const modeIndicator = document.getElementById('modeIndicator');
             if (modeIndicator) {
                 if (isTelegramApp) {
-                    modeIndicator.textContent = '📱 Telegram режим';
-                    modeIndicator.style.background = 'rgba(16, 185, 129, 0.1)';
-                    modeIndicator.style.borderColor = '#10b981';
-                    modeIndicator.style.color = '#10b981';
+                    if (tg && tg.isFullscreenSupported && tg.isFullscreenSupported()) {
+                        modeIndicator.textContent = '📱 Telegram Fullscreen';
+                        modeIndicator.style.background = 'rgba(236, 72, 153, 0.1)';
+                        modeIndicator.style.borderColor = '#ec4899';
+                        modeIndicator.style.color = '#ec4899';
+                    } else {
+                        modeIndicator.textContent = '📱 Telegram режим';
+                        modeIndicator.style.background = 'rgba(16, 185, 129, 0.1)';
+                        modeIndicator.style.borderColor = '#10b981';
+                        modeIndicator.style.color = '#10b981';
+                    }
                 } else {
                     modeIndicator.textContent = '🌐 Браузерный режим';
                     modeIndicator.style.background = 'rgba(0, 212, 255, 0.1)';
@@ -1347,6 +1439,20 @@
             if (!canvas || !ctx) {
                 console.error('Canvas not available for game start');
                 return;
+            }
+            
+            // Auto-enable fullscreen in Telegram if supported
+            if (isTelegramApp && tg && tg.isFullscreenSupported && tg.isFullscreenSupported()) {
+                if (!tg.isFullscreen || !tg.isFullscreen()) {
+                    try {
+                        tg.enableFullscreen();
+                        document.body.classList.add('fullscreen-mode');
+                        updateFullscreenButton('📱 Обычный режим');
+                        console.log('Auto-enabled fullscreen mode for game');
+                    } catch (error) {
+                        console.log('Could not auto-enable fullscreen:', error);
+                    }
+                }
             }
             
             // Reset game state
@@ -2176,9 +2282,46 @@
             document.getElementById('scoreValue').textContent = score;
         }
         
+        // Toggle fullscreen mode
+        function toggleFullscreen() {
+            if (isTelegramApp && tg) {
+                try {
+                    if (tg.isFullscreenSupported && tg.isFullscreenSupported()) {
+                        if (tg.isFullscreen && tg.isFullscreen()) {
+                            tg.exitFullscreen();
+                            updateFullscreenButton('📱 Полноэкранный режим');
+                            document.body.classList.remove('fullscreen-mode');
+                            console.log('Exited fullscreen mode');
+                        } else {
+                            tg.enableFullscreen();
+                            updateFullscreenButton('📱 Обычный режим');
+                            document.body.classList.add('fullscreen-mode');
+                            console.log('Entered fullscreen mode');
+                        }
+                    } else {
+                        alert('Полноэкранный режим не поддерживается в вашей версии Telegram');
+                    }
+                } catch (error) {
+                    console.error('Error toggling fullscreen:', error);
+                    alert('Ошибка переключения полноэкранного режима');
+                }
+            } else {
+                alert('Полноэкранный режим доступен только в Telegram Mini App');
+            }
+        }
+        
+        // Update fullscreen button text
+        function updateFullscreenButton(text) {
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            if (fullscreenBtn) {
+                fullscreenBtn.textContent = text;
+            }
+        }
+        
         // Export functions to global scope for HTML onclick (after all functions are defined)
         window.restartGame = restartGame;
         window.showMenu = showMenu;
+        window.toggleFullscreen = toggleFullscreen;
         
         // Global debug function
         window.debugGame = function() {
@@ -2192,6 +2335,15 @@
             console.log('Music Enabled:', musicEnabled);
             console.log('Bird position:', bird.x, bird.y);
             console.log('Canvas dimensions:', canvas ? canvas.width + 'x' + canvas.height : 'N/A');
+            
+            // Fullscreen debug info
+            if (isTelegramApp && tg) {
+                console.log('Telegram Web App:', tg);
+                console.log('Fullscreen Supported:', tg.isFullscreenSupported ? tg.isFullscreenSupported() : 'Not available');
+                console.log('Is Fullscreen:', tg.isFullscreen ? tg.isFullscreen() : 'Not available');
+                console.log('Viewport Info:', tg.viewportHeight, 'x', tg.viewportWidth);
+            }
+            
             console.log('=============================');
         };
         
