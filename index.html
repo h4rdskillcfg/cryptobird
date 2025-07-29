@@ -778,6 +778,7 @@
                 <div id="modeIndicator" class="mode-indicator">🌐 Браузерный режим</div>
             </div>
             <p>Помогите крипто-птице пролететь через рыночные препятствия!</p>
+            <button class="game-btn" onclick="startGame()" style="background: var(--game-primary);">🎮 Играть</button>
             <button class="game-btn" onclick="showSkins()">🎨 Скины</button>
             <button class="game-btn" onclick="showRules()">📖 Правила</button>
             <button class="game-btn" onclick="showLeaderboard()">🏆 Таблица лидеров</button>
@@ -882,7 +883,7 @@
                         
                                                                     // Add fullscreen toggle button
                         tg.MainButton.setText('🎮 Играть в Crypto Bird');
-                        tg.MainButton.hide(); // Скрываем кнопку в меню
+                        tg.MainButton.show(); // Показываем кнопку в меню
                         tg.MainButton.onClick(function() {
                             if (gameState === 'menu') {
                                 startGame();
@@ -921,7 +922,7 @@
                     } else {
                         console.log('⚠️ Fullscreen mode not supported, using standard mode');
                         tg.MainButton.setText('🎮 Играть в Crypto Bird');
-                        tg.MainButton.hide(); // Скрываем кнопку в меню
+                        tg.MainButton.show(); // Показываем кнопку в меню
                         tg.MainButton.onClick(function() {
                             if (gameState === 'menu') {
                                 startGame();
@@ -948,8 +949,8 @@
         let score = 0;
         let highScore = localStorage.getItem('cryptoBirdHighScore') || 0;
         let gameSpeed = 12; // Увеличена начальная скорость игры в 2 раза
-        let gravity = 0.3; // Уменьшена гравитация для более плавного падения
-        let jumpForce = -6; // Уменьшена сила прыжка для более контролируемого движения
+        let gravity = 0.5; // Увеличена гравитация для более быстрого падения
+        let jumpForce = -7; // Увеличена сила прыжка для лучшего контроля
         
         // Skins system
         let currentSkin = localStorage.getItem('cryptoBirdSkin') || 'default';
@@ -1044,7 +1045,7 @@
         
         // Game settings
         let lastPipeX = 800;
-        let pipeGap = 200; // Уменьшено расстояние между верхней и нижней трубой
+        let pipeGap = 220; // Увеличено расстояние между верхней и нижней трубой для лучшего баланса
         let pipeWidth = 80; // Ширина трубы
         
         // Initialize Telegram Web App
@@ -1203,10 +1204,10 @@
         
         // Function to adjust physics based on device
         function adjustPhysicsForDevice() {
-            // Унифицированная физика для всех устройств
-            gravity = 0.2;
-            jumpForce = -5.5;
-            console.log('Unified physics applied: gravity =', gravity, 'jumpForce =', jumpForce);
+            // Сбалансированная физика для всех устройств
+            gravity = 0.45; // Увеличена гравитация для более быстрого падения
+            jumpForce = -6.5; // Увеличена сила прыжка для лучшего контроля
+            console.log('Balanced physics applied: gravity =', gravity, 'jumpForce =', jumpForce);
         }
         
         // Function to update bird position to left of center
@@ -1700,7 +1701,7 @@
             // Show Telegram buttons when returning to menu
             if (isTelegramApp && tg) {
                 tg.MainButton.setText('🎮 Играть в Crypto Bird');
-                tg.MainButton.hide(); // Скрываем кнопку в меню
+                tg.MainButton.show(); // Показываем кнопку в меню
                 if (tg.BackButton && tg.isFullscreenSupported && tg.isFullscreenSupported()) {
                     tg.BackButton.setText('📱 Обычный режим');
                     tg.BackButton.show();
@@ -1832,7 +1833,7 @@
             // Show Telegram buttons when returning to menu
             if (isTelegramApp && tg) {
                 tg.MainButton.setText('🎮 Играть в Crypto Bird');
-                tg.MainButton.hide(); // Скрываем кнопку в меню
+                tg.MainButton.show(); // Показываем кнопку в меню
                 if (tg.BackButton && tg.isFullscreenSupported && tg.isFullscreenSupported()) {
                     tg.BackButton.setText('📱 Обычный режим');
                     tg.BackButton.show();
@@ -1941,7 +1942,7 @@
             bird.velocity += gravity;
             
             // Ограничиваем максимальную скорость падения
-            const maxFallSpeed = 6; // Унифицированная скорость падения
+            const maxFallSpeed = 8; // Увеличена максимальная скорость падения
             if (bird.velocity > maxFallSpeed) {
                 bird.velocity = maxFallSpeed;
             }
@@ -1984,7 +1985,7 @@
             }
             
             // Generate pipes less frequently
-            if (pipes.length === 0 || pipes[pipes.length - 1].x < canvas.width - 800) {
+            if (pipes.length === 0 || pipes[pipes.length - 1].x < canvas.width - 700) {
                 generatePipe();
             }
             
@@ -2042,7 +2043,7 @@
             updateScore();
             
             // Increase game speed gradually
-            gameSpeed += 0.003; // Увеличена скорость роста сложности
+            gameSpeed += 0.004; // Увеличена скорость роста сложности
         }
         
         // Draw game
