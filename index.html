@@ -1079,6 +1079,14 @@
         let gravity = 0.7; // Увеличена гравитация для более быстрого падения
         let jumpForce = -8; // Увеличена сила прыжка для лучшего контроля
         
+        // FPS оптимизация для мобильных устройств
+        let fps = 0;
+        let frameCount = 0;
+        let lastTime = 0;
+        let targetFPS = 60; // Целевой FPS 60 для всех устройств
+        let frameInterval = 1000 / targetFPS;
+        let lastFrameTime = 0;
+        
         // Skins system
         let currentSkin = localStorage.getItem('cryptoBirdSkin') || 'default';
         let skins = [
@@ -2083,8 +2091,8 @@
         window.toggleSound = toggleSound;
         window.toggleMusic = toggleMusic;
 
-        // Game loop with performance optimization
-        function gameLoop() {
+        // Game loop with FPS optimization for mobile
+        function gameLoop(currentTime) {
             if (gameState !== 'playing') {
                 console.log('Game loop stopped - gameState:', gameState);
                 return;
@@ -2095,9 +2103,29 @@
                 return;
             }
             
+            // FPS контроль для всех устройств (убрано ограничение для мобильных)
+            if (currentTime - lastFrameTime < frameInterval) {
+                requestAnimationFrame(gameLoop);
+                return;
+            }
+            
+            // Обновление FPS счетчика
+            frameCount++;
+            if (currentTime - lastTime >= 1000) {
+                fps = frameCount;
+                frameCount = 0;
+                lastTime = currentTime;
+                
+                // Логируем FPS каждые 5 секунд
+                if (fps % 5 === 0) {
+                    console.log('Current FPS:', fps);
+                }
+            }
+            
             try {
                 update();
                 draw();
+                lastFrameTime = currentTime;
             } catch (error) {
                 console.error('Error in game loop:', error);
             }
@@ -2165,7 +2193,7 @@
             }
             
             // Generate tokens more frequently along flight path (but not in pipes)
-            if (Math.random() < 0.02) { // Уменьшена частота генерации
+            if (Math.random() < 0.015) { // Уменьшена частота генерации для 60 FPS
                 // Проверяем, что токен не появится в трубе
                 const tokenX = canvas.width + 50;
                 const birdLevel = bird.y + bird.height / 2;
@@ -2256,8 +2284,8 @@
                     return;
                 }
                 
-                // Clear canvas completely
-                ctx.fillStyle = 'rgba(10, 10, 15, 1)';
+                // Clear canvas completely optimized for 60 FPS
+                ctx.fillStyle = '#0a0a0f';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
                 // Draw background grid
@@ -2284,25 +2312,35 @@
                 particles.forEach(particle => {
                     drawParticle(particle);
                 });
+                
+                // Draw FPS counter (only for debugging)
+                if (gameState === 'playing' && fps < 50) {
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                    ctx.font = '12px Inter';
+                    ctx.textAlign = 'left';
+                    ctx.fillText(`FPS: ${fps}`, 10, 20);
+                }
             } catch (error) {
                 console.error('Error in draw function:', error);
             }
         }
         
-        // Draw grid background
+        // Draw grid background optimized for 60 FPS
         function drawGrid() {
             try {
-                ctx.strokeStyle = 'rgba(0, 212, 255, 0.05)';
-                ctx.lineWidth = 1;
+                // Упрощенная сетка для всех устройств для достижения 60 FPS
+                ctx.strokeStyle = 'rgba(0, 212, 255, 0.02)';
+                ctx.lineWidth = 0.5;
                 
-                for (let x = 0; x < canvas.width; x += 80) {
+                // Меньше линий для лучшей производительности
+                for (let x = 0; x < canvas.width; x += 160) {
                     ctx.beginPath();
                     ctx.moveTo(x, 0);
                     ctx.lineTo(x, canvas.height);
                     ctx.stroke();
                 }
                 
-                for (let y = 0; y < canvas.height; y += 80) {
+                for (let y = 0; y < canvas.height; y += 160) {
                     ctx.beginPath();
                     ctx.moveTo(0, y);
                     ctx.lineTo(canvas.width, y);
@@ -2337,9 +2375,9 @@
                 ctx.arc(0, 0, bird.width / 2, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // Bird glow
+                // Bird glow optimized for 60 FPS
                 ctx.shadowColor = bird.color;
-                ctx.shadowBlur = 20;
+                ctx.shadowBlur = 8; // Уменьшенное свечение для 60 FPS
                 ctx.beginPath();
                 ctx.arc(0, 0, bird.width / 2, 0, Math.PI * 2);
                 ctx.fill();
@@ -2370,9 +2408,9 @@
             }
         }
         
-        // Draw crypto token
+        // Draw crypto token with mobile optimization
         function drawToken(token) {
-            // Пульсация токена
+            // Пульсация токена с мобильной оптимизацией
             const pulseScale = token.pulse ? 1 + Math.sin(token.pulse) * 0.1 : 1;
             const tokenSize = (token.width / 2) * pulseScale;
             
@@ -2382,9 +2420,9 @@
             ctx.arc(token.x + token.width / 2 + 2, token.y + token.height / 2 + 2, tokenSize, 0, Math.PI * 2);
             ctx.fill();
             
-            // Token glow
+            // Token glow optimized for 60 FPS
             ctx.shadowColor = token.color;
-            ctx.shadowBlur = 20 + Math.sin(token.pulse || 0) * 5;
+            ctx.shadowBlur = 8 + Math.sin(token.pulse || 0) * 2; // Уменьшенное свечение для 60 FPS
             
             // Token body
             ctx.fillStyle = token.color;
@@ -2401,12 +2439,16 @@
             ctx.shadowBlur = 0;
         }
         
-        // Draw particle
+        // Draw particle optimized for 60 FPS
         function drawParticle(particle) {
+            if (particle.life < 3) {
+                return; // Пропускаем частицы с малым временем жизни для 60 FPS
+            }
+            
             ctx.globalAlpha = particle.life / 20;
             ctx.fillStyle = particle.color;
             ctx.beginPath();
-            ctx.arc(particle.x, particle.y, 2, 0, Math.PI * 2);
+            ctx.arc(particle.x, particle.y, 1.5, 0, Math.PI * 2); // Уменьшенный размер для 60 FPS
             ctx.fill();
             ctx.globalAlpha = 1;
         }
@@ -2425,13 +2467,13 @@
                 gradient.addColorStop(0.5, '#16213e');
                 gradient.addColorStop(1, '#0f3460');
                 
-                // Верхняя труба с внутренним свечением
+                // Верхняя труба с оптимизированным свечением для 60 FPS
                 ctx.fillStyle = gradient;
                 ctx.shadowColor = '#00d4ff';
-                ctx.shadowBlur = 8;
+                ctx.shadowBlur = 3; // Уменьшенное свечение для 60 FPS
                 ctx.fillRect(pipe.x, 0, pipe.width, pipe.topHeight);
                 
-                // Нижняя труба с внутренним свечением
+                // Нижняя труба с оптимизированным свечением для 60 FPS
                 ctx.fillRect(pipe.x, pipe.bottomY, pipe.width, canvas.height - pipe.bottomY);
                 
                 // Сброс свечения для градиентов
@@ -2451,7 +2493,7 @@
                 
                 ctx.fillStyle = capGradient;
                 ctx.shadowColor = '#7c3aed';
-                ctx.shadowBlur = 12;
+                ctx.shadowBlur = 6; // Уменьшенное свечение для 60 FPS
                 ctx.fillRect(pipe.x - 5, pipe.topHeight - 20, pipe.width + 10, 20);
                 ctx.fillRect(pipe.x - 5, pipe.bottomY, pipe.width + 10, 20);
                 
@@ -2484,15 +2526,15 @@
                 // Сброс свечения для текста
                 ctx.shadowBlur = 0;
                 
-                // Добавляем усиленное свечение
+                // Добавляем оптимизированное свечение для 60 FPS
                 ctx.shadowColor = '#00d4ff';
-                ctx.shadowBlur = 20; // Увеличено свечение
+                ctx.shadowBlur = 8; // Уменьшенное свечение для 60 FPS
                 ctx.strokeRect(pipe.x, 0, pipe.width, pipe.topHeight);
                 ctx.strokeRect(pipe.x, pipe.bottomY, pipe.width, canvas.height - pipe.bottomY);
                 
                 // Дополнительное свечение для капителек
                 ctx.shadowColor = '#7c3aed';
-                ctx.shadowBlur = 15;
+                ctx.shadowBlur = 5; // Уменьшенное свечение для 60 FPS
                 ctx.strokeRect(pipe.x - 5, pipe.topHeight - 20, pipe.width + 10, 20);
                 ctx.strokeRect(pipe.x - 5, pipe.bottomY, pipe.width + 10, 20);
                 
@@ -2540,7 +2582,7 @@
             });
             
             // Ограничиваем количество токенов для производительности
-            if (tokens.length > 6) {
+            if (tokens.length > 4) {
                 tokens.shift(); // Удаляем самый старый токен
             }
         }
@@ -2566,7 +2608,7 @@
                 pipes.push(newPipe);
                 
                 // Ограничиваем количество труб для производительности
-                if (pipes.length > 8) {
+                if (pipes.length > 6) {
                     pipes.shift(); // Удаляем самую старую трубу
                 }
                 
@@ -2601,15 +2643,17 @@
             return false;
         }
         
-        // Create token particles
+        // Create token particles optimized for 60 FPS
         function createTokenParticles(x, y, tokenColor = '#f59e0b') {
-            for (let i = 0; i < 10; i++) {
+            const particleCount = 6; // Оптимальное количество частиц для 60 FPS
+            
+            for (let i = 0; i < particleCount; i++) {
                 particles.push({
                     x: x + 12,
                     y: y + 12,
-                    vx: (Math.random() - 0.5) * 8,
-                    vy: (Math.random() - 0.5) * 8,
-                    life: 30,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: (Math.random() - 0.5) * 6,
+                    life: 18, // Оптимальное время жизни для 60 FPS
                     color: tokenColor
                 });
             }
