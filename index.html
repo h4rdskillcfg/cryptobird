@@ -2083,7 +2083,7 @@
         window.toggleSound = toggleSound;
         window.toggleMusic = toggleMusic;
 
-        // Game loop
+        // Game loop with performance optimization
         function gameLoop() {
             if (gameState !== 'playing') {
                 console.log('Game loop stopped - gameState:', gameState);
@@ -2095,42 +2095,50 @@
                 return;
             }
             
-            update();
-            draw();
+            try {
+                update();
+                draw();
+            } catch (error) {
+                console.error('Error in game loop:', error);
+            }
             
             requestAnimationFrame(gameLoop);
         }
         
-        // Update game state
+        // Update game state with performance optimization
         function update() {
-            // Update bird
-            bird.velocity += gravity;
-            
-            // Ограничиваем максимальную скорость падения
-            const maxFallSpeed = isMobile ? 9 : 12; // Увеличена максимальная скорость падения
-            if (bird.velocity > maxFallSpeed) {
-                bird.velocity = maxFallSpeed;
-            }
-            
-            // Птица остается в центре, без горизонтального движения при падении
-            // Ограничиваем движение по горизонтали - птица всегда по центру
-            if (bird.x > bird.maxX) {
-                bird.x = bird.maxX;
-            }
-            if (bird.x < bird.minX) {
-                bird.x = bird.minX;
-            }
-            
-            bird.y += bird.velocity;
-            
-            // Check bird boundaries
-            if (bird.y < 0) {
-                bird.y = 0;
-                bird.velocity = 0;
-            }
-            if (bird.y + bird.height > canvas.height) {
-                gameOver();
-                return;
+            try {
+                // Update bird
+                bird.velocity += gravity;
+                
+                // Ограничиваем максимальную скорость падения
+                const maxFallSpeed = isMobile ? 9 : 12; // Увеличена максимальная скорость падения
+                if (bird.velocity > maxFallSpeed) {
+                    bird.velocity = maxFallSpeed;
+                }
+                
+                // Птица остается в центре, без горизонтального движения при падении
+                // Ограничиваем движение по горизонтали - птица всегда по центру
+                if (bird.x > bird.maxX) {
+                    bird.x = bird.maxX;
+                }
+                if (bird.x < bird.minX) {
+                    bird.x = bird.minX;
+                }
+                
+                bird.y += bird.velocity;
+                
+                // Check bird boundaries
+                if (bird.y < 0) {
+                    bird.y = 0;
+                    bird.velocity = 0;
+                }
+                if (bird.y + bird.height > canvas.height) {
+                    gameOver();
+                    return;
+                }
+            } catch (error) {
+                console.error('Error in update function:', error);
             }
             
             // Update particles
@@ -2146,13 +2154,18 @@
                 }
             }
             
-            // Generate pipes less frequently
-            if (pipes.length === 0 || pipes[pipes.length - 1].x < canvas.width - 700) {
-                generatePipe();
+            // Generate pipes less frequently with performance optimization
+            if (pipes.length === 0 || (pipes[pipes.length - 1] && pipes[pipes.length - 1].x < canvas.width - 600)) {
+                // Добавляем небольшую задержку для предотвращения фризов
+                setTimeout(() => {
+                    if (gameState === 'playing') {
+                        generatePipe();
+                    }
+                }, 0);
             }
             
             // Generate tokens more frequently along flight path (but not in pipes)
-            if (Math.random() < 0.03) {
+            if (Math.random() < 0.02) { // Уменьшена частота генерации
                 // Проверяем, что токен не появится в трубе
                 const tokenX = canvas.width + 50;
                 const birdLevel = bird.y + bird.height / 2;
@@ -2160,13 +2173,12 @@
                 const tokenY = Math.max(50, Math.min(canvas.height - 75, 
                     birdLevel + (Math.random() - 0.5) * variation));
                 
-                // Проверяем, не пересекается ли токен с трубами
+                // Проверяем, не пересекается ли токен с трубами (упрощенная проверка)
                 let canGenerate = true;
-                for (let pipe of pipes) {
+                for (let i = 0; i < Math.min(pipes.length, 3); i++) { // Проверяем только ближайшие 3 трубы
+                    const pipe = pipes[i];
                     if (tokenX < pipe.x + pipe.width + 100 && tokenX > pipe.x - 100) {
-                        // Если токен в зоне трубы, проверяем вертикальную позицию
                         if (tokenY < pipe.topHeight - 30 || tokenY > pipe.bottomY + 30) {
-                            // Токен может появиться выше или ниже трубы
                             continue;
                         } else {
                             canGenerate = false;
@@ -2399,64 +2411,97 @@
             ctx.globalAlpha = 1;
         }
         
-        // Draw pipe in crypto style
+        // Draw pipe in crypto style with performance optimization
         function drawPipe(pipe) {
-            // Градиент для труб
-            const gradient = ctx.createLinearGradient(pipe.x, 0, pipe.x + pipe.width, 0);
-            gradient.addColorStop(0, '#1a1a2e');
-            gradient.addColorStop(0.5, '#16213e');
-            gradient.addColorStop(1, '#0f3460');
-            
-            // Верхняя труба
-            ctx.fillStyle = gradient;
-            ctx.fillRect(pipe.x, 0, pipe.width, pipe.topHeight);
-            
-            // Нижняя труба
-            ctx.fillRect(pipe.x, pipe.bottomY, pipe.width, canvas.height - pipe.bottomY);
-            
-            // Обводка труб в крипто-стиле
-            ctx.strokeStyle = '#00d4ff';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(pipe.x, 0, pipe.width, pipe.topHeight);
-            ctx.strokeRect(pipe.x, pipe.bottomY, pipe.width, canvas.height - pipe.bottomY);
-            
-            // Капительки труб в крипто-стиле
-            const capGradient = ctx.createLinearGradient(pipe.x - 5, 0, pipe.x + pipe.width + 5, 0);
-            capGradient.addColorStop(0, '#7c3aed');
-            capGradient.addColorStop(0.5, '#06b6d4');
-            capGradient.addColorStop(1, '#00d4ff');
-            
-            ctx.fillStyle = capGradient;
-            ctx.fillRect(pipe.x - 5, pipe.topHeight - 20, pipe.width + 10, 20);
-            ctx.fillRect(pipe.x - 5, pipe.bottomY, pipe.width + 10, 20);
-            
-            // Обводка капителек
-            ctx.strokeStyle = '#00d4ff';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(pipe.x - 5, pipe.topHeight - 20, pipe.width + 10, 20);
-            ctx.strokeRect(pipe.x - 5, pipe.bottomY, pipe.width + 10, 20);
-            
-            // Крипто-символы на капительках
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 12px Inter';
-            ctx.textAlign = 'center';
-            
-            // Символы на верхней капительке
-            ctx.fillText('₿', pipe.x + pipe.width / 2, pipe.topHeight - 8);
-            ctx.fillText('Ξ', pipe.x + pipe.width / 2 - 15, pipe.topHeight - 8);
-            ctx.fillText('◈', pipe.x + pipe.width / 2 + 15, pipe.topHeight - 8);
-            
-            // Символы на нижней капительке
-            ctx.fillText('₿', pipe.x + pipe.width / 2, pipe.bottomY + 12);
-            ctx.fillText('Ξ', pipe.x + pipe.width / 2 - 15, pipe.bottomY + 12);
-            ctx.fillText('◈', pipe.x + pipe.width / 2 + 15, pipe.bottomY + 12);
-            
-            // Добавляем свечение
-            ctx.shadowColor = '#00d4ff';
-            ctx.shadowBlur = 10;
-            ctx.strokeRect(pipe.x, 0, pipe.width, pipe.topHeight);
-            ctx.strokeRect(pipe.x, pipe.bottomY, pipe.width, canvas.height - pipe.bottomY);
-            ctx.shadowBlur = 0;
+            try {
+                // Проверяем, что труба видна на экране
+                if (pipe.x + pipe.width < 0 || pipe.x > canvas.width) {
+                    return; // Не рисуем трубы за пределами экрана
+                }
+                
+                // Градиент для труб
+                const gradient = ctx.createLinearGradient(pipe.x, 0, pipe.x + pipe.width, 0);
+                gradient.addColorStop(0, '#1a1a2e');
+                gradient.addColorStop(0.5, '#16213e');
+                gradient.addColorStop(1, '#0f3460');
+                
+                // Верхняя труба с внутренним свечением
+                ctx.fillStyle = gradient;
+                ctx.shadowColor = '#00d4ff';
+                ctx.shadowBlur = 8;
+                ctx.fillRect(pipe.x, 0, pipe.width, pipe.topHeight);
+                
+                // Нижняя труба с внутренним свечением
+                ctx.fillRect(pipe.x, pipe.bottomY, pipe.width, canvas.height - pipe.bottomY);
+                
+                // Сброс свечения для градиентов
+                ctx.shadowBlur = 0;
+                
+                // Обводка труб в крипто-стиле - более заметная
+                ctx.strokeStyle = '#00d4ff';
+                ctx.lineWidth = 4; // Увеличена толщина линии
+                ctx.strokeRect(pipe.x, 0, pipe.width, pipe.topHeight);
+                ctx.strokeRect(pipe.x, pipe.bottomY, pipe.width, canvas.height - pipe.bottomY);
+                
+                // Капительки труб в крипто-стиле
+                const capGradient = ctx.createLinearGradient(pipe.x - 5, 0, pipe.x + pipe.width + 5, 0);
+                capGradient.addColorStop(0, '#7c3aed');
+                capGradient.addColorStop(0.5, '#06b6d4');
+                capGradient.addColorStop(1, '#00d4ff');
+                
+                ctx.fillStyle = capGradient;
+                ctx.shadowColor = '#7c3aed';
+                ctx.shadowBlur = 12;
+                ctx.fillRect(pipe.x - 5, pipe.topHeight - 20, pipe.width + 10, 20);
+                ctx.fillRect(pipe.x - 5, pipe.bottomY, pipe.width + 10, 20);
+                
+                // Сброс свечения для капителек
+                ctx.shadowBlur = 0;
+                
+                // Обводка капителек - более заметная
+                ctx.strokeStyle = '#00d4ff';
+                ctx.lineWidth = 3; // Увеличена толщина линии
+                ctx.strokeRect(pipe.x - 5, pipe.topHeight - 20, pipe.width + 10, 20);
+                ctx.strokeRect(pipe.x - 5, pipe.bottomY, pipe.width + 10, 20);
+                
+                // Крипто-символы на капительках с свечением
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 12px Inter';
+                ctx.textAlign = 'center';
+                ctx.shadowColor = '#00d4ff';
+                ctx.shadowBlur = 8;
+                
+                // Символы на верхней капительке
+                ctx.fillText('₿', pipe.x + pipe.width / 2, pipe.topHeight - 8);
+                ctx.fillText('Ξ', pipe.x + pipe.width / 2 - 15, pipe.topHeight - 8);
+                ctx.fillText('◈', pipe.x + pipe.width / 2 + 15, pipe.topHeight - 8);
+                
+                // Символы на нижней капительке
+                ctx.fillText('₿', pipe.x + pipe.width / 2, pipe.bottomY + 12);
+                ctx.fillText('Ξ', pipe.x + pipe.width / 2 - 15, pipe.bottomY + 12);
+                ctx.fillText('◈', pipe.x + pipe.width / 2 + 15, pipe.bottomY + 12);
+                
+                // Сброс свечения для текста
+                ctx.shadowBlur = 0;
+                
+                // Добавляем усиленное свечение
+                ctx.shadowColor = '#00d4ff';
+                ctx.shadowBlur = 20; // Увеличено свечение
+                ctx.strokeRect(pipe.x, 0, pipe.width, pipe.topHeight);
+                ctx.strokeRect(pipe.x, pipe.bottomY, pipe.width, canvas.height - pipe.bottomY);
+                
+                // Дополнительное свечение для капителек
+                ctx.shadowColor = '#7c3aed';
+                ctx.shadowBlur = 15;
+                ctx.strokeRect(pipe.x - 5, pipe.topHeight - 20, pipe.width + 10, 20);
+                ctx.strokeRect(pipe.x - 5, pipe.bottomY, pipe.width + 10, 20);
+                
+                // Сброс свечения
+                ctx.shadowBlur = 0;
+                
+            } catch (error) {
+                console.error('Error drawing pipe:', error);
+            }
         }
         
         // Generate crypto token along bird's path
@@ -2493,24 +2538,41 @@
                 symbol: randomCoin.symbol,
                 name: randomCoin.name
             });
+            
+            // Ограничиваем количество токенов для производительности
+            if (tokens.length > 6) {
+                tokens.shift(); // Удаляем самый старый токен
+            }
         }
         
-        // Generate pipe
+        // Generate pipe with performance optimization
         function generatePipe() {
-            // Создаем более разнообразные позиции для труб
-            const minGap = 80; // Минимальное расстояние от краев
-            const maxGap = canvas.height - pipeGap - minGap; // Максимальное расстояние от краев
-            
-            // Генерируем позицию с большей вариацией
-            const gapY = Math.random() * (maxGap - minGap) + minGap;
-            
-            pipes.push({
-                x: canvas.width + 50,
-                topHeight: gapY,
-                bottomY: gapY + pipeGap,
-                width: pipeWidth,
-                passed: false
-            });
+            try {
+                // Создаем более разнообразные позиции для труб
+                const minGap = 80; // Минимальное расстояние от краев
+                const maxGap = canvas.height - pipeGap - minGap; // Максимальное расстояние от краев
+                
+                // Генерируем позицию с большей вариацией
+                const gapY = Math.random() * (maxGap - minGap) + minGap;
+                
+                const newPipe = {
+                    x: canvas.width + 50,
+                    topHeight: gapY,
+                    bottomY: gapY + pipeGap,
+                    width: pipeWidth,
+                    passed: false
+                };
+                
+                pipes.push(newPipe);
+                
+                // Ограничиваем количество труб для производительности
+                if (pipes.length > 8) {
+                    pipes.shift(); // Удаляем самую старую трубу
+                }
+                
+            } catch (error) {
+                console.error('Error generating pipe:', error);
+            }
         }
         
         // Check collision with improved precision
