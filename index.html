@@ -88,9 +88,12 @@
             width: 100%;
             height: 100%;
             background: 
-                radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(124, 58, 237, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
+                radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(124, 58, 237, 0.25) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(6, 182, 212, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 60% 60%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 10% 30%, rgba(16, 185, 129, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 90% 70%, rgba(245, 158, 11, 0.15) 0%, transparent 50%);
             z-index: -1;
             animation: backgroundFloat 20s ease-in-out infinite;
         }
@@ -1346,8 +1349,8 @@
         // Function to update bird position to left side
         function updateBirdCenter() {
             if (canvas) {
-                const leftOffset = isMobile ? 120 : 150; // Ближе к левому краю на мобильных
-                bird.x = leftOffset; // Птица ближе к левому краю
+                const leftOffset = isMobile ? 80 : 100; // Еще ближе к левому краю
+                bird.x = leftOffset; // Птица очень близко к левому краю
                 bird.centerX = leftOffset; // Сохраняем позицию
                 bird.minX = leftOffset - 30; // Ограничения по горизонтали
                 bird.maxX = leftOffset + 30;
@@ -2148,9 +2151,33 @@
                 generatePipe();
             }
             
-            // Generate tokens more frequently along flight path
-            if (Math.random() < 0.04) {
-                generateToken();
+            // Generate tokens more frequently along flight path (but not in pipes)
+            if (Math.random() < 0.03) {
+                // Проверяем, что токен не появится в трубе
+                const tokenX = canvas.width + 50;
+                const birdLevel = bird.y + bird.height / 2;
+                const variation = 60;
+                const tokenY = Math.max(50, Math.min(canvas.height - 75, 
+                    birdLevel + (Math.random() - 0.5) * variation));
+                
+                // Проверяем, не пересекается ли токен с трубами
+                let canGenerate = true;
+                for (let pipe of pipes) {
+                    if (tokenX < pipe.x + pipe.width + 100 && tokenX > pipe.x - 100) {
+                        // Если токен в зоне трубы, проверяем вертикальную позицию
+                        if (tokenY < pipe.topHeight - 30 || tokenY > pipe.bottomY + 30) {
+                            // Токен может появиться выше или ниже трубы
+                            continue;
+                        } else {
+                            canGenerate = false;
+                            break;
+                        }
+                    }
+                }
+                
+                if (canGenerate) {
+                    generateToken();
+                }
             }
             
             // Update pipes
@@ -2181,14 +2208,18 @@
             for (let i = tokens.length - 1; i >= 0; i--) {
                 const token = tokens[i];
                 token.x -= gameSpeed;
-                token.y += Math.sin(Date.now() * 0.005) * 0.5;
+                token.y += Math.sin(Date.now() * 0.005 + token.x * 0.01) * 0.8;
+                
+                // Добавляем пульсацию для токенов
+                if (!token.pulse) token.pulse = 0;
+                token.pulse += 0.1;
                 
                 // Check collision with bird
                 if (checkCollision(bird, token)) {
                     tokens.splice(i, 1);
                     score += 50;
                     updateScore();
-                    createTokenParticles(token.x, token.y);
+                    createTokenParticles(token.x, token.y, token.color);
                     playSound('token');
                 }
                 
@@ -2327,29 +2358,33 @@
             }
         }
         
-        // Draw token
+        // Draw crypto token
         function drawToken(token) {
+            // Пульсация токена
+            const pulseScale = token.pulse ? 1 + Math.sin(token.pulse) * 0.1 : 1;
+            const tokenSize = (token.width / 2) * pulseScale;
+            
             // Token shadow
             ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
             ctx.beginPath();
-            ctx.arc(token.x + token.width / 2 + 2, token.y + token.height / 2 + 2, token.width / 2, 0, Math.PI * 2);
+            ctx.arc(token.x + token.width / 2 + 2, token.y + token.height / 2 + 2, tokenSize, 0, Math.PI * 2);
             ctx.fill();
             
             // Token glow
             ctx.shadowColor = token.color;
-            ctx.shadowBlur = 20;
+            ctx.shadowBlur = 20 + Math.sin(token.pulse || 0) * 5;
             
             // Token body
             ctx.fillStyle = token.color;
             ctx.beginPath();
-            ctx.arc(token.x + token.width / 2, token.y + token.height / 2, token.width / 2, 0, Math.PI * 2);
+            ctx.arc(token.x + token.width / 2, token.y + token.height / 2, tokenSize, 0, Math.PI * 2);
             ctx.fill();
             
-            // Token symbol
+            // Token symbol (используем символ из токена)
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 16px Inter';
+            ctx.font = `bold ${16 * pulseScale}px Inter`;
             ctx.textAlign = 'center';
-            ctx.fillText('₿', token.x + token.width / 2, token.y + token.height / 2 + 5);
+            ctx.fillText(token.symbol || '₿', token.x + token.width / 2, token.y + token.height / 2 + 5);
             
             ctx.shadowBlur = 0;
         }
@@ -2424,7 +2459,7 @@
             ctx.shadowBlur = 0;
         }
         
-        // Generate token along bird's path
+        // Generate crypto token along bird's path
         function generateToken() {
             // Генерируем токен на пути птицы (ближе к левому краю)
             const birdLevel = bird.y + bird.height / 2;
@@ -2435,12 +2470,28 @@
             // Токены появляются на уровне птицы, но справа от неё
             const tokenX = canvas.width + 50;
             
+            // Разнообразие криптомонет
+            const cryptoCoins = [
+                { symbol: '₿', name: 'Bitcoin', color: '#f7931a' },
+                { symbol: 'Ξ', name: 'Ethereum', color: '#627eea' },
+                { symbol: '◈', name: 'Diamond', color: '#00d4ff' },
+                { symbol: '◇', name: 'Crypto', color: '#7c3aed' },
+                { symbol: '◆', name: 'Token', color: '#06b6d4' },
+                { symbol: '●', name: 'Coin', color: '#10b981' },
+                { symbol: '★', name: 'Star', color: '#f59e0b' },
+                { symbol: '♦', name: 'Gem', color: '#ec4899' }
+            ];
+            
+            const randomCoin = cryptoCoins[Math.floor(Math.random() * cryptoCoins.length)];
+            
             tokens.push({
                 x: tokenX,
                 y: tokenY,
                 width: 25,
                 height: 25,
-                color: '#f59e0b'
+                color: randomCoin.color,
+                symbol: randomCoin.symbol,
+                name: randomCoin.name
             });
         }
         
@@ -2489,7 +2540,7 @@
         }
         
         // Create token particles
-        function createTokenParticles(x, y) {
+        function createTokenParticles(x, y, tokenColor = '#f59e0b') {
             for (let i = 0; i < 10; i++) {
                 particles.push({
                     x: x + 12,
@@ -2497,7 +2548,7 @@
                     vx: (Math.random() - 0.5) * 8,
                     vy: (Math.random() - 0.5) * 8,
                     life: 30,
-                    color: '#f59e0b'
+                    color: tokenColor
                 });
             }
         }
