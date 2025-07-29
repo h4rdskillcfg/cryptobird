@@ -64,6 +64,14 @@
             position: relative;
             height: 100vh;
             width: 100vw;
+            /* Предотвращаем зум на мобильных устройствах */
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
 
         /* Animated Background */
@@ -124,6 +132,9 @@
             width: 100%;
             height: 100%;
             z-index: 1;
+            /* Оптимизация для мобильных устройств */
+            touch-action: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         /* UI Overlay */
@@ -784,6 +795,7 @@
             <button class="game-btn" onclick="showLeaderboard()">🏆 Таблица лидеров</button>
             <button class="game-btn" onclick="toggleFullscreen()" id="fullscreenBtn" style="background: var(--game-secondary);">📱 Полноэкранный режим</button>
             <button class="game-btn" onclick="debugGame()" style="background: var(--game-warning);">🐛 Отладка</button>
+            <button class="game-btn" onclick="testJump()" style="background: var(--game-danger);">🧪 Тест прыжка</button>
         </div>
         
         <div id="gameOverScreen">
@@ -1204,10 +1216,17 @@
         
         // Function to adjust physics based on device
         function adjustPhysicsForDevice() {
-            // Сбалансированная физика для всех устройств
-            gravity = 0.45; // Увеличена гравитация для более быстрого падения
-            jumpForce = -6.5; // Увеличена сила прыжка для лучшего контроля
-            console.log('Balanced physics applied: gravity =', gravity, 'jumpForce =', jumpForce);
+            if (isMobile) {
+                // Оптимизированная физика для мобильных устройств
+                gravity = 0.35; // Уменьшена гравитация для более плавного падения
+                jumpForce = -5.8; // Оптимизирована сила прыжка для мобильных
+                console.log('Mobile physics applied: gravity =', gravity, 'jumpForce =', jumpForce);
+            } else {
+                // Физика для десктопа
+                gravity = 0.45; // Стандартная гравитация
+                jumpForce = -6.5; // Стандартная сила прыжка
+                console.log('Desktop physics applied: gravity =', gravity, 'jumpForce =', jumpForce);
+            }
         }
         
         // Function to update bird position to left of center
@@ -1339,10 +1358,11 @@
             
             // Add touch/click event listeners with debouncing
             let lastJumpTime = 0;
-            const jumpCooldown = 150; // Минимальный интервал между прыжками в мс
+            const jumpCooldown = isMobile ? 100 : 150; // Меньший интервал для мобильных
             
             function handleJumpWithCooldown(e) {
                 e.preventDefault();
+                e.stopPropagation();
                 const now = Date.now();
                 if (now - lastJumpTime > jumpCooldown) {
                     lastJumpTime = now;
@@ -1350,8 +1370,24 @@
                 }
             }
             
+            // Оптимизированные обработчики событий
             canvas.addEventListener('click', handleJumpWithCooldown);
             canvas.addEventListener('touchstart', handleJumpWithCooldown, { passive: false });
+            
+            // Дополнительные обработчики для мобильных устройств
+            if (isMobile) {
+                canvas.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, { passive: false });
+                
+                // Предотвращаем зум и скролл
+                document.addEventListener('touchmove', function(e) {
+                    if (gameState === 'playing') {
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+            }
             
             // Add keyboard support
             document.addEventListener('keydown', function(e) {
@@ -1396,12 +1432,19 @@
         // Handle jump
         function handleJump() {
             if (gameState === 'playing') {
-                // Мгновенный прыжок как в Flappy Bird
+                // Оптимизированный прыжок для лучшей отзывчивости
                 bird.velocity = jumpForce;
-                bird.initialVelocity = jumpForce; // Сохраняем начальную скорость прыжка
-                bird.hasJumped = true; // Отмечаем, что игрок уже прыгал
-                createJumpParticles();
-                playSound('jump');
+                bird.initialVelocity = jumpForce;
+                bird.hasJumped = true;
+                
+                // Добавляем небольшую задержку для визуального эффекта
+                setTimeout(() => {
+                    createJumpParticles();
+                    playSound('jump');
+                }, isMobile ? 0 : 10);
+                
+                // Логирование для отладки
+                console.log('Jump executed - velocity:', bird.velocity, 'device:', isMobile ? 'mobile' : 'desktop');
             }
         }
         
@@ -1942,14 +1985,15 @@
             bird.velocity += gravity;
             
             // Ограничиваем максимальную скорость падения
-            const maxFallSpeed = 8; // Увеличена максимальная скорость падения
+            const maxFallSpeed = isMobile ? 6 : 8; // Меньшая скорость для мобильных
             if (bird.velocity > maxFallSpeed) {
                 bird.velocity = maxFallSpeed;
             }
             
             // Добавляем движение вперед при падении только после первого прыжка
             if (bird.velocity > 0 && bird.hasJumped) {
-                bird.x += bird.velocity * 0.3; // Увеличено движение вперед
+                const forwardSpeed = isMobile ? 0.2 : 0.3; // Меньшая скорость для мобильных
+                bird.x += bird.velocity * forwardSpeed;
                 // Ограничиваем движение по горизонтали - птица всегда по центру
                 if (bird.x > bird.maxX) {
                     bird.x = bird.maxX;
@@ -2385,6 +2429,19 @@
         window.showMenu = showMenu;
         window.toggleFullscreen = toggleFullscreen;
         
+        // Test jump function
+        window.testJump = function() {
+            console.log('Testing jump...');
+            if (gameState === 'playing') {
+                console.log('Bird position before jump:', bird.x, bird.y);
+                console.log('Bird velocity before jump:', bird.velocity);
+                handleJump();
+                console.log('Bird velocity after jump:', bird.velocity);
+            } else {
+                console.log('Game not in playing state, current state:', gameState);
+            }
+        };
+        
         // Global debug function
         window.debugGame = function() {
             console.log('=== Crypto Bird Debug Info ===');
@@ -2405,6 +2462,14 @@
                 console.log('Is Fullscreen:', tg.isFullscreen ? tg.isFullscreen() : 'Not available');
                 console.log('Viewport Info:', tg.viewportHeight, 'x', tg.viewportWidth);
             }
+            
+            // Jump physics debug info
+            console.log('Jump Physics Debug:');
+            console.log('Device type:', isMobile ? 'Mobile' : 'Desktop');
+            console.log('Current gravity:', gravity);
+            console.log('Current jumpForce:', jumpForce);
+            console.log('Max fall speed:', isMobile ? 6 : 8);
+            console.log('Jump cooldown:', isMobile ? 100 : 150, 'ms');
             
             console.log('=============================');
         };
