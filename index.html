@@ -2,18 +2,15 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <title>Crypto Bird - Telegram Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Crypto Bird v2.1 - Telegram Game</title>
     
     <!-- Preload critical resources -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" as="style">
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
     <link rel="dns-prefetch" href="https://fonts.gstatic.com">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    </noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <style>
         /* Crypto Game Variables */
@@ -43,18 +40,9 @@
             -webkit-tap-highlight-color: transparent;
             user-select: none;
         }
-        
-        /* Font loading optimization */
-        .font-loading {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-        }
-        
-        .font-loaded {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-        }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
             line-height: 1.6;
             color: var(--game-text);
             background: var(--game-bg);
@@ -64,19 +52,6 @@
             position: relative;
             height: 100vh;
             width: 100vw;
-            /* Предотвращаем зум на мобильных устройствах */
-            touch-action: none;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            -khtml-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            /* Учитываем безопасную зону для устройств с вырезами */
-            padding-top: env(safe-area-inset-top);
-            padding-bottom: env(safe-area-inset-bottom);
-            padding-left: env(safe-area-inset-left);
-            padding-right: env(safe-area-inset-right);
         }
 
         /* Animated Background */
@@ -88,12 +63,9 @@
             width: 100%;
             height: 100%;
             background: 
-                radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(124, 58, 237, 0.25) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(6, 182, 212, 0.2) 0%, transparent 50%),
-                radial-gradient(circle at 60% 60%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 10% 30%, rgba(16, 185, 129, 0.2) 0%, transparent 50%),
-                radial-gradient(circle at 90% 70%, rgba(245, 158, 11, 0.15) 0%, transparent 50%);
+                radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(124, 58, 237, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
             z-index: -1;
             animation: backgroundFloat 20s ease-in-out infinite;
         }
@@ -111,114 +83,6 @@
             overflow: hidden;
             background: var(--game-bg);
         }
-        
-        /* Fullscreen styles */
-        .fullscreen-mode {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            z-index: 9999 !important;
-        }
-        
-        .fullscreen-mode #gameUI {
-            z-index: 10000 !important;
-        }
-        
-        .fullscreen-mode #gameMenu,
-        .fullscreen-mode #gameOverScreen,
-        .fullscreen-mode #skinsScreen {
-            z-index: 10001 !important;
-        }
-        
-        /* Mobile fullscreen optimizations */
-        @media (max-width: 768px) {
-            .fullscreen-mode {
-                /* Учитываем безопасную зону для мобильных устройств */
-                padding-top: env(safe-area-inset-top) !important;
-                padding-bottom: env(safe-area-inset-bottom) !important;
-                padding-left: env(safe-area-inset-left) !important;
-                padding-right: env(safe-area-inset-right) !important;
-            }
-            
-            .fullscreen-mode #scoreDisplay {
-                top: calc(10px + env(safe-area-inset-top)) !important;
-                left: calc(10px + env(safe-area-inset-left)) !important;
-                padding: 8px 15px !important;
-                font-size: 0.9rem !important;
-            }
-            
-            .fullscreen-mode #highScoreDisplay {
-                top: calc(60px + env(safe-area-inset-top)) !important;
-                left: calc(10px + env(safe-area-inset-left)) !important;
-                padding: 8px 15px !important;
-                font-size: 0.8rem !important;
-            }
-            
-            .fullscreen-mode .sound-controls {
-                top: calc(10px + env(safe-area-inset-top)) !important;
-                right: calc(10px + env(safe-area-inset-right)) !important;
-                padding: 8px 12px !important;
-            }
-            
-            .fullscreen-mode #instructions {
-                bottom: calc(10px + env(safe-area-inset-bottom)) !important;
-                padding: 10px 15px !important;
-                font-size: 0.8rem !important;
-            }
-            
-            .fullscreen-mode #gameMenu {
-                padding: 25px 20px !important;
-                width: 90% !important;
-                max-width: 350px !important;
-            }
-            
-            .fullscreen-mode #gameMenu h1 {
-                font-size: 2rem !important;
-            }
-            
-            .fullscreen-mode .game-btn {
-                padding: 12px 20px !important;
-                font-size: 0.9rem !important;
-                width: 160px !important;
-                margin: 6px auto !important;
-            }
-            
-            .fullscreen-mode #gameOverScreen {
-                padding: 25px 20px !important;
-                width: 90% !important;
-                max-width: 350px !important;
-            }
-            
-            .fullscreen-mode #skinsScreen {
-                padding: 20px 15px !important;
-                width: 95% !important;
-                max-width: 400px !important;
-                max-height: 70vh !important;
-            }
-            
-            .fullscreen-mode .skins-container {
-                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)) !important;
-                gap: 15px !important;
-            }
-            
-            .fullscreen-mode .skin-card {
-                padding: 10px !important;
-            }
-            
-            .fullscreen-mode .skin-icon {
-                font-size: 2.5rem !important;
-            }
-            
-            .fullscreen-mode .skin-name {
-                font-size: 0.8rem !important;
-            }
-            
-            .fullscreen-mode .skin-requirement {
-                font-size: 0.6rem !important;
-            }
-        }
 
         /* Game Canvas */
         #gameCanvas {
@@ -228,9 +92,6 @@
             width: 100%;
             height: 100%;
             z-index: 1;
-            /* Оптимизация для мобильных устройств */
-            touch-action: none;
-            -webkit-tap-highlight-color: transparent;
         }
 
         /* UI Overlay */
@@ -270,8 +131,8 @@
         /* High Score */
         #highScoreDisplay {
             position: absolute;
-            top: 90px;
-            left: 20px;
+            top: 20px;
+            right: 20px;
             background: rgba(26, 26, 46, 0.8);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
@@ -287,6 +148,23 @@
         #highScoreValue {
             color: var(--game-success);
             font-weight: 700;
+        }
+
+        /* Version Display */
+        #versionDisplay {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(26, 26, 46, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 8px 15px;
+            border-radius: 10px;
+            border: 1px solid var(--game-border);
+            pointer-events: none;
+            font-weight: 500;
+            font-size: 0.8rem;
+            color: var(--game-text-secondary);
         }
 
         /* Game Menu */
@@ -305,7 +183,6 @@
             box-shadow: var(--game-shadow);
             z-index: 20;
             pointer-events: auto;
-            min-width: 300px; /* Минимальная ширина для меню */
         }
 
         #gameMenu h1 {
@@ -335,11 +212,9 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            margin: 10px auto; /* Центрирование с auto */
+            margin: 10px;
             box-shadow: var(--game-shadow);
             pointer-events: auto;
-            width: 200px; /* Фиксированная ширина для всех кнопок */
-            display: block; /* Блочный элемент для центрирования */
         }
 
         .game-btn:hover {
@@ -368,138 +243,6 @@
             z-index: 20;
             pointer-events: auto;
             display: none;
-            min-width: 300px; /* Минимальная ширина для экрана окончания игры */
-        }
-        
-        /* Skins Screen */
-        #skinsScreen {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(26, 26, 46, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            padding: 30px 20px;
-            border-radius: 25px;
-            border: 1px solid var(--game-border);
-            text-align: center;
-            box-shadow: var(--game-shadow);
-            z-index: 20;
-            pointer-events: auto;
-            display: none;
-            min-width: 350px;
-            max-width: 550px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        
-        .skins-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
-        }
-        
-        .skin-card {
-            background: rgba(26, 26, 46, 0.8);
-            border: 2px solid var(--game-border);
-            border-radius: 15px;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .skin-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--game-primary);
-            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
-        }
-        
-        .skin-card.selected {
-            border-color: var(--game-success);
-            background: rgba(16, 185, 129, 0.1);
-        }
-        
-        .skin-card[data-skin-id="diamond"] {
-            border-color: #ec4899;
-            background: rgba(236, 72, 153, 0.05);
-            box-shadow: 0 0 15px rgba(236, 72, 153, 0.3);
-            animation: pinkGlow 1.2s ease-in-out infinite;
-        }
-        
-        .skin-card.selected[data-skin-id="diamond"] {
-            border-color: #ec4899;
-            background: rgba(236, 72, 153, 0.1);
-            box-shadow: 0 0 20px rgba(236, 72, 153, 0.5);
-            animation: pinkGlow 1.2s ease-in-out infinite;
-        }
-        
-        @keyframes pinkGlow {
-            0% {
-                box-shadow: 0 0 15px rgba(236, 72, 153, 0.3);
-            }
-            25% {
-                box-shadow: 0 0 20px rgba(236, 72, 153, 0.5);
-            }
-            50% {
-                box-shadow: 0 0 25px rgba(236, 72, 153, 0.7);
-            }
-            75% {
-                box-shadow: 0 0 20px rgba(236, 72, 153, 0.5);
-            }
-            100% {
-                box-shadow: 0 0 15px rgba(236, 72, 153, 0.3);
-            }
-        }
-        
-        .skin-card.locked {
-            opacity: 0.6;
-            filter: grayscale(1);
-        }
-        
-        .skin-card.locked[data-skin-id="diamond"] {
-            opacity: 0.8;
-            filter: none;
-            border-color: #ec4899;
-            background: rgba(236, 72, 153, 0.05);
-            box-shadow: 0 0 15px rgba(236, 72, 153, 0.3);
-            animation: pinkGlow 1.2s ease-in-out infinite;
-        }
-        
-        .skin-card.locked::after {
-            content: '🔒';
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 1.2rem;
-        }
-        
-        .skin-icon {
-            font-size: 3rem;
-            margin-bottom: 10px;
-            display: block;
-        }
-        
-        .skin-name {
-            font-weight: 600;
-            font-size: 0.9rem;
-            margin-bottom: 5px;
-            color: var(--game-text);
-        }
-        
-        .skin-requirement {
-            font-size: 0.7rem;
-            color: var(--game-text-secondary);
-        }
-        
-        .skin-unlock-requirement {
-            font-size: 0.7rem;
-            color: var(--game-warning);
-            font-weight: 600;
         }
 
         #gameOverScreen h2 {
@@ -516,14 +259,29 @@
             color: var(--game-primary);
         }
 
-
+        /* Daily Challenge */
+        #dailyChallenge {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            border-radius: 15px;
+            border: 1px solid var(--game-warning);
+            pointer-events: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--game-warning);
+            box-shadow: var(--game-shadow);
+        }
 
         /* Instructions */
         #instructions {
             position: absolute;
             bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            right: 20px;
             background: rgba(26, 26, 46, 0.8);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
@@ -535,62 +293,10 @@
             font-size: 0.9rem;
             color: var(--game-text-secondary);
             text-align: center;
-            opacity: 1;
-            transition: opacity 1s ease-in-out;
-        }
-        
-        #instructions.fade-out {
-            opacity: 0 !important;
-        }
-
-        /* Sound Controls */
-        .sound-controls {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 8px;
-            z-index: 15;
-            justify-content: center; /* Центрирование кнопок */
-            background: rgba(26, 26, 46, 0.8);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            padding: 12px 20px;
-            border-radius: 15px;
-            border: 1px solid var(--game-border);
-            box-shadow: var(--game-shadow);
-        }
-
-        .sound-btn {
-            background: transparent;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 1rem;
-            color: var(--game-text-secondary);
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            pointer-events: auto;
-        }
-
-        .sound-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: scale(1.1);
-        }
-
-        .sound-btn:active {
-            transform: scale(0.95);
         }
 
         /* Responsive Design */
         @media (max-width: 768px) {
-            #gameMenu {
-                padding: 30px 20px;
-                width: 90%;
-                max-width: 400px;
-            }
-            
             #gameMenu h1 {
                 font-size: 2rem;
             }
@@ -602,123 +308,33 @@
             .game-btn {
                 padding: 12px 25px;
                 font-size: 1rem;
-                width: 180px; /* Меньшая ширина для мобильных */
-                margin: 8px auto; /* Центрирование для мобильных */
             }
             
-            #scoreDisplay {
-                padding: 10px 20px;
-                font-size: 1rem;
-            }
-            
+            #scoreDisplay,
             #highScoreDisplay {
                 padding: 10px 20px;
                 font-size: 1rem;
-                top: 80px;
-                left: 10px;
             }
             
-            /* Дополнительные оптимизации для мобильных */
-            .sound-controls {
-                top: 15px;
-                right: 15px;
-                gap: 8px;
+            #dailyChallenge {
+                font-size: 0.8rem;
                 padding: 10px 15px;
             }
-            
-            .sound-btn {
-                padding: 8px 10px;
-                font-size: 1rem;
-            }
-            
-            #instructions {
-                font-size: 0.85rem;
-                padding: 12px 20px;
-                bottom: 15px;
-            }
-            
-
             
             #instructions {
                 font-size: 0.8rem;
                 padding: 10px 20px;
             }
-            .nav-menu {
-                display: none;
-            }
             
-            .mobile-menu-btn {
-                display: block;
-            }
-            
-            .header-content {
-                justify-content: space-between;
-            }
-            
-            .logo {
-                font-size: 2rem;
-            }
-            
-            .hero h2 {
-                font-size: 3rem;
-            }
-            
-            .hero p {
-                font-size: 1.1rem;
-            }
-            
-            .section-title {
-                font-size: 2.5rem;
-            }
-            
-            .advantages-grid {
-                grid-template-columns: 1fr;
-                gap: 30px;
-            }
-            
-            .projects-grid {
-                grid-template-columns: 1fr;
-                gap: 30px;
-            }
-            
-            .contact-content {
-                grid-template-columns: 1fr;
-                gap: 50px;
-                text-align: center;
-            }
-            
-            .contact-item {
-                justify-content: center;
-            }
-            
-            .btn-primary {
-                padding: 16px 32px;
-                font-size: 1rem;
-            }
-            
-            .sound-controls {
-                top: 15px;
-                right: 10px;
-                gap: 6px;
-                padding: 10px 16px;
-            }
-            
-            .sound-btn {
-                padding: 5px 8px;
-                font-size: 0.9rem;
-            }
-            
-            .sound-btn {
-                padding: 8px;
-                font-size: 1rem;
+            #versionDisplay {
+                font-size: 0.7rem;
+                padding: 6px 12px;
             }
         }
 
         @media (max-width: 480px) {
             #gameMenu {
-                padding: 25px 15px;
-                width: 95%;
-                max-width: 350px;
+                padding: 30px 20px;
             }
             
             #gameMenu h1 {
@@ -728,84 +344,8 @@
             .game-btn {
                 padding: 10px 20px;
                 font-size: 0.9rem;
-                margin: 6px auto; /* Центрирование для маленьких экранов */
-                width: 160px; /* Еще меньшая ширина для маленьких экранов */
+                margin: 5px;
             }
-        }
-        
-                /* Tablet styles */
-        @media (min-width: 481px) and (max-width: 1024px) {
-            #gameMenu {
-                padding: 35px 25px;
-                width: 85%;
-                max-width: 500px;
-            }
-            
-            .game-btn {
-                padding: 14px 28px;
-                font-size: 1.05rem;
-                margin: 10px auto;
-                width: 190px;
-            }
-            
-            #skinsScreen {
-                padding: 35px 25px;
-                min-width: 400px;
-                max-width: 600px;
-            }
-        }
-            
-            .hero h2 {
-                font-size: 2.5rem;
-            }
-            
-            .advantages,
-            .projects,
-            .contact {
-                padding: 80px 0;
-            }
-            
-            .advantage-card,
-            .project-content {
-                padding: 25px;
-            }
-            
-            .logo {
-                font-size: 1.8rem;
-            }
-            
-            .sound-controls {
-                top: 10px;
-                right: 5px;
-                gap: 4px;
-                padding: 8px 12px;
-            }
-            
-            .sound-btn {
-                padding: 4px 6px;
-                font-size: 0.8rem;
-            }
-            
-            #highScoreDisplay {
-                top: 70px;
-                left: 5px;
-                padding: 8px 15px;
-                font-size: 0.9rem;
-            }
-            
-                    .sound-btn {
-            padding: 6px;
-            font-size: 0.9rem;
-        }
-        
-        /* Исправляем розовый попугай на мобильных */
-        .skin-card.locked[data-skin-id="diamond"] {
-            opacity: 0.8;
-            filter: none;
-            border-color: #ec4899;
-            background: rgba(236, 72, 153, 0.05);
-            box-shadow: 0 0 15px rgba(236, 72, 153, 0.3);
-            animation: pinkGlow 1.2s ease-in-out infinite;
         }
 
         /* Hide UI elements during gameplay */
@@ -837,7 +377,23 @@
             text-align: center;
         }
 
-
+        /* Menu styles */
+        #gameMenu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--game-border);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: var(--game-shadow);
+            z-index: 20;
+        }
         
         .menu-header {
             margin-bottom: 20px;
@@ -871,7 +427,7 @@
         }
     </style>
 </head>
-<body class="font-loading">
+<body>
     <div id="gameContainer">
         <canvas id="gameCanvas"></canvas>
         
@@ -884,16 +440,16 @@
                 Рекорд: <span id="highScoreValue">0</span>
             </div>
             
-
+            <div id="dailyChallenge">
+                🎯 Ежедневный вызов: Выживи в бычьем рынке!
+            </div>
             
             <div id="instructions">
                 💡 Нажмите на экран для прыжка
             </div>
             
-            <!-- Sound Controls -->
-            <div class="sound-controls">
-                <button class="sound-btn" id="soundBtn" title="Звуковые эффекты">🔊</button>
-                <button class="sound-btn" id="musicBtn" title="Фоновая музыка">🎵</button>
+            <div id="versionDisplay">
+                v2.1
             </div>
         </div>
         
@@ -904,13 +460,9 @@
                 <div id="modeIndicator" class="mode-indicator">🌐 Браузерный режим</div>
             </div>
             <p>Помогите крипто-птице пролететь через рыночные препятствия!</p>
-            <button class="game-btn" onclick="startGame()" style="background: var(--game-primary);">🎮 Играть</button>
-            <button class="game-btn" onclick="showSkins()">🎨 Скины</button>
+            <button class="game-btn" onclick="startGame()">🎮 Начать игру</button>
             <button class="game-btn" onclick="showRules()">📖 Правила</button>
             <button class="game-btn" onclick="showLeaderboard()">🏆 Таблица лидеров</button>
-            <button class="game-btn" onclick="toggleFullscreen()" id="fullscreenBtn" style="background: var(--game-secondary);">📱 Полноэкранный режим</button>
-            <button class="game-btn" onclick="debugGame()" style="background: var(--game-warning);">🐛 Отладка</button>
-            <button class="game-btn" onclick="testJump()" style="background: var(--game-danger);">🧪 Тест прыжка</button>
         </div>
         
         <div id="gameOverScreen">
@@ -918,146 +470,72 @@
             <div id="finalScore">Счет: 0</div>
             <button class="game-btn" id="restartBtn">🔄 Играть снова</button>
             <button class="game-btn" id="menuBtn">🏠 Главное меню</button>
-            <button class="game-btn" onclick="startGame()">🎮 Начать новую игру</button>
         </div>
         
         <div id="pauseOverlay">
             <div id="pauseText">⏸️ Пауза</div>
         </div>
-        
-        <div id="skinsScreen">
-            <h2>🎨 Скины птицы</h2>
-            <p>Выберите скин для вашей крипто-птицы!</p>
-            <div class="skins-container" id="skinsContainer">
-                <!-- Скины будут добавлены через JavaScript -->
-            </div>
-            <button class="game-btn" onclick="closeSkins()">🏠 Назад</button>
-        </div>
     </div>
 
     <script>
+        // Game version
+        const GAME_VERSION = "2.1";
+        
         // Check if running in Telegram Web App
         let isTelegramApp = false;
         let tg = null;
         
-        // Detect device type for physics adjustment
-        let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        console.log('Device type detected:', isMobile ? 'Mobile' : 'Desktop');
+        // Game variables
+        let canvas, ctx;
+        let gameState = 'menu'; // menu, playing, paused, gameOver
+        let score = 0;
+        let highScore = localStorage.getItem('cryptoBirdHighScore') || 0;
+        let gameSpeed = 2;
+        let gravity = 0.5;
+        let jumpForce = -8;
+        let lastTime = 0;
+        let fps = 60;
+        let frameInterval = 1000 / fps;
         
-        // Debug: Log when script starts loading
-        console.log('🚀 Crypto Bird script loading...');
-        console.log('Document ready state:', document.readyState);
-        console.log('Window loaded:', window.loaded);
+        // Bird object with improved design
+        let bird = {
+            x: 100,
+            y: 300,
+            velocity: 0,
+            width: 35,
+            height: 35,
+            color: '#00d4ff',
+            rotation: 0,
+            wingAngle: 0,
+            wingSpeed: 0.3
+        };
         
-        // Check font loading
-        if ('fonts' in document) {
-            document.fonts.ready.then(() => {
-                console.log('✅ Fonts loaded successfully');
-                document.body.classList.add('font-loaded');
-                document.body.classList.remove('font-loading');
-            }).catch(error => {
-                console.warn('⚠️ Font loading warning:', error);
-                document.body.classList.add('font-loading');
-            });
-        } else {
-            // Fallback for browsers without font loading API
-            setTimeout(() => {
-                document.body.classList.add('font-loaded');
-                document.body.classList.remove('font-loading');
-            }, 1000);
-        }
+        // Pipes array
+        let pipes = [];
+        let pipeGap = 150;
+        let pipeWidth = 80;
+        let lastPipeX = 800;
         
-        // Global error handler
-        window.addEventListener('error', function(e) {
-            console.error('Global error caught:', e.error);
-            console.error('Error details:', e.filename, e.lineno, e.colno);
-            
-            // Handle network errors gracefully
-            if (e.error && e.error.message && e.error.message.includes('network')) {
-                console.warn('Network error detected, continuing with fallback resources');
-            }
-        });
+        // Tokens array (only Bitcoin)
+        let tokens = [];
+        let particles = [];
         
-        window.addEventListener('unhandledrejection', function(e) {
-            console.error('Unhandled promise rejection:', e.reason);
-            
-            // Handle font loading rejections
-            if (e.reason && e.reason.message && e.reason.message.includes('font')) {
-                console.warn('Font loading failed, using fallback fonts');
-                document.body.classList.add('font-loading');
-            }
-        });
-        
-        // Try to initialize Telegram Web App
+        // Initialize Telegram Web App
         function initTelegramApp() {
             try {
-                // Check if Telegram Web App is available
                 if (window.Telegram && window.Telegram.WebApp) {
                     tg = window.Telegram.WebApp;
                     isTelegramApp = true;
                     
-                    // Initialize Telegram Web App
                     tg.enableClosingConfirmation();
                     tg.expand();
                     tg.setHeaderColor('#00d4ff');
                     tg.setBackgroundColor('#0a0a0f');
-                    
-                                        // Check if fullscreen mode is available (Mini App 2.0)
-                    if (tg.isFullscreenSupported && tg.isFullscreenSupported()) {
-                        console.log('✅ Fullscreen mode supported');
-                        
-                        // Add fullscreen toggle button
-                        tg.MainButton.setText('🎮 Играть в Crypto Bird');
-                        tg.MainButton.show(); // Показываем кнопку в меню
-                        tg.MainButton.onClick(function() {
-                            if (gameState === 'menu') {
-                                startGame();
-                            } else if (gameState === 'gameOver') {
-                                restartGame();
-                            }
-                        });
-                        
-                        // Add fullscreen toggle functionality
-                        tg.BackButton.setText('📱 Полноэкранный режим');
-                        tg.BackButton.show();
-                        tg.BackButton.onClick(function() {
-                            if (tg.isFullscreen && tg.isFullscreen()) {
-                                tg.exitFullscreen();
-                                tg.BackButton.setText('📱 Полноэкранный режим');
-                                document.body.classList.remove('fullscreen-mode');
-                                updateFullscreenButton('📱 Полноэкранный режим');
-                            } else {
-                                tg.enableFullscreen();
-                                tg.BackButton.setText('📱 Обычный режим');
-                                document.body.classList.add('fullscreen-mode');
-                                updateFullscreenButton('📱 Обычный режим');
-                            }
-                        });
-                        
-                        // Listen for fullscreen state changes
-                        if (tg.onEvent) {
-                            tg.onEvent('viewportChanged', function() {
-                                if (tg.isFullscreen && tg.isFullscreen()) {
-                                    document.body.classList.add('fullscreen-mode');
-                                    updateFullscreenButton('📱 Обычный режим');
-                                } else {
-                                    document.body.classList.remove('fullscreen-mode');
-                                    updateFullscreenButton('📱 Полноэкранный режим');
-                                }
-                            });
-                        }
-                    } else {
-                        console.log('⚠️ Fullscreen mode not supported, using standard mode');
-                        tg.MainButton.setText('🎮 Играть в Crypto Bird');
-                        tg.MainButton.show(); // Показываем кнопку в меню
-                        tg.MainButton.onClick(function() {
-                            if (gameState === 'menu') {
-                                startGame();
-                            } else if (gameState === 'gameOver') {
-                                restartGame();
-                            }
-                        });
-                    }
+                    tg.MainButton.setText('🎮 Играть в Crypto Bird');
+                    tg.MainButton.show();
+                    tg.MainButton.onClick(function() {
+                        startGame();
+                    });
                     
                     console.log('✅ Telegram Web App initialized successfully');
                 } else {
@@ -1070,304 +548,9 @@
             }
         }
         
-        // Game variables
-        let canvas, ctx;
-        let gameState = 'menu'; // menu, playing, paused, gameOver
-        let score = 0;
-        let highScore = localStorage.getItem('cryptoBirdHighScore') || 0;
-        let gameSpeed = 12; // Увеличена начальная скорость игры в 2 раза
-        let gravity = 0.7; // Увеличена гравитация для более быстрого падения
-        let jumpForce = -8; // Увеличена сила прыжка для лучшего контроля
-        
-        // FPS оптимизация для мобильных устройств
-        let fps = 0;
-        let frameCount = 0;
-        let lastTime = 0;
-        let targetFPS = 60; // Целевой FPS 60 для всех устройств
-        let frameInterval = 1000 / targetFPS;
-        let lastFrameTime = 0;
-        
-        // Skins system
-        let currentSkin = localStorage.getItem('cryptoBirdSkin') || 'default';
-        let skins = [
-            {
-                id: 'default',
-                name: 'Классический',
-                icon: '🐦',
-                color: '#00d4ff',
-                unlocked: true,
-                requirement: 'Доступен'
-            },
-            {
-                id: 'golden',
-                name: 'Золотой',
-                icon: '🦅',
-                color: '#f59e0b',
-                unlocked: false,
-                requirement: '10000 очков',
-                unlockScore: 10000
-            },
-            {
-                id: 'crypto',
-                name: 'Крипто',
-                icon: '🦜',
-                color: '#7c3aed',
-                unlocked: false,
-                requirement: '10000 очков',
-                unlockScore: 10000
-            },
-            {
-                id: 'neon',
-                name: 'Неоновый',
-                icon: '🦚',
-                color: '#06b6d4',
-                unlocked: false,
-                requirement: '10000 очков',
-                unlockScore: 10000
-            },
-            {
-                id: 'diamond',
-                name: 'Розовый попугай',
-                icon: '🦜',
-                color: '#ec4899',
-                unlocked: false,
-                requirement: '10000 очков',
-                unlockScore: 10000
-            },
-            {
-                id: 'fire',
-                name: 'Огненный',
-                icon: '🦩',
-                color: '#ef4444',
-                unlocked: false,
-                requirement: '10000 очков',
-                unlockScore: 10000
-            }
-        ];
-        
-        // Sound settings
-        let soundEnabled = localStorage.getItem('cryptoBirdSound') !== 'false';
-        let musicEnabled = localStorage.getItem('cryptoBirdMusic') !== 'false';
-        let soundVolume = 0.3;
-        let musicVolume = 0.2;
-        
-        // Audio context and sounds
-        let audioContext;
-        let sounds = {};
-        let backgroundMusic;
-        
-        // Bird object
-        let bird = {
-            x: 150, // Центральная позиция
-            y: 300,
-            velocity: 0,
-            width: 30,
-            height: 30,
-            color: '#00d4ff',
-            // Добавляем начальную скорость как в Flappy Bird
-            initialVelocity: 0,
-            // Добавляем ограничения движения - птица всегда по центру
-            minX: 120,
-            maxX: 180,
-            // Флаг для отслеживания первого прыжка
-            hasJumped: false,
-            // Птица всегда остается в центре экрана
-            centerX: 0
-        };
-        
-        // Game objects
-        let tokens = [];
-        let particles = [];
-        let pipes = [];
-        
-        // Game settings
-        let lastPipeX = 800;
-        let pipeGap = 220; // Увеличено расстояние между верхней и нижней трубой для лучшего баланса
-        let pipeWidth = 80; // Ширина трубы
-        
-        // Initialize Telegram Web App
-        // initTelegramApp(); // This is now handled by DOMContentLoaded
-        
-        // Initialize audio
-        function initAudio() {
-            try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                createSounds();
-                console.log('Audio initialized');
-            } catch (error) {
-                console.log('Audio not supported:', error);
-            }
-        }
-        
-        // Create sound effects
-        function createSounds() {
-            // Jump sound (sine wave with envelope)
-            sounds.jump = createTone(400, 0.1, 'sine');
-            
-            // Token collect sound (chime-like)
-            sounds.token = createTone(800, 0.2, 'triangle');
-            
-            // Particle sound (high frequency)
-            sounds.particle = createTone(1200, 0.05, 'square');
-            
-            // Background music (ambient)
-            createBackgroundMusic();
-        }
-        
-        // Create a tone
-        function createTone(frequency, duration, type = 'sine') {
-            return function() {
-                if (!soundEnabled || !audioContext) return;
-                
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-                oscillator.type = type;
-                
-                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-                gainNode.gain.linearRampToValueAtTime(soundVolume, audioContext.currentTime + 0.01);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + duration);
-            };
-        }
-        
-        // Create background music
-        function createBackgroundMusic() {
-            try {
-                // Stop existing music if playing
-                if (backgroundMusic) {
-                    backgroundMusic.stop();
-                }
-                
-                // Create new background music
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
-                oscillator.type = 'sine';
-                
-                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-                gainNode.gain.linearRampToValueAtTime(musicVolume, audioContext.currentTime + 0.1);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 2);
-                
-                backgroundMusic = {
-                    oscillator: oscillator,
-                    gainNode: gainNode,
-                    isPlaying: false,
-                    start: function() {
-                        if (!this.isPlaying) {
-                            try {
-                                this.oscillator.start();
-                                this.isPlaying = true;
-                                console.log('Background music started');
-                            } catch (error) {
-                                console.log('Background music already started or error:', error);
-                            }
-                        }
-                    },
-                    stop: function() {
-                        if (this.isPlaying) {
-                            try {
-                                this.oscillator.stop();
-                                this.isPlaying = false;
-                                console.log('Background music stopped');
-                            } catch (error) {
-                                console.log('Background music stop error:', error);
-                            }
-                        }
-                    }
-                };
-                
-                console.log('Background music created');
-            } catch (error) {
-                console.log('Error creating background music:', error);
-            }
-        }
-        
-        // Play sound
-        function playSound(soundName) {
-            if (sounds[soundName]) {
-                sounds[soundName]();
-            }
-        }
-        
-        // Toggle sound
-        function toggleSound() {
-            soundEnabled = !soundEnabled;
-            localStorage.setItem('cryptoBirdSound', soundEnabled);
-            updateSoundButton();
-        }
-        
-        // Toggle music
-        function toggleMusic() {
-            musicEnabled = !musicEnabled;
-            localStorage.setItem('cryptoBirdMusic', musicEnabled);
-            updateMusicButton();
-            
-            if (backgroundMusic) {
-                if (musicEnabled) {
-                    backgroundMusic.start();
-                } else {
-                    backgroundMusic.stop();
-                }
-            }
-        }
-        
-        // Update sound button
-        function updateSoundButton() {
-            const soundBtn = document.getElementById('soundBtn');
-            if (soundBtn) {
-                soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
-            }
-        }
-        
-        // Update music button
-        function updateMusicButton() {
-            const musicBtn = document.getElementById('musicBtn');
-            if (musicBtn) {
-                musicBtn.textContent = musicEnabled ? '🎵' : '🎵';
-                musicBtn.style.opacity = musicEnabled ? '1' : '0.5';
-            }
-        }
-        
-        // Function to adjust physics based on device
-        function adjustPhysicsForDevice() {
-            if (isMobile) {
-                // Оптимизированная физика для мобильных устройств
-                gravity = 0.6; // Увеличена гравитация для более быстрого падения
-                jumpForce = -7.2; // Увеличена сила прыжка для мобильных
-                console.log('Mobile physics applied: gravity =', gravity, 'jumpForce =', jumpForce);
-            } else {
-                // Физика для десктопа
-                gravity = 0.7; // Увеличена гравитация для более быстрого падения
-                jumpForce = -8.5; // Увеличена сила прыжка для десктопа
-                console.log('Desktop physics applied: gravity =', gravity, 'jumpForce =', jumpForce);
-            }
-        }
-        
-        // Function to update bird position to left side
-        function updateBirdCenter() {
-            if (canvas) {
-                const leftOffset = isMobile ? 80 : 100; // Еще ближе к левому краю
-                bird.x = leftOffset; // Птица очень близко к левому краю
-                bird.centerX = leftOffset; // Сохраняем позицию
-                bird.minX = leftOffset - 30; // Ограничения по горизонтали
-                bird.maxX = leftOffset + 30;
-            }
-        }
-        
         // Initialize game when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Crypto Bird game initializing...');
+            console.log('🚀 Crypto Bird v' + GAME_VERSION + ' initializing...');
             
             // Initialize canvas
             canvas = document.getElementById('gameCanvas');
@@ -1390,54 +573,19 @@
             }
             
             resizeCanvas();
-            window.addEventListener('resize', function() {
-                resizeCanvas();
-                updateBirdCenter(); // Обновляем центр при изменении размера окна
-                
-                // Убеждаемся, что птица остается в центре
-                if (gameState === 'playing') {
-                    bird.x = bird.centerX;
-                }
-                
-                // Update fullscreen button if in Telegram
-                if (isTelegramApp && tg && tg.isFullscreenSupported && typeof tg.isFullscreenSupported === 'function' && tg.isFullscreenSupported()) {
-                    if (tg.isFullscreen && typeof tg.isFullscreen === 'function' && tg.isFullscreen()) {
-                        updateFullscreenButton('📱 Обычный режим');
-                    } else {
-                        updateFullscreenButton('📱 Полноэкранный режим');
-                    }
-                }
-            });
+            window.addEventListener('resize', resizeCanvas);
             
             // Initialize Telegram Web App
             initTelegramApp();
-            
-            // Update fullscreen button based on current state
-            if (isTelegramApp && tg && tg.isFullscreenSupported && typeof tg.isFullscreenSupported === 'function' && tg.isFullscreenSupported()) {
-                if (tg.isFullscreen && typeof tg.isFullscreen === 'function' && tg.isFullscreen()) {
-                    updateFullscreenButton('📱 Обычный режим');
-                    document.body.classList.add('fullscreen-mode');
-                } else {
-                    updateFullscreenButton('📱 Полноэкранный режим');
-                    document.body.classList.remove('fullscreen-mode');
-                }
-            }
             
             // Update mode indicator
             const modeIndicator = document.getElementById('modeIndicator');
             if (modeIndicator) {
                 if (isTelegramApp) {
-                    if (tg && tg.isFullscreenSupported && typeof tg.isFullscreenSupported === 'function' && tg.isFullscreenSupported()) {
-                        modeIndicator.textContent = '📱 Telegram Fullscreen';
-                        modeIndicator.style.background = 'rgba(236, 72, 153, 0.1)';
-                        modeIndicator.style.borderColor = '#ec4899';
-                        modeIndicator.style.color = '#ec4899';
-                    } else {
-                        modeIndicator.textContent = '📱 Telegram режим';
-                        modeIndicator.style.background = 'rgba(16, 185, 129, 0.1)';
-                        modeIndicator.style.borderColor = '#10b981';
-                        modeIndicator.style.color = '#10b981';
-                    }
+                    modeIndicator.textContent = '📱 Telegram режим';
+                    modeIndicator.style.background = 'rgba(16, 185, 129, 0.1)';
+                    modeIndicator.style.borderColor = '#10b981';
+                    modeIndicator.style.color = '#10b981';
                 } else {
                     modeIndicator.textContent = '🌐 Браузерный режим';
                     modeIndicator.style.background = 'rgba(0, 212, 255, 0.1)';
@@ -1446,27 +594,11 @@
                 }
             }
             
-            // Initialize audio
-            initAudio();
-            
-            // Adjust physics for device
-            adjustPhysicsForDevice();
-            
-            // Update bird center position
-            updateBirdCenter();
-            
             // Update high score display
             const highScoreElement = document.getElementById('highScoreValue');
             if (highScoreElement) {
                 highScoreElement.textContent = highScore;
             }
-            
-            // Update sound buttons
-            updateSoundButton();
-            updateMusicButton();
-            
-            // Apply current skin
-            applyCurrentSkin();
             
             // Show menu by default
             const gameMenu = document.getElementById('gameMenu');
@@ -1474,50 +606,9 @@
                 gameMenu.style.display = 'block';
             }
             
-            // Hide UI elements in menu
-            const scoreDisplay = document.getElementById('scoreDisplay');
-            const highScoreDisplay = document.getElementById('highScoreDisplay');
-            const instructions = document.getElementById('instructions');
-            
-            if (scoreDisplay) scoreDisplay.classList.add('hidden');
-            if (highScoreDisplay) highScoreDisplay.classList.add('hidden');
-            if (instructions) {
-                instructions.classList.add('hidden');
-                instructions.style.display = 'none'; // Принудительно скрываем
-            }
-            
-            // Add touch/click event listeners with debouncing
-            let lastJumpTime = 0;
-            const jumpCooldown = isMobile ? 100 : 150; // Меньший интервал для мобильных
-            
-            function handleJumpWithCooldown(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                const now = Date.now();
-                if (now - lastJumpTime > jumpCooldown) {
-                    lastJumpTime = now;
-                    handleJump();
-                }
-            }
-            
-            // Оптимизированные обработчики событий
-            canvas.addEventListener('click', handleJumpWithCooldown);
-            canvas.addEventListener('touchstart', handleJumpWithCooldown, { passive: false });
-            
-            // Дополнительные обработчики для мобильных устройств
-            if (isMobile) {
-                canvas.addEventListener('touchend', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }, { passive: false });
-                
-                // Предотвращаем зум и скролл
-                document.addEventListener('touchmove', function(e) {
-                    if (gameState === 'playing') {
-                        e.preventDefault();
-                    }
-                }, { passive: false });
-            }
+            // Add touch/click event listeners
+            canvas.addEventListener('click', handleJump);
+            canvas.addEventListener('touchstart', handleJump);
             
             // Add keyboard support
             document.addEventListener('keydown', function(e) {
@@ -1533,82 +624,29 @@
                 console.log('Initial draw completed');
             }, 100);
             
-            // Auto-start game after 2 seconds if in browser mode
-            // if (!isTelegramApp) {
-            //     setTimeout(() => {
-            //         console.log('Auto-starting game in browser mode...');
-            //         startGame();
-            //     }, 2000);
-            // }
-            
-            // Periodic debug check
-            setInterval(() => {
-                if (gameState === 'playing' && (!canvas || !ctx)) {
-                    console.error('Canvas lost during gameplay, attempting recovery...');
-                    canvas = document.getElementById('gameCanvas');
-                    ctx = canvas ? canvas.getContext('2d') : null;
-                    if (canvas && ctx) {
-                        console.log('Canvas recovered');
-                    }
-                }
-            }, 5000);
-            
-            console.log('✅ Crypto Bird game ready!');
-            console.log('Game state:', gameState);
-            console.log('Is Telegram App:', isTelegramApp);
-            console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
+            console.log('✅ Crypto Bird v' + GAME_VERSION + ' ready!');
         });
         
-        // Handle jump
+        // Handle jump with vertical-only movement
         function handleJump() {
             if (gameState === 'playing') {
-                // Оптимизированный прыжок для лучшей отзывчивости
                 bird.velocity = jumpForce;
-                bird.initialVelocity = jumpForce;
-                bird.hasJumped = true;
-                
-                // Добавляем небольшую задержку для визуального эффекта
-                setTimeout(() => {
-                    createJumpParticles();
-                    playSound('jump');
-                }, isMobile ? 0 : 10);
-                
-                // Логирование для отладки
-                console.log('Jump executed - velocity:', bird.velocity, 'device:', isMobile ? 'mobile' : 'desktop');
+                bird.rotation = -15; // Tilt up when jumping
+                createJumpParticles();
             }
         }
         
         // Create jump particles
         function createJumpParticles() {
-            for (let i = 0; i < 6; i++) {
+            for (let i = 0; i < 8; i++) {
                 particles.push({
                     x: bird.x + bird.width / 2,
                     y: bird.y + bird.height,
-                    vx: (Math.random() - 0.5) * 4,
-                    vy: Math.random() * 3 + 2,
-                    life: 20,
+                    vx: (Math.random() - 0.5) * 3,
+                    vy: Math.random() * 2 + 1,
+                    life: 25,
                     color: '#00d4ff'
                 });
-            }
-            playSound('particle');
-        }
-        
-        // Function to fade out instructions
-        function fadeOutInstructions() {
-            const instructions = document.getElementById('instructions');
-            if (instructions) {
-                console.log('Starting fade out timer for instructions');
-                setTimeout(() => {
-                    console.log('Adding fade-out class to instructions');
-                    instructions.classList.add('fade-out');
-                    // Альтернативный способ - принудительно скрыть через CSS
-                    instructions.style.opacity = '0';
-                    setTimeout(() => {
-                        console.log('Hiding instructions completely');
-                        instructions.classList.add('hidden');
-                        instructions.style.display = 'none';
-                    }, 1000);
-                }, 5000); // Исчезает через 5 секунд
             }
         }
         
@@ -1616,32 +654,9 @@
         function startGame() {
             console.log('startGame() called!');
             
-            // Check if canvas is available
             if (!canvas || !ctx) {
                 console.error('Canvas not available for game start');
                 return;
-            }
-            
-            // Auto-enable fullscreen in Telegram if supported
-            if (isTelegramApp && tg && tg.isFullscreenSupported && tg.isFullscreenSupported()) {
-                if (!tg.isFullscreen || !tg.isFullscreen()) {
-                    try {
-                        tg.enableFullscreen();
-                        document.body.classList.add('fullscreen-mode');
-                        updateFullscreenButton('📱 Обычный режим');
-                        console.log('Auto-enabled fullscreen mode for game');
-                    } catch (error) {
-                        console.log('Could not auto-enable fullscreen:', error);
-                    }
-                }
-            }
-            
-            // Hide Telegram buttons during gameplay
-            if (isTelegramApp && tg) {
-                tg.MainButton.hide();
-                if (tg.BackButton) {
-                    tg.BackButton.hide();
-                }
             }
             
             // Reset game state
@@ -1650,27 +665,18 @@
             // Reset game variables
             score = 0;
             gameSpeed = 2;
-            adjustPhysicsForDevice(); // Настройка физики для устройства
+            gravity = 0.5;
             
             // Reset bird
-            updateBirdCenter(); // Позиционируем птицу по центру
             bird.y = canvas.height / 2;
             bird.velocity = 0;
-            bird.initialVelocity = 0;
-            bird.hasJumped = false;
+            bird.rotation = 0;
             
-            // Clear tokens, particles and pipes
+            // Clear arrays
+            pipes = [];
             tokens = [];
             particles = [];
-            pipes = [];
-            
-            // Recreate background music to avoid audio errors
-            if (audioContext && musicEnabled) {
-                createBackgroundMusic();
-                if (backgroundMusic) {
-                    backgroundMusic.start();
-                }
-            }
+            lastPipeX = canvas.width + 100;
             
             // Hide menu
             const gameMenu = document.getElementById('gameMenu');
@@ -1681,50 +687,38 @@
             // Show UI elements
             const scoreDisplay = document.getElementById('scoreDisplay');
             const highScoreDisplay = document.getElementById('highScoreDisplay');
+            const dailyChallenge = document.getElementById('dailyChallenge');
             const instructions = document.getElementById('instructions');
+            const versionDisplay = document.getElementById('versionDisplay');
             
             if (scoreDisplay) scoreDisplay.classList.remove('hidden');
             if (highScoreDisplay) highScoreDisplay.classList.remove('hidden');
-            if (instructions) {
-                instructions.classList.remove('hidden');
-                instructions.classList.remove('fade-out');
-                instructions.style.opacity = '1';
-                console.log('Instructions shown in startGame');
-            }
+            if (dailyChallenge) dailyChallenge.classList.remove('hidden');
+            if (instructions) instructions.classList.remove('hidden');
+            if (versionDisplay) versionDisplay.classList.remove('hidden');
             
             // Start game loop
+            lastTime = performance.now();
             gameLoop();
-            
-            // Start fade out timer for instructions
-            fadeOutInstructions();
             
             console.log('Game started');
         }
         
         // Game over
         function gameOver() {
-            console.log('gameOver() called!'); // Debug log
+            console.log('gameOver() called!');
             
             if (gameState === 'gameOver') {
-                console.log('Game over already called, returning');
-                return; // Prevent multiple calls
+                return;
             }
             
             gameState = 'gameOver';
-            console.log('Game state set to gameOver:', gameState);
-            
-            // Stop background music
-            if (backgroundMusic) {
-                backgroundMusic.stop();
-                console.log('Background music stopped');
-            }
             
             // Update high score
             if (score > highScore) {
                 highScore = score;
                 localStorage.setItem('cryptoBirdHighScore', highScore);
                 document.getElementById('highScoreValue').textContent = highScore;
-                console.log('New high score:', highScore);
             }
             
             // Show game over screen
@@ -1733,220 +727,137 @@
             
             if (finalScore) {
                 finalScore.textContent = `Счет: ${score}`;
-                console.log('Final score updated:', score);
             }
             
             if (gameOverScreen) {
                 gameOverScreen.style.display = 'block';
-                console.log('Game over screen shown');
-            } else {
-                console.error('Game over screen not found!');
-            }
-            
-            // Show Telegram buttons on game over
-            if (isTelegramApp && tg) {
-                tg.MainButton.setText('🔄 Играть снова');
-                tg.MainButton.show();
-                if (tg.BackButton && tg.isFullscreenSupported && tg.isFullscreenSupported()) {
-                    tg.BackButton.setText('📱 Обычный режим');
-                    tg.BackButton.show();
-                }
             }
             
             // Hide UI elements
             const scoreDisplay = document.getElementById('scoreDisplay');
             const highScoreDisplay = document.getElementById('highScoreDisplay');
+            const dailyChallenge = document.getElementById('dailyChallenge');
             const instructions = document.getElementById('instructions');
+            const versionDisplay = document.getElementById('versionDisplay');
             
             if (scoreDisplay) scoreDisplay.classList.add('hidden');
             if (highScoreDisplay) highScoreDisplay.classList.add('hidden');
+            if (dailyChallenge) dailyChallenge.classList.add('hidden');
             if (instructions) instructions.classList.add('hidden');
+            if (versionDisplay) versionDisplay.classList.add('hidden');
             
-            console.log('UI elements hidden');
             console.log('Game over. Score:', score);
         }
         
         // Restart game
         function restartGame() {
-            console.log('restartGame() called!'); // Debug log
+            console.log('restartGame() called!');
             
             try {
-                // Reset game state
                 gameState = 'playing';
-                console.log('Game state set to playing:', gameState);
                 
-                // Hide game over screen with force
                 const gameOverScreen = document.getElementById('gameOverScreen');
                 if (gameOverScreen) {
                     gameOverScreen.style.display = 'none';
-                    console.log('Game over screen hidden');
-                } else {
-                    console.error('Game over screen not found!');
                 }
                 
                 // Reset game variables
                 score = 0;
                 gameSpeed = 2;
-                adjustPhysicsForDevice(); // Настройка физики для устройства
-                console.log('Game variables reset');
+                gravity = 0.5;
                 
                 // Reset bird
-                updateBirdCenter(); // Позиционируем птицу по центру
                 bird.y = canvas.height / 2;
                 bird.velocity = 0;
-                bird.initialVelocity = 0;
-                bird.hasJumped = false;
-                console.log('Bird reset to center');
+                bird.rotation = 0;
                 
-                // Clear tokens, particles and pipes
+                // Clear arrays
+                pipes = [];
                 tokens = [];
                 particles = [];
-                pipes = [];
-                console.log('Tokens and particles cleared');
+                lastPipeX = canvas.width + 100;
                 
-                // Show UI elements with force
+                // Show UI elements
                 const scoreDisplay = document.getElementById('scoreDisplay');
                 const highScoreDisplay = document.getElementById('highScoreDisplay');
+                const dailyChallenge = document.getElementById('dailyChallenge');
                 const instructions = document.getElementById('instructions');
+                const versionDisplay = document.getElementById('versionDisplay');
                 
                 if (scoreDisplay) scoreDisplay.classList.remove('hidden');
                 if (highScoreDisplay) highScoreDisplay.classList.remove('hidden');
-                if (instructions) {
-                    instructions.classList.remove('hidden');
-                    instructions.classList.remove('fade-out');
-                    instructions.style.opacity = '1';
-                    console.log('Instructions reset and shown');
-                    // Запускаем таймер исчезновения снова
-                    fadeOutInstructions();
-                }
-                console.log('UI elements shown');
+                if (dailyChallenge) dailyChallenge.classList.remove('hidden');
+                if (instructions) instructions.classList.remove('hidden');
+                if (versionDisplay) versionDisplay.classList.remove('hidden');
                 
-                // Update score display immediately
+                // Update score display
                 updateScore();
-                
-                // Start background music
-                if (audioContext && musicEnabled) {
-                    createBackgroundMusic();
-                    if (backgroundMusic) {
-                        backgroundMusic.start();
-                        console.log('Background music started');
-                    }
-                }
-                
-                // Hide Telegram buttons during gameplay
-                if (isTelegramApp && tg) {
-                    tg.MainButton.hide();
-                    if (tg.BackButton) {
-                        tg.BackButton.hide();
-                    }
-                }
                 
                 // Force canvas clear and redraw
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
-                // Start game loop with delay to ensure everything is ready
-                console.log('Starting game loop...');
+                // Start game loop
+                lastTime = performance.now();
                 setTimeout(() => {
                     gameLoop();
-                    console.log('Game loop started after delay');
                 }, 100);
                 
                 console.log('Game restarted successfully');
                 
             } catch (error) {
                 console.error('Error in restartGame:', error);
-                // Fallback: try to start game from beginning
-                console.log('Trying fallback restart...');
                 startGame();
             }
         }
         
         // Show menu
         function showMenu() {
-            // Reset game state
             gameState = 'menu';
             
-            // Stop background music
-            if (backgroundMusic) {
-                backgroundMusic.stop();
-            }
-            
-            // Show Telegram buttons when returning to menu
-            if (isTelegramApp && tg) {
-                tg.MainButton.setText('🎮 Играть в Crypto Bird');
-                tg.MainButton.show(); // Показываем кнопку в меню
-                if (tg.BackButton && tg.isFullscreenSupported && typeof tg.isFullscreenSupported === 'function' && tg.isFullscreenSupported()) {
-                    tg.BackButton.setText('📱 Полноэкранный режим');
-                    tg.BackButton.show();
-                }
-            }
-            
-            // Hide game over screen
             document.getElementById('gameOverScreen').style.display = 'none';
-            
-            // Show menu
             document.getElementById('gameMenu').style.display = 'block';
             
             // Hide UI elements
             document.getElementById('scoreDisplay').classList.add('hidden');
             document.getElementById('highScoreDisplay').classList.add('hidden');
+            document.getElementById('dailyChallenge').classList.add('hidden');
             document.getElementById('instructions').classList.add('hidden');
+            document.getElementById('versionDisplay').classList.add('hidden');
             
             console.log('Returned to menu');
         }
         
         // Show rules
         function showRules() {
-            // Hide UI elements
-            const scoreDisplay = document.getElementById('scoreDisplay');
-            const highScoreDisplay = document.getElementById('highScoreDisplay');
-            const instructions = document.getElementById('instructions');
-            
-            if (scoreDisplay) scoreDisplay.classList.add('hidden');
-            if (highScoreDisplay) highScoreDisplay.classList.add('hidden');
-            if (instructions) instructions.classList.add('hidden');
-            
             try {
                 if (isTelegramApp && tg && tg.showAlert) {
-                    tg.showAlert('🎮 Crypto Bird - Правила игры\n\n' +
+                    tg.showAlert('🎮 Crypto Bird v' + GAME_VERSION + ' - Правила игры\n\n' +
                         '• Нажимайте на экран, чтобы птица подпрыгивала\n' +
-                        '• Собирайте золотые токены для бонусных очков\n' +
-                        '• Избегайте падения на дно экрана\n' +
-                        '• Чем дольше играете, тем выше счет\n' +
-                        '• Используйте кнопки звука для настройки аудио\n\n' +
+                        '• Собирайте биткоины для бонусных очков\n' +
+                        '• Избегайте столкновений с трубами\n' +
+                        '• Чем дольше играете, тем выше счет\n\n' +
                         'Удачи в игре! 🚀');
                 } else {
-                    alert('🎮 Crypto Bird - Правила игры\n\n' +
+                    alert('🎮 Crypto Bird v' + GAME_VERSION + ' - Правила игры\n\n' +
                         '• Нажимайте на экран, чтобы птица подпрыгивала\n' +
-                        '• Собирайте золотые токены для бонусных очков\n' +
-                        '• Избегайте падения на дно экрана\n' +
-                        '• Чем дольше играете, тем выше счет\n' +
-                        '• Используйте кнопки звука для настройки аудио\n\n' +
+                        '• Собирайте биткоины для бонусных очков\n' +
+                        '• Избегайте столкновений с трубами\n' +
+                        '• Чем дольше играете, тем выше счет\n\n' +
                         'Удачи в игре! 🚀');
                 }
             } catch (error) {
                 console.log('Error showing rules:', error);
-                alert('🎮 Crypto Bird - Правила игры\n\n' +
+                alert('🎮 Crypto Bird v' + GAME_VERSION + ' - Правила игры\n\n' +
                     '• Нажимайте на экран, чтобы птица подпрыгивала\n' +
-                    '• Собирайте золотые токены для бонусных очков\n' +
-                    '• Избегайте падения на дно экрана\n' +
-                    '• Чем дольше играете, тем выше счет\n' +
-                    '• Используйте кнопки звука для настройки аудио\n\n' +
+                    '• Собирайте биткоины для бонусных очков\n' +
+                    '• Избегайте столкновений с трубами\n' +
+                    '• Чем дольше играете, тем выше счет\n\n' +
                     'Удачи в игре! 🚀');
             }
         }
         
         // Show leaderboard
         function showLeaderboard() {
-            // Hide UI elements
-            const scoreDisplay = document.getElementById('scoreDisplay');
-            const highScoreDisplay = document.getElementById('highScoreDisplay');
-            const instructions = document.getElementById('instructions');
-            
-            if (scoreDisplay) scoreDisplay.classList.add('hidden');
-            if (highScoreDisplay) highScoreDisplay.classList.add('hidden');
-            if (instructions) instructions.classList.add('hidden');
-            
             try {
                 if (isTelegramApp && tg && tg.showAlert) {
                     tg.showAlert('🏆 Таблица лидеров\n\n' +
@@ -1965,136 +876,14 @@
             }
         }
         
-        // Show skins
-        function showSkins() {
-            // Hide menu
-            document.getElementById('gameMenu').style.display = 'none';
-            
-            // Show skins screen
-            const skinsScreen = document.getElementById('skinsScreen');
-            skinsScreen.style.display = 'block';
-            
-            // Hide Telegram buttons during skins screen
-            if (isTelegramApp && tg) {
-                tg.MainButton.hide();
-                if (tg.BackButton) {
-                    tg.BackButton.hide();
-                }
-            }
-            
-            // Hide UI elements
-            const scoreDisplay = document.getElementById('scoreDisplay');
-            const highScoreDisplay = document.getElementById('highScoreDisplay');
-            const instructions = document.getElementById('instructions');
-            
-            if (scoreDisplay) scoreDisplay.classList.add('hidden');
-            if (highScoreDisplay) highScoreDisplay.classList.add('hidden');
-            if (instructions) instructions.classList.add('hidden');
-            
-            // Load and display skins
-            loadSkins();
-        }
-        
-        // Close skins
-        function closeSkins() {
-            // Hide skins screen
-            document.getElementById('skinsScreen').style.display = 'none';
-            
-            // Show menu
-            document.getElementById('gameMenu').style.display = 'block';
-            
-            // Show Telegram buttons when returning to menu
-            if (isTelegramApp && tg) {
-                tg.MainButton.setText('🎮 Играть в Crypto Bird');
-                tg.MainButton.show(); // Показываем кнопку в меню
-                if (tg.BackButton && tg.isFullscreenSupported && typeof tg.isFullscreenSupported === 'function' && tg.isFullscreenSupported()) {
-                    tg.BackButton.setText('📱 Полноэкранный режим');
-                    tg.BackButton.show();
-                }
-            }
-        }
-        
-        // Load skins
-        function loadSkins() {
-            const container = document.getElementById('skinsContainer');
-            container.innerHTML = '';
-            
-            // Check unlock status based on high score
-            skins.forEach(skin => {
-                if (skin.unlockScore && highScore >= skin.unlockScore) {
-                    skin.unlocked = true;
-                }
-            });
-            
-            skins.forEach(skin => {
-                const skinCard = document.createElement('div');
-                skinCard.className = `skin-card ${skin.unlocked ? '' : 'locked'} ${skin.id === currentSkin ? 'selected' : ''}`;
-                skinCard.setAttribute('data-skin-id', skin.id);
-                skinCard.onclick = () => selectSkin(skin.id);
-                
-                skinCard.innerHTML = `
-                    <div class="skin-icon">${skin.icon}</div>
-                    <div class="skin-name">${skin.name}</div>
-                    <div class="${skin.unlocked ? 'skin-requirement' : 'skin-unlock-requirement'}">${skin.requirement}</div>
-                `;
-                
-                container.appendChild(skinCard);
-            });
-        }
-        
-        // Select skin
-        function selectSkin(skinId) {
-            const skin = skins.find(s => s.id === skinId);
-            if (skin && skin.unlocked) {
-                currentSkin = skinId;
-                localStorage.setItem('cryptoBirdSkin', skinId);
-                
-                // Update bird color
-                bird.color = skin.color;
-                
-                // Update selection
-                document.querySelectorAll('.skin-card').forEach(card => {
-                    card.classList.remove('selected');
-                });
-                document.querySelector(`[onclick="selectSkin('${skinId}')"]`).classList.add('selected');
-                
-                console.log('Skin selected:', skinId);
-            } else if (skin && !skin.unlocked) {
-                alert(`🔒 Скин "${skin.name}" заблокирован!\n\nНаберите ${skin.unlockScore} очков, чтобы разблокировать этот скин.`);
-            }
-        }
-        
-        // Apply current skin
-        function applyCurrentSkin() {
-            const skin = skins.find(s => s.id === currentSkin);
-            if (skin) {
-                bird.color = skin.color;
-            }
-        }
-        
-        // Initialize modern app
-        // document.addEventListener('DOMContentLoaded', function() {
-        //     console.log('Crypto Bird - DOM loaded, initializing...');
-            
-        //     initTelegramApp();
-        //     initGame();
-            
-        //     console.log('Crypto Bird game ready!');
-        // });
-        
         // Export functions for global access
         window.startGame = startGame;
-        window.showSkins = showSkins;
-        window.closeSkins = closeSkins;
         window.showRules = showRules;
         window.showLeaderboard = showLeaderboard;
-        window.toggleSound = toggleSound;
-        window.toggleMusic = toggleMusic;
-
-        // Game loop with FPS optimization for mobile
-        function gameLoop(currentTime) {
+        
+        // Game loop with 60 FPS
+        function gameLoop() {
             if (gameState !== 'playing') {
-                console.log('Game loop stopped - gameState:', gameState);
                 return;
             }
             
@@ -2103,124 +892,61 @@
                 return;
             }
             
-            // FPS контроль для всех устройств (убрано ограничение для мобильных)
-            if (currentTime - lastFrameTime < frameInterval) {
-                requestAnimationFrame(gameLoop);
-                return;
-            }
+            const currentTime = performance.now();
+            const deltaTime = currentTime - lastTime;
             
-            // Обновление FPS счетчика
-            frameCount++;
-            if (currentTime - lastTime >= 1000) {
-                fps = frameCount;
-                frameCount = 0;
-                lastTime = currentTime;
-                
-                // Логируем FPS каждые 5 секунд
-                if (fps % 5 === 0) {
-                    console.log('Current FPS:', fps);
-                    if (fps < 50) {
-                        console.warn('Low FPS detected! Performance issues.');
-                    }
-                }
-            }
-            
-            try {
-                update();
+            if (deltaTime >= frameInterval) {
+                update(deltaTime);
                 draw();
-                lastFrameTime = currentTime;
-            } catch (error) {
-                console.error('Error in game loop:', error);
+                lastTime = currentTime;
             }
             
             requestAnimationFrame(gameLoop);
         }
         
-        // Update game state with performance optimization
-        function update() {
-            try {
-                // Update bird
-                bird.velocity += gravity;
-                
-                // Ограничиваем максимальную скорость падения
-                const maxFallSpeed = isMobile ? 9 : 12; // Увеличена максимальная скорость падения
-                if (bird.velocity > maxFallSpeed) {
-                    bird.velocity = maxFallSpeed;
-                }
-                
-                // Птица остается в центре, без горизонтального движения при падении
-                // Ограничиваем движение по горизонтали - птица всегда по центру
-                if (bird.x > bird.maxX) {
-                    bird.x = bird.maxX;
-                }
-                if (bird.x < bird.minX) {
-                    bird.x = bird.minX;
-                }
-                
-                bird.y += bird.velocity;
-                
-                // Check bird boundaries
-                if (bird.y < 0) {
-                    bird.y = 0;
-                    bird.velocity = 0;
-                }
-                if (bird.y + bird.height > canvas.height) {
-                    gameOver();
-                    return;
-                }
-            } catch (error) {
-                console.error('Error in update function:', error);
+        // Update game state
+        function update(deltaTime) {
+            // Update bird with vertical-only movement
+            bird.velocity += gravity;
+            bird.y += bird.velocity;
+            
+            // Update bird rotation based on velocity
+            if (bird.velocity > 0) {
+                bird.rotation = Math.min(90, bird.rotation + 3);
+            } else {
+                bird.rotation = Math.max(-15, bird.rotation - 2);
             }
             
-            // Убрано обновление частиц для максимальной производительности
-            // for (let i = particles.length - 1; i >= 0; i--) {
-            //     const particle = particles[i];
-            //     particle.x += particle.vx;
-            //     particle.y += particle.vy;
-            //     particle.vy += 0.15;
-            //     particle.life--;
-            //     
-            //     if (particle.life <= 0) {
-            //         particles.splice(i, 1);
-            //     }
-            // }
+            // Update wing animation
+            bird.wingAngle += bird.wingSpeed;
             
-            // Generate pipes less frequently with performance optimization
-            if (pipes.length === 0 || (pipes[pipes.length - 1] && pipes[pipes.length - 1].x < canvas.width - 600)) {
-                // Добавляем небольшую задержку для предотвращения фризов
-                setTimeout(() => {
-                    if (gameState === 'playing') {
-                        generatePipe();
-                    }
-                }, 0);
+            // Check bird boundaries
+            if (bird.y < 0) {
+                bird.y = 0;
+                bird.velocity = 0;
+            }
+            if (bird.y + bird.height > canvas.height) {
+                gameOver();
+                return;
             }
             
-            // Generate tokens more frequently along flight path (but not in pipes)
-            if (Math.random() < 0.01) { // Минимальная частота генерации для максимальной производительности
-                // Проверяем, что токен не появится в трубе
-                const tokenX = canvas.width + 50;
-                const birdLevel = bird.y + bird.height / 2;
-                const variation = 60;
-                const tokenY = Math.max(50, Math.min(canvas.height - 75, 
-                    birdLevel + (Math.random() - 0.5) * variation));
+            // Update particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const particle = particles[i];
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.vy += 0.15;
+                particle.life--;
                 
-                // Проверяем, не пересекается ли токен с трубами (упрощенная проверка)
-                let canGenerate = true;
-                for (let i = 0; i < Math.min(pipes.length, 3); i++) { // Проверяем только ближайшие 3 трубы
-                    const pipe = pipes[i];
-                    if (tokenX < pipe.x + pipe.width + 100 && tokenX > pipe.x - 100) {
-                        if (tokenY < pipe.topHeight - 30 || tokenY > pipe.bottomY + 30) {
-                            continue;
-                        } else {
-                            canGenerate = false;
-                            break;
-                        }
-                    }
+                if (particle.life <= 0) {
+                    particles.splice(i, 1);
                 }
-                
-                if (canGenerate) {
-                    generateToken();
-                }
+            }
+            
+            // Generate pipes with proper spacing
+            if (lastPipeX - canvas.width > 300) {
+                generatePipe();
+                lastPipeX = canvas.width + 100;
             }
             
             // Update pipes
@@ -2229,43 +955,36 @@
                 pipe.x -= gameSpeed;
                 
                 // Check collision with bird
-                if (checkPipeCollision(bird, pipe)) {
+                if (checkCollision(bird, pipe)) {
                     gameOver();
                     return;
-                }
-                
-                // Check if bird passed the pipe
-                if (!pipe.passed && bird.x > pipe.x + pipe.width) {
-                    pipe.passed = true;
-                    score += 10;
-                    updateScore();
                 }
                 
                 // Remove off-screen pipes
                 if (pipe.x + pipe.width < 0) {
                     pipes.splice(i, 1);
+                    score += 10;
+                    updateScore();
                 }
+            }
+            
+            // Generate tokens
+            if (Math.random() < 0.02) {
+                generateToken();
             }
             
             // Update tokens
             for (let i = tokens.length - 1; i >= 0; i--) {
                 const token = tokens[i];
                 token.x -= gameSpeed;
-                // Убрана анимация движения для максимальной производительности
-                // token.y += Math.sin(Date.now() * 0.005 + token.x * 0.01) * 0.8;
-                
-                // Убрана пульсация для максимальной производительности
-                // if (!token.pulse) token.pulse = 0;
-                // token.pulse += 0.1;
+                token.y += Math.sin(Date.now() * 0.005) * 0.5;
                 
                 // Check collision with bird
                 if (checkCollision(bird, token)) {
                     tokens.splice(i, 1);
                     score += 50;
                     updateScore();
-                    // Убраны частицы для максимальной производительности
-                    // createTokenParticles(token.x, token.y, token.color);
-                    playSound('token');
+                    createTokenParticles(token.x, token.y);
                 }
                 
                 // Remove off-screen tokens
@@ -2274,629 +993,312 @@
                 }
             }
             
-            // Score is now earned by passing pipes and collecting tokens
-            updateScore();
-            
             // Increase game speed gradually
-            gameSpeed += 0.006; // Увеличена скорость роста сложности
+            gameSpeed += 0.001;
         }
         
         // Draw game
         function draw() {
             try {
                 if (!ctx || !canvas) {
-                    console.error('Canvas or context not available for drawing');
                     return;
                 }
                 
-                // Clear canvas completely optimized for 60 FPS
-                ctx.fillStyle = '#0a0a0f';
+                // Clear canvas with fade effect
+                ctx.fillStyle = 'rgba(10, 10, 15, 0.2)';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
-                // Draw background grid (only in menu for performance)
-                if (gameState === 'menu') {
-                    drawGrid();
-                }
+                // Draw background grid
+                drawGrid();
                 
-                // Draw bird (even in menu state)
+                // Draw pipes
+                pipes.forEach(pipe => {
+                    drawPipe(pipe);
+                });
+                
+                // Draw bird
                 drawBird();
                 
-                // Draw pipes (only when playing)
-                if (gameState === 'playing') {
-                    pipes.forEach(pipe => {
-                        drawPipe(pipe);
-                    });
-                }
+                // Draw tokens
+                tokens.forEach(token => {
+                    drawToken(token);
+                });
                 
-                // Draw tokens (only when playing)
-                if (gameState === 'playing') {
-                    tokens.forEach(token => {
-                        drawToken(token);
-                    });
-                }
-                
-                // Убрана отрисовка частиц для максимальной производительности
-                // particles.forEach(particle => {
-                //     drawParticle(particle);
-                // });
-                
-                // Убран FPS счетчик для максимальной производительности
-                // if (gameState === 'playing') {
-                //     ctx.fillStyle = fps < 50 ? 'rgba(255, 100, 100, 0.8)' : 'rgba(255, 255, 255, 0.7)';
-                //     ctx.font = '12px Inter';
-                //     ctx.textAlign = 'left';
-                //     ctx.fillText(`FPS: ${fps}`, 10, 20);
-                //     
-                //     // Show performance tips if FPS is low
-                //     if (fps < 50) {
-                //         ctx.fillStyle = 'rgba(255, 100, 100, 0.8)';
-                //         ctx.fillText('Low FPS detected', 10, 35);
-                //     }
-                // }
+                // Draw particles
+                particles.forEach(particle => {
+                    drawParticle(particle);
+                });
             } catch (error) {
                 console.error('Error in draw function:', error);
             }
         }
         
-        // Draw grid background optimized for 60 FPS
+        // Draw grid background
         function drawGrid() {
-            // Полностью убрана сетка для максимальной производительности
-            // try {
-            //     // Минимальная сетка для максимальной производительности
-            //     ctx.strokeStyle = 'rgba(0, 212, 255, 0.01)';
-            //     ctx.lineWidth = 0.3;
-            //     
-            //     // Очень редкие линии для лучшей производительности
-            //     for (let x = 0; x < canvas.width; x += 240) {
-            //         ctx.beginPath();
-            //         ctx.moveTo(x, 0);
-            //         ctx.lineTo(x, canvas.height);
-            //         ctx.stroke();
-            //     }
-            //     
-            //     for (let y = 0; y < canvas.height; y += 240) {
-            //         ctx.beginPath();
-            //         ctx.moveTo(0, y);
-            //         ctx.lineTo(canvas.width, y);
-            //         ctx.stroke();
-            //     }
-            // } catch (error) {
-            //     console.error('Error drawing grid:', error);
-            // }
+            try {
+                ctx.strokeStyle = 'rgba(0, 212, 255, 0.05)';
+                ctx.lineWidth = 1;
+                
+                for (let x = 0; x < canvas.width; x += 80) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, canvas.height);
+                    ctx.stroke();
+                }
+                
+                for (let y = 0; y < canvas.height; y += 80) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(canvas.width, y);
+                    ctx.stroke();
+                }
+            } catch (error) {
+                console.error('Error drawing grid:', error);
+            }
         }
         
-        // Draw bird
+        // Draw improved bird
         function drawBird() {
             try {
-                // Calculate rotation based on velocity (like Flappy Bird)
-                // Уменьшаем диапазон вращения для более стабильного вида
-                const rotation = Math.min(Math.max(bird.velocity * 0.02, -0.2), 0.15);
-                
-                // Save context for rotation
                 ctx.save();
-                ctx.translate(bird.x + bird.width / 2, bird.y + bird.height / 2);
-                ctx.rotate(rotation);
                 
-                // Убрана тень птицы для максимальной производительности
-                // ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-                // ctx.beginPath();
-                // ctx.arc(2, 2, bird.width / 2, 0, Math.PI * 2);
-                // ctx.fill();
+                // Bird shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.beginPath();
+                ctx.arc(bird.x + bird.width / 2 + 2, bird.y + bird.height + 2, bird.width / 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Apply rotation
+                ctx.translate(bird.x + bird.width / 2, bird.y + bird.height / 2);
+                ctx.rotate(bird.rotation * Math.PI / 180);
+                
+                // Bird body gradient
+                const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, bird.width / 2);
+                gradient.addColorStop(0, '#00d4ff');
+                gradient.addColorStop(1, '#06b6d4');
                 
                 // Bird body
-                ctx.fillStyle = bird.color;
+                ctx.fillStyle = gradient;
                 ctx.beginPath();
                 ctx.arc(0, 0, bird.width / 2, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // Bird glow optimized for 60 FPS
-                // Убрано свечение для максимальной производительности
-                // ctx.shadowColor = bird.color;
-                // ctx.shadowBlur = 8;
-                // ctx.beginPath();
-                // ctx.arc(0, 0, bird.width / 2, 0, Math.PI * 2);
-                // ctx.fill();
-                // ctx.shadowBlur = 0;
+                // Bird glow
+                ctx.shadowColor = '#00d4ff';
+                ctx.shadowBlur = 20;
+                ctx.beginPath();
+                ctx.arc(0, 0, bird.width / 2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
                 
-                // Убран глаз птицы для максимальной производительности
-                // ctx.fillStyle = '#ffffff';
-                // ctx.beginPath();
-                // ctx.arc(5, -5, 3, 0, Math.PI * 2);
-                // ctx.fill();
+                // Bird eye
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(8, -8, 4, 0, Math.PI * 2);
+                ctx.fill();
                 
                 // Bird pupil
-                // ctx.fillStyle = '#000000';
-                // ctx.beginPath();
-                // ctx.arc(5, -5, 1.5, 0, Math.PI * 2);
-                // ctx.fill();
+                ctx.fillStyle = '#000000';
+                ctx.beginPath();
+                ctx.arc(8, -8, 2, 0, Math.PI * 2);
+                ctx.fill();
                 
-                // Убрано крыло птицы для максимальной производительности
-                // ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-                // ctx.beginPath();
-                // ctx.arc(-6, 6, 6, 0, Math.PI * 2);
-                // ctx.fill();
+                // Bird wing (animated)
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.beginPath();
+                ctx.arc(-8 + Math.sin(bird.wingAngle) * 2, 8, 8, 0, Math.PI * 2);
+                ctx.fill();
                 
-                // Restore context
+                // Bird beak
+                ctx.fillStyle = '#f59e0b';
+                ctx.beginPath();
+                ctx.moveTo(15, 0);
+                ctx.lineTo(25, -3);
+                ctx.lineTo(25, 3);
+                ctx.closePath();
+                ctx.fill();
+                
                 ctx.restore();
             } catch (error) {
                 console.error('Error drawing bird:', error);
             }
         }
         
-        // Draw crypto token with mobile optimization
-        function drawToken(token) {
-            // Убрана пульсация для максимальной производительности
-            // const pulseScale = token.pulse ? 1 + Math.sin(token.pulse) * 0.15 : 1;
-            const tokenSize = token.width / 2; // Фиксированный размер
-            
-            // Убрана тень для максимальной производительности
-            // ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-            // ctx.beginPath();
-            // ctx.arc(token.x + token.width / 2 + 2, token.y + token.height / 2 + 2, tokenSize, 0, Math.PI * 2);
-            // ctx.fill();
-            
-            // Token glow optimized for 60 FPS
-            // Убрано свечение для максимальной производительности
-            // ctx.shadowColor = token.color;
-            // ctx.shadowBlur = 8 + Math.sin(token.pulse || 0) * 2;
-            
-            // Token body (убраны градиенты для производительности)
-            ctx.fillStyle = token.color;
-            ctx.beginPath();
-            ctx.arc(token.x + token.width / 2, token.y + token.height / 2, tokenSize, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Убрана обводка для максимальной производительности
-            // ctx.strokeStyle = '#ffffff';
-            // ctx.lineWidth = 2;
-            // ctx.stroke();
-            
-            // Token symbol (используем символ из токена) - увеличен размер
-            ctx.fillStyle = '#ffffff';
-            ctx.font = `bold 20px Inter`; // Фиксированный размер шрифта
-            ctx.textAlign = 'center';
-            ctx.fillText(token.symbol || '₿', token.x + token.width / 2, token.y + token.height / 2 + 6);
-            
-            // Убран дополнительный символ для максимальной производительности
-            // if (token.symbol && token.symbol !== '₿') {
-            //     ctx.font = `bold ${14 * pulseScale}px Inter`;
-            //     ctx.fillText('₿', token.x + token.width / 2, token.y + token.height / 2 - 8);
-            // }
-            
-            ctx.shadowBlur = 0;
-        }
-        
-        // Убрана функция отрисовки частиц для максимальной производительности
-        // function drawParticle(particle) {
-        //     if (particle.life < 3) {
-        //         return; // Пропускаем частицы с малым временем жизни для 60 FPS
-        //     }
-        //     
-        //     ctx.globalAlpha = particle.life / 20;
-        //     ctx.fillStyle = particle.color;
-        //     ctx.beginPath();
-        //     ctx.arc(particle.x, particle.y, 1, 0, Math.PI * 2); // Минимальный размер для максимальной производительности
-        //     ctx.fill();
-        //     ctx.globalAlpha = 1;
-        // }
-        
-        // Draw pipe in crypto style with performance optimization
+        // Draw crypto-styled pipe
         function drawPipe(pipe) {
             try {
-                // Проверяем, что труба видна на экране
-                if (pipe.x + pipe.width < 0 || pipe.x > canvas.width) {
-                    return; // Не рисуем трубы за пределами экрана
+                // Pipe shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+                ctx.fillRect(pipe.x + 2, pipe.y + 2, pipe.width, pipe.height);
+                
+                // Pipe glow
+                ctx.shadowColor = '#00d4ff';
+                ctx.shadowBlur = 15;
+                
+                // Pipe body gradient
+                const gradient = ctx.createLinearGradient(pipe.x, 0, pipe.x + pipe.width, 0);
+                gradient.addColorStop(0, '#1a1a2e');
+                gradient.addColorStop(0.5, '#16213e');
+                gradient.addColorStop(1, '#1a1a2e');
+                
+                ctx.fillStyle = gradient;
+                ctx.fillRect(pipe.x, pipe.y, pipe.width, pipe.height);
+                
+                // Pipe border
+                ctx.strokeStyle = '#00d4ff';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(pipe.x, pipe.y, pipe.width, pipe.height);
+                
+                // Crypto symbols on pipe
+                ctx.fillStyle = '#00d4ff';
+                ctx.font = 'bold 12px Inter';
+                ctx.textAlign = 'center';
+                
+                const symbols = ['₿', 'Ξ', '◈', '◆'];
+                const symbol = symbols[Math.floor(pipe.x / 100) % symbols.length];
+                
+                for (let y = pipe.y + 20; y < pipe.y + pipe.height - 20; y += 30) {
+                    ctx.fillText(symbol, pipe.x + pipe.width / 2, y);
                 }
                 
-                // Простой цвет для труб (убраны градиенты для производительности)
-                // const gradient = ctx.createLinearGradient(pipe.x, 0, pipe.x + pipe.width, 0);
-                // gradient.addColorStop(0, '#1a1a2e');
-                // gradient.addColorStop(0.5, '#16213e');
-                // gradient.addColorStop(1, '#0f3460');
-                
-                // Верхняя труба без свечения для максимальной производительности
-                ctx.fillStyle = '#1a1a2e'; // Простой цвет вместо градиента
-                // Убрано свечение для максимальной производительности
-                // ctx.shadowColor = '#00d4ff';
-                // ctx.shadowBlur = 3;
-                ctx.fillRect(pipe.x, 0, pipe.width, pipe.topHeight);
-                
-                // Нижняя труба без свечения для максимальной производительности
-                ctx.fillRect(pipe.x, pipe.bottomY, pipe.width, canvas.height - pipe.bottomY);
-                
-                // Сброс свечения для градиентов
-                // ctx.shadowBlur = 0;
-                
-                // Обводка труб в крипто-стиле - более заметная
-                ctx.strokeStyle = '#00d4ff';
-                ctx.lineWidth = 4; // Увеличена толщина линии
-                ctx.strokeRect(pipe.x, 0, pipe.width, pipe.topHeight);
-                ctx.strokeRect(pipe.x, pipe.bottomY, pipe.width, canvas.height - pipe.bottomY);
-                
-                // Капительки труб в крипто-стиле (убраны градиенты для производительности)
-                // const capGradient = ctx.createLinearGradient(pipe.x - 5, 0, pipe.x + pipe.width + 5, 0);
-                // capGradient.addColorStop(0, '#7c3aed');
-                // capGradient.addColorStop(0.5, '#06b6d4');
-                // capGradient.addColorStop(1, '#00d4ff');
-                
-                ctx.fillStyle = '#7c3aed'; // Простой цвет вместо градиента
-                // Убрано свечение для максимальной производительности
-                // ctx.shadowColor = '#7c3aed';
-                // ctx.shadowBlur = 6;
-                ctx.fillRect(pipe.x - 5, pipe.topHeight - 20, pipe.width + 10, 20);
-                ctx.fillRect(pipe.x - 5, pipe.bottomY, pipe.width + 10, 20);
-                
-                // Сброс свечения для капителек
-                // ctx.shadowBlur = 0;
-                
-                // Обводка капителек - более заметная
-                ctx.strokeStyle = '#00d4ff';
-                ctx.lineWidth = 3; // Увеличена толщина линии
-                ctx.strokeRect(pipe.x - 5, pipe.topHeight - 20, pipe.width + 10, 20);
-                ctx.strokeRect(pipe.x - 5, pipe.bottomY, pipe.width + 10, 20);
-                
-                // Крипто-символы на капительках (убраны для производительности)
-                // ctx.fillStyle = '#ffffff';
-                // ctx.font = 'bold 12px Inter';
-                // ctx.textAlign = 'center';
-                // ctx.shadowColor = '#00d4ff';
-                // ctx.shadowBlur = 8;
-                
-                // Символы на верхней капительке
-                // ctx.fillText('₿', pipe.x + pipe.width / 2, pipe.topHeight - 8);
-                // ctx.fillText('Ξ', pipe.x + pipe.width / 2 - 15, pipe.topHeight - 8);
-                // ctx.fillText('◈', pipe.x + pipe.width / 2 + 15, pipe.topHeight - 8);
-                
-                // Символы на нижней капительке
-                // ctx.fillText('₿', pipe.x + pipe.width / 2, pipe.bottomY + 12);
-                // ctx.fillText('Ξ', pipe.x + pipe.width / 2 - 15, pipe.bottomY + 12);
-                // ctx.fillText('◈', pipe.x + pipe.width / 2 + 15, pipe.bottomY + 12);
-                
-                // Сброс свечения для текста
-                // ctx.shadowBlur = 0;
-                
-                // Добавляем обводку без свечения для максимальной производительности
-                // ctx.shadowColor = '#00d4ff';
-                // ctx.shadowBlur = 8;
-                ctx.strokeRect(pipe.x, 0, pipe.width, pipe.topHeight);
-                ctx.strokeRect(pipe.x, pipe.bottomY, pipe.width, canvas.height - pipe.bottomY);
-                
-                // Дополнительная обводка для капителек без свечения
-                // ctx.shadowColor = '#7c3aed';
-                // ctx.shadowBlur = 5;
-                ctx.strokeRect(pipe.x - 5, pipe.topHeight - 20, pipe.width + 10, 20);
-                ctx.strokeRect(pipe.x - 5, pipe.bottomY, pipe.width + 10, 20);
-                
-                // Сброс свечения
                 ctx.shadowBlur = 0;
-                
             } catch (error) {
                 console.error('Error drawing pipe:', error);
             }
         }
         
-        // Generate crypto token along bird's path
-        function generateToken() {
-            // Генерируем токен на пути птицы (ближе к левому краю)
-            const birdLevel = bird.y + bird.height / 2;
-            const variation = 60; // Уменьшенный разброс по вертикали
-            const tokenY = Math.max(50, Math.min(canvas.height - 75, 
-                birdLevel + (Math.random() - 0.5) * variation));
-            
-            // Токены появляются на уровне птицы, но справа от неё
-            const tokenX = canvas.width + 50;
-            
-            // Разнообразие криптомонет с большим количеством символов
-            const cryptoCoins = [
-                { symbol: '₿', name: 'Bitcoin', color: '#f7931a' },
-                { symbol: 'Ξ', name: 'Ethereum', color: '#627eea' },
-                { symbol: '◈', name: 'Diamond', color: '#00d4ff' },
-                { symbol: '◇', name: 'Crypto', color: '#7c3aed' },
-                { symbol: '◆', name: 'Token', color: '#06b6d4' },
-                { symbol: '●', name: 'Coin', color: '#10b981' },
-                { symbol: '★', name: 'Star', color: '#f59e0b' },
-                { symbol: '♦', name: 'Gem', color: '#ec4899' },
-                { symbol: '⚡', name: 'Lightning', color: '#ffd700' },
-                { symbol: '💎', name: 'Crystal', color: '#8b5cf6' },
-                { symbol: '🔥', name: 'Fire', color: '#ef4444' },
-                { symbol: '⭐', name: 'Sparkle', color: '#f97316' },
-                { symbol: '🌙', name: 'Moon', color: '#06b6d4' },
-                { symbol: '🚀', name: 'Rocket', color: '#ec4899' },
-                { symbol: '⚔️', name: 'Sword', color: '#10b981' },
-                { symbol: '🛡️', name: 'Shield', color: '#8b5cf6' }
-            ];
-            
-            const randomCoin = cryptoCoins[Math.floor(Math.random() * cryptoCoins.length)];
-            
-            tokens.push({
-                x: tokenX,
-                y: tokenY,
-                width: 35, // Увеличены размеры токенов
-                height: 35, // Увеличены размеры токенов
-                color: randomCoin.color,
-                symbol: randomCoin.symbol,
-                name: randomCoin.name
-                // Убрана анимация пульсации для максимальной производительности
-                // pulse: Date.now() * 0.005
-            });
-            
-            // Ограничиваем количество токенов для производительности
-            if (tokens.length > 2) {
-                tokens.shift(); // Удаляем самый старый токен
+        // Draw Bitcoin token
+        function drawToken(token) {
+            try {
+                // Token shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+                ctx.beginPath();
+                ctx.arc(token.x + token.width / 2 + 2, token.y + token.height / 2 + 2, token.width / 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Token glow
+                ctx.shadowColor = '#f59e0b';
+                ctx.shadowBlur = 20;
+                
+                // Token body gradient
+                const gradient = ctx.createRadialGradient(
+                    token.x + token.width / 2, token.y + token.height / 2, 0,
+                    token.x + token.width / 2, token.y + token.height / 2, token.width / 2
+                );
+                gradient.addColorStop(0, '#f59e0b');
+                gradient.addColorStop(1, '#d97706');
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(token.x + token.width / 2, token.y + token.height / 2, token.width / 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Bitcoin symbol
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 16px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText('₿', token.x + token.width / 2, token.y + token.height / 2 + 5);
+                
+                ctx.shadowBlur = 0;
+            } catch (error) {
+                console.error('Error drawing token:', error);
             }
         }
         
-        // Generate pipe with performance optimization
+        // Draw particle
+        function drawParticle(particle) {
+            ctx.globalAlpha = particle.life / 25;
+            ctx.fillStyle = particle.color;
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+        }
+        
+        // Generate pipe with proper spacing
         function generatePipe() {
-            try {
-                // Создаем более разнообразные позиции для труб
-                const minGap = 80; // Минимальное расстояние от краев
-                const maxGap = canvas.height - pipeGap - minGap; // Максимальное расстояние от краев
-                
-                // Генерируем позицию с большей вариацией
-                const gapY = Math.random() * (maxGap - minGap) + minGap;
-                
-                const newPipe = {
-                    x: canvas.width + 50,
-                    topHeight: gapY,
-                    bottomY: gapY + pipeGap,
-                    width: pipeWidth,
-                    passed: false
-                };
-                
-                pipes.push(newPipe);
-                
-                // Ограничиваем количество труб для производительности
-                if (pipes.length > 4) {
-                    pipes.shift(); // Удаляем самую старую трубу
-                }
-                
-            } catch (error) {
-                console.error('Error generating pipe:', error);
-            }
+            const gapY = Math.random() * (canvas.height - pipeGap - 100) + 50;
+            
+            // Top pipe
+            pipes.push({
+                x: canvas.width + 50,
+                y: 0,
+                width: pipeWidth,
+                height: gapY,
+                isTop: true
+            });
+            
+            // Bottom pipe
+            pipes.push({
+                x: canvas.width + 50,
+                y: gapY + pipeGap,
+                width: pipeWidth,
+                height: canvas.height - gapY - pipeGap,
+                isTop: false
+            });
+        }
+        
+        // Generate Bitcoin token
+        function generateToken() {
+            const tokenY = Math.random() * (canvas.height - 100) + 50;
+            tokens.push({
+                x: canvas.width + 50,
+                y: tokenY,
+                width: 25,
+                height: 25,
+                color: '#f59e0b'
+            });
         }
         
         // Check collision with improved precision
         function checkCollision(rect1, rect2) {
-            const margin = 3; // More forgiving collision for tokens
+            const margin = 5;
             return rect1.x + margin < rect2.x + rect2.width &&
                    rect1.x + rect1.width - margin > rect2.x &&
                    rect1.y + margin < rect2.y + rect2.height &&
                    rect1.y + rect1.height - margin > rect2.y;
         }
         
-        // Check collision with pipe
-        function checkPipeCollision(bird, pipe) {
-            // Проверяем столкновение с верхней трубой
-            if (bird.x + bird.width > pipe.x && bird.x < pipe.x + pipe.width &&
-                bird.y < pipe.topHeight) {
-                return true;
+        // Create token particles
+        function createTokenParticles(x, y) {
+            for (let i = 0; i < 12; i++) {
+                particles.push({
+                    x: x + 12,
+                    y: y + 12,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    life: 30,
+                    color: '#f59e0b'
+                });
             }
-            
-            // Проверяем столкновение с нижней трубой
-            if (bird.x + bird.width > pipe.x && bird.x < pipe.x + pipe.width &&
-                bird.y + bird.height > pipe.bottomY) {
-                return true;
-            }
-            
-            return false;
         }
-        
-        // Убрана функция создания частиц для максимальной производительности
-        // function createTokenParticles(x, y, tokenColor = '#f59e0b') {
-        //     const particleCount = 3; // Минимальное количество частиц для максимальной производительности
-        //     
-        //     for (let i = 0; i < particleCount; i++) {
-        //         particles.push({
-        //             x: x + 17, // Обновлено для увеличенных токенов
-        //             y: y + 17, // Обновлено для увеличенных токенов
-        //             vx: (Math.random() - 0.5) * 4,
-        //             vy: (Math.random() - 0.5) * 4,
-        //             life: 12, // Минимальное время жизни для максимальной производительности
-        //             color: tokenColor
-        //         });
-        //     }
-        // }
         
         // Update score
         function updateScore() {
             document.getElementById('scoreValue').textContent = score;
         }
         
-        // Toggle fullscreen mode
-        function toggleFullscreen() {
-            if (isTelegramApp && tg) {
-                try {
-                    console.log('Attempting to toggle fullscreen...');
-                    console.log('tg.isFullscreenSupported:', typeof tg.isFullscreenSupported);
-                    console.log('tg.isFullscreen:', typeof tg.isFullscreen);
-                    
-                    // Проверяем поддержку полноэкранного режима
-                    if (typeof tg.isFullscreenSupported === 'function' && tg.isFullscreenSupported()) {
-                        console.log('Fullscreen is supported');
-                        
-                        if (typeof tg.isFullscreen === 'function' && tg.isFullscreen()) {
-                            console.log('Currently in fullscreen, exiting...');
-                            tg.exitFullscreen();
-                            updateFullscreenButton('📱 Полноэкранный режим');
-                            document.body.classList.remove('fullscreen-mode');
-                            console.log('Exited fullscreen mode');
-                        } else {
-                            console.log('Currently not in fullscreen, entering...');
-                            tg.enableFullscreen();
-                            updateFullscreenButton('📱 Обычный режим');
-                            document.body.classList.add('fullscreen-mode');
-                            console.log('Entered fullscreen mode');
-                        }
-                    } else {
-                        console.log('Fullscreen not supported');
-                        console.log('tg.isFullscreenSupported type:', typeof tg.isFullscreenSupported);
-                        console.log('tg.isFullscreenSupported value:', tg.isFullscreenSupported);
-                        alert('Полноэкранный режим не поддерживается в вашей версии Telegram');
-                    }
-                } catch (error) {
-                    console.error('Error toggling fullscreen:', error);
-                    alert('Ошибка переключения полноэкранного режима: ' + error.message);
-                }
-            } else {
-                console.log('Not in Telegram app');
-                alert('Полноэкранный режим доступен только в Telegram Mini App');
-            }
-        }
-        
-        // Update fullscreen button text
-        function updateFullscreenButton(text) {
-            const fullscreenBtn = document.getElementById('fullscreenBtn');
-            if (fullscreenBtn) {
-                fullscreenBtn.textContent = text;
-            }
-        }
-        
-        // Export functions to global scope for HTML onclick (after all functions are defined)
+        // Export functions to global scope
         window.restartGame = restartGame;
         window.showMenu = showMenu;
-        window.toggleFullscreen = toggleFullscreen;
         
-        // Test jump function
-        window.testJump = function() {
-            console.log('Testing jump...');
-            if (gameState === 'playing') {
-                console.log('Bird position before jump:', bird.x, bird.y);
-                console.log('Bird velocity before jump:', bird.velocity);
-                handleJump();
-                console.log('Bird velocity after jump:', bird.velocity);
-            } else {
-                console.log('Game not in playing state, current state:', gameState);
-            }
-        };
-        
-        // Global debug function
-        window.debugGame = function() {
-            console.log('=== Crypto Bird Debug Info ===');
-            console.log('Canvas:', canvas);
-            console.log('Context:', ctx);
-            console.log('Game State:', gameState);
-            console.log('Score:', score);
-            console.log('Is Telegram App:', isTelegramApp);
-            console.log('Sound Enabled:', soundEnabled);
-            console.log('Music Enabled:', musicEnabled);
-            console.log('Bird position:', bird.x, bird.y);
-            console.log('Canvas dimensions:', canvas ? canvas.width + 'x' + canvas.height : 'N/A');
-            
-            // Fullscreen debug info
-            if (isTelegramApp && tg) {
-                console.log('Telegram Web App:', tg);
-                console.log('Fullscreen Supported:', tg.isFullscreenSupported && typeof tg.isFullscreenSupported === 'function' ? tg.isFullscreenSupported() : 'Not available');
-                console.log('Is Fullscreen:', tg.isFullscreen && typeof tg.isFullscreen === 'function' ? tg.isFullscreen() : 'Not available');
-                console.log('Viewport Info:', tg.viewportHeight, 'x', tg.viewportWidth);
-                console.log('isFullscreenSupported type:', typeof tg.isFullscreenSupported);
-                console.log('isFullscreen type:', typeof tg.isFullscreen);
-            }
-            
-            // Jump physics debug info
-            console.log('Jump Physics Debug:');
-            console.log('Device type:', isMobile ? 'Mobile' : 'Desktop');
-            console.log('Current gravity:', gravity);
-            console.log('Current jumpForce:', jumpForce);
-            console.log('Max fall speed:', isMobile ? 6 : 8);
-            console.log('Jump cooldown:', isMobile ? 100 : 150, 'ms');
-            
-            console.log('=============================');
-        };
-        
-        // Debug: Check if functions are properly exported
-        console.log('Function exports check:');
-        console.log('window.restartGame:', typeof window.restartGame);
-        console.log('window.showMenu:', typeof window.showMenu);
-        console.log('restartGame function:', typeof restartGame);
-        
-        // Alternative event binding for buttons
+        // Event listeners for buttons
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM Content Loaded - setting up event listeners');
-            
-            // Find restart button and add event listener
             const restartBtn = document.getElementById('restartBtn');
             if (restartBtn) {
                 restartBtn.addEventListener('click', function(e) {
                     e.preventDefault();
-                    e.stopPropagation();
-                    console.log('Restart button clicked via addEventListener');
-                    
-                    // Force call restartGame function
-                    if (typeof restartGame === 'function') {
-                        console.log('Calling restartGame function...');
-                        restartGame();
-                    } else {
-                        console.error('restartGame function not found!');
-                        // Try alternative approach
-                        window.restartGame && window.restartGame();
-                    }
+                    restartGame();
                 });
-                console.log('Restart button event listener added');
-            } else {
-                console.error('Restart button not found!');
             }
             
-            // Find menu button and add event listener
             const menuBtn = document.getElementById('menuBtn');
             if (menuBtn) {
                 menuBtn.addEventListener('click', function(e) {
                     e.preventDefault();
-                    e.stopPropagation();
-                    console.log('Menu button clicked via addEventListener');
-                    
-                    // Force call showMenu function
-                    if (typeof showMenu === 'function') {
-                        console.log('Calling showMenu function...');
-                        showMenu();
-                    } else {
-                        console.error('showMenu function not found!');
-                        // Try alternative approach
-                        window.showMenu && window.showMenu();
-                    }
+                    showMenu();
                 });
-                console.log('Menu button event listener added');
-            } else {
-                console.error('Menu button not found!');
             }
-            
-            // Debug: Check all buttons
-            const allButtons = document.querySelectorAll('button');
-            console.log('All buttons found:', allButtons.length);
-            allButtons.forEach((btn, index) => {
-                console.log(`Button ${index}:`, btn.textContent, btn.id, btn.onclick);
-            });
-            
-            // Add event listeners for sound buttons
-            const soundBtn = document.getElementById('soundBtn');
-            const musicBtn = document.getElementById('musicBtn');
-            
-            if (soundBtn) {
-                soundBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('Sound button clicked');
-                    toggleSound();
-                });
-                console.log('Sound button event listener added');
-            }
-            
-            if (musicBtn) {
-                musicBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('Music button clicked');
-                    toggleMusic();
-                });
-                console.log('Music button event listener added');
-            }
-            
-            // Debug: Check if functions exist
-            console.log('Function availability check:');
-            console.log('restartGame function:', typeof restartGame);
-            console.log('showMenu function:', typeof showMenu);
-            console.log('window.restartGame:', typeof window.restartGame);
-            console.log('window.showMenu:', typeof window.showMenu);
         });
     </script>
 </body>
