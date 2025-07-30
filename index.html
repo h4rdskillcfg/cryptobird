@@ -52,6 +52,15 @@
             position: relative;
             height: 100vh;
             width: 100vw;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Force full screen in Telegram */
+        html, body {
+            height: 100% !important;
+            width: 100% !important;
+            overflow: hidden !important;
         }
 
         /* Animated Background */
@@ -494,6 +503,7 @@
         <div id="gameOverScreen">
             <h2>💥 Игра окончена!</h2>
             <div id="finalScore">Счет: 0</div>
+            <button class="game-btn" id="restartBtn">🔄 Начать заново</button>
             <button class="game-btn" id="menuBtn">🏠 Главное меню</button>
         </div>
         
@@ -540,8 +550,8 @@
         
         // Pipes array
         let pipes = [];
-        let pipeGap = 160;
-        let pipeWidth = 90;
+        let pipeGap = 180;
+        let pipeWidth = 120;
         let lastPipeX = 800;
         
         // Tokens array (only Bitcoin)
@@ -556,9 +566,25 @@
                     isTelegramApp = true;
                     
                     tg.enableClosingConfirmation();
-                    tg.expand();
+                    
+                    // Force expand to full screen
+                    try {
+                        tg.expand();
+                        console.log('✅ App expanded to full screen');
+                    } catch (error) {
+                        console.log('⚠️ Could not expand app:', error);
+                    }
+                    
+                    // Set colors
                     tg.setHeaderColor('#00d4ff');
                     tg.setBackgroundColor('#0a0a0f');
+                    
+                    // Force viewport to full screen
+                    if (tg.viewportHeight) {
+                        document.documentElement.style.height = tg.viewportHeight + 'px';
+                        document.body.style.height = tg.viewportHeight + 'px';
+                        console.log('✅ Viewport height set to:', tg.viewportHeight);
+                    }
                     // Main button disabled for this game
                     // tg.MainButton.setText('🎮 Играть в Crypto Bird');
                     // tg.MainButton.show();
@@ -609,6 +635,18 @@
             
             // Initialize Telegram Web App
             initTelegramApp();
+            
+            // Force expand after a short delay
+            if (isTelegramApp && tg) {
+                setTimeout(() => {
+                    try {
+                        tg.expand();
+                        console.log('✅ App expanded after delay');
+                    } catch (error) {
+                        console.log('⚠️ Could not expand app after delay:', error);
+                    }
+                }, 500);
+            }
             
             // Update mode indicator
             const modeIndicator = document.getElementById('modeIndicator');
@@ -667,23 +705,23 @@
             if (gameState === 'playing') {
                 bird.velocity = jumpForce;
                 bird.rotation = -15; // Tilt up when jumping
-                createJumpParticles();
+                // createJumpParticles(); // Removed jump particles
             }
         }
         
-        // Create jump particles
-        function createJumpParticles() {
-            for (let i = 0; i < 8; i++) {
-                particles.push({
-                    x: bird.x + bird.width / 2,
-                    y: bird.y + bird.height,
-                    vx: (Math.random() - 0.5) * 3,
-                    vy: Math.random() * 2 + 1,
-                    life: 25,
-                    color: '#00d4ff'
-                });
-            }
-        }
+        // Create jump particles (removed for performance)
+        // function createJumpParticles() {
+        //     for (let i = 0; i < 8; i++) {
+        //         particles.push({
+        //             x: bird.x + bird.width / 2,
+        //             y: bird.y + bird.height,
+        //             vx: (Math.random() - 0.5) * 3,
+        //             vy: Math.random() * 2 + 1,
+        //             life: 25,
+        //             color: '#00d4ff'
+        //         });
+        //     }
+        // }
         
         // Start game
         function startGame() {
@@ -1183,7 +1221,7 @@
             if (!ctx) return;
             
             // Pipe gradient
-            pipeGradient = ctx.createLinearGradient(0, 0, 90, 0);
+            pipeGradient = ctx.createLinearGradient(0, 0, 120, 0);
             pipeGradient.addColorStop(0, '#0f0f23');
             pipeGradient.addColorStop(0.2, '#1a1a3a');
             pipeGradient.addColorStop(0.5, '#2a2a4a');
@@ -1302,7 +1340,7 @@
         
         // Generate pipe with proper spacing
         function generatePipe() {
-            const gapY = Math.random() * (canvas.height - pipeGap - 120) + 60;
+            const gapY = Math.random() * (canvas.height - pipeGap - 140) + 70;
             
             // Top pipe
             pipes.push({
@@ -1404,6 +1442,14 @@
         
         // Event listeners for buttons
         document.addEventListener('DOMContentLoaded', function() {
+            const restartBtn = document.getElementById('restartBtn');
+            if (restartBtn) {
+                restartBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    restartGame();
+                });
+            }
+            
             const menuBtn = document.getElementById('menuBtn');
             if (menuBtn) {
                 menuBtn.addEventListener('click', function(e) {
