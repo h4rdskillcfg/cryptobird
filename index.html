@@ -63,7 +63,7 @@
             overflow: hidden !important;
         }
 
-        /* Animated Background */
+        /* Static Background */
         body::before {
             content: '';
             position: fixed;
@@ -72,16 +72,9 @@
             width: 100%;
             height: 100%;
             background: 
-                radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(124, 58, 237, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
+                radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(124, 58, 237, 0.05) 0%, transparent 50%);
             z-index: -1;
-            animation: backgroundFloat 20s ease-in-out infinite;
-        }
-
-        @keyframes backgroundFloat {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(1deg); }
         }
 
         /* Game Container */
@@ -119,9 +112,7 @@
             position: absolute;
             top: 20px;
             left: 20px;
-            background: rgba(26, 26, 46, 0.8);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            background: rgba(26, 26, 46, 0.9);
             padding: 15px 25px;
             border-radius: 15px;
             border: 1px solid var(--game-border);
@@ -142,9 +133,7 @@
             position: absolute;
             top: 20px;
             right: 20px;
-            background: rgba(26, 26, 46, 0.8);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            background: rgba(26, 26, 46, 0.9);
             padding: 15px 25px;
             border-radius: 15px;
             border: 1px solid var(--game-border);
@@ -164,9 +153,7 @@
             position: absolute;
             bottom: 20px;
             left: 20px;
-            background: rgba(26, 26, 46, 0.6);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            background: rgba(26, 26, 46, 0.9);
             padding: 8px 15px;
             border-radius: 10px;
             border: 1px solid var(--game-border);
@@ -181,9 +168,7 @@
             position: absolute;
             bottom: 20px;
             right: 20px;
-            background: rgba(26, 26, 46, 0.6);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            background: rgba(26, 26, 46, 0.9);
             padding: 8px 15px;
             border-radius: 10px;
             border: 1px solid var(--game-border);
@@ -205,8 +190,6 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: rgba(26, 26, 46, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
             padding: 40px;
             border-radius: 25px;
             border: 1px solid var(--game-border);
@@ -264,8 +247,6 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: rgba(26, 26, 46, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
             padding: 40px;
             border-radius: 25px;
             border: 1px solid var(--game-border);
@@ -295,9 +276,7 @@
             position: absolute;
             top: 80px;
             left: 20px;
-            background: rgba(26, 26, 46, 0.8);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            background: rgba(26, 26, 46, 0.9);
             padding: 15px 20px;
             border-radius: 15px;
             border: 1px solid var(--game-warning);
@@ -313,15 +292,13 @@
             position: absolute;
             bottom: 20px;
             right: 20px;
-            background: rgba(26, 26, 46, 0.8);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            background: rgba(26, 26, 46, 0.9);
             padding: 15px 25px;
             border-radius: 15px;
             border: 1px solid var(--game-border);
             pointer-events: none;
             font-weight: 500;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: var(--game-text-secondary);
             text-align: center;
         }
@@ -392,8 +369,6 @@
             width: 100%;
             height: 100%;
             background: rgba(10, 10, 15, 0.8);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
             z-index: 15;
             display: none;
             justify-content: center;
@@ -416,7 +391,6 @@
             transform: translate(-50%, -50%);
             text-align: center;
             background: rgba(26, 26, 46, 0.95);
-            backdrop-filter: blur(20px);
             border: 1px solid var(--game-border);
             border-radius: 20px;
             padding: 40px;
@@ -1006,7 +980,7 @@
             const currentTime = performance.now();
             const deltaTime = currentTime - lastTime;
             
-            // FPS calculation
+            // FPS calculation (simplified)
             fpsCounter++;
             fpsTime += deltaTime;
             
@@ -1017,14 +991,10 @@
                 fpsTime = 0;
             }
             
-            // Optimized update frequency
-            if (deltaTime >= frameInterval) {
-                update(deltaTime);
-                lastTime = currentTime;
-            }
-            
-            // Always draw for smooth visuals
+            // Update and draw every frame for maximum smoothness
+            update(deltaTime);
             draw();
+            lastTime = currentTime;
             
             requestAnimationFrame(gameLoop);
         }
@@ -1131,9 +1101,8 @@
                     return;
                 }
                 
-                // Clear canvas with fade effect
-                ctx.fillStyle = 'rgba(10, 10, 15, 0.2)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                // Clear canvas completely
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
                 // Draw background grid
                 drawGrid();
