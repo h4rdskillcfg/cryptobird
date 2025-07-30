@@ -567,13 +567,23 @@
                     
                     tg.enableClosingConfirmation();
                     
-                    // Force expand to full screen
-                    try {
-                        tg.expand();
-                        console.log('✅ App expanded to full screen');
-                    } catch (error) {
-                        console.log('⚠️ Could not expand app:', error);
-                    }
+                    // Force expand to full screen with multiple attempts
+                    const expandApp = () => {
+                        try {
+                            tg.expand();
+                            console.log('✅ App expanded to full screen');
+                        } catch (error) {
+                            console.log('⚠️ Could not expand app:', error);
+                        }
+                    };
+                    
+                    // Try to expand immediately
+                    expandApp();
+                    
+                    // Try to expand after a delay
+                    setTimeout(expandApp, 100);
+                    setTimeout(expandApp, 500);
+                    setTimeout(expandApp, 1000);
                     
                     // Set colors
                     tg.setHeaderColor('#00d4ff');
@@ -585,6 +595,15 @@
                         document.body.style.height = tg.viewportHeight + 'px';
                         console.log('✅ Viewport height set to:', tg.viewportHeight);
                     }
+                    
+                    // Force full screen on window load
+                    window.addEventListener('load', () => {
+                        setTimeout(expandApp, 100);
+                        if (tg.viewportHeight) {
+                            document.documentElement.style.height = tg.viewportHeight + 'px';
+                            document.body.style.height = tg.viewportHeight + 'px';
+                        }
+                    });
                     // Main button disabled for this game
                     // tg.MainButton.setText('🎮 Играть в Crypto Bird');
                     // tg.MainButton.show();
@@ -1021,11 +1040,21 @@
                 return;
             }
             
-            // Update particles
+            // Update particles with flight trajectory
             for (let i = particles.length - 1; i >= 0; i--) {
                 const particle = particles[i];
                 particle.x += particle.vx;
-                particle.y += particle.vy;
+                
+                // Траектория движения для частиц
+                if (particle.originalY && particle.amplitude && particle.frequency) {
+                    const time = Date.now() * particle.frequency;
+                    particle.y = particle.originalY + Math.sin(time) * particle.amplitude;
+                    particle.y += particle.vy;
+                } else {
+                    // Fallback для старых частиц
+                    particle.y += particle.vy;
+                }
+                
                 particle.vy += 0.15;
                 particle.life--;
                 
@@ -1064,11 +1093,22 @@
                 generateToken();
             }
             
-            // Update tokens
+            // Update tokens with flight trajectory
             for (let i = tokens.length - 1; i >= 0; i--) {
                 const token = tokens[i];
                 token.x -= gameSpeed;
-                token.y += Math.sin(Date.now() * 0.005) * 0.5;
+                
+                // Траектория движения по траектории полета
+                if (token.originalY && token.amplitude && token.frequency) {
+                    const time = Date.now() * token.frequency + token.phase;
+                    token.y = token.originalY + Math.sin(time) * token.amplitude;
+                    
+                    // Добавляем небольшое вертикальное движение для естественности
+                    token.y += Math.sin(Date.now() * 0.003) * 2;
+                } else {
+                    // Fallback для старых токенов
+                    token.y += Math.sin(Date.now() * 0.005) * 0.5;
+                }
                 
                 // Check collision with bird
                 if (checkCollision(bird, token)) {
@@ -1366,15 +1406,27 @@
             createPipeEntranceParticles(canvas.width + 50, gapY);
         }
         
-        // Generate Bitcoin token
+        // Generate Bitcoin token with flight trajectory
         function generateToken() {
-            const tokenY = Math.random() * (canvas.height - 100) + 50;
+            // Генерируем токен в зоне полета птицы
+            const birdCenterY = canvas.height / 2;
+            const flightZone = 200; // Зона полета вокруг центра
+            const minY = Math.max(50, birdCenterY - flightZone / 2);
+            const maxY = Math.min(canvas.height - 100, birdCenterY + flightZone / 2);
+            
+            const tokenY = Math.random() * (maxY - minY) + minY;
+            
             tokens.push({
                 x: canvas.width + 50,
                 y: tokenY,
                 width: 25,
                 height: 25,
-                color: '#f59e0b'
+                color: '#f59e0b',
+                // Добавляем параметры для траектории
+                originalY: tokenY,
+                amplitude: Math.random() * 30 + 10, // Амплитуда колебаний
+                frequency: Math.random() * 0.01 + 0.005, // Частота колебаний
+                phase: Math.random() * Math.PI * 2 // Начальная фаза
             });
         }
         
@@ -1401,16 +1453,26 @@
             }
         }
         
-        // Create pipe entrance particles
+        // Create pipe entrance particles with flight trajectory
         function createPipeEntranceParticles(x, gapY) {
+            const centerY = gapY + pipeGap / 2; // Центр прохода между трубами
+            
             for (let i = 0; i < 8; i++) {
+                // Создаем частицы в зоне полета
+                const offsetY = (Math.random() - 0.5) * pipeGap * 0.6; // 60% от зазора
+                const particleY = centerY + offsetY;
+                
                 particles.push({
                     x: x + pipeWidth / 2,
-                    y: gapY + Math.random() * pipeGap,
+                    y: particleY,
                     vx: -Math.random() * 2 - 1,
-                    vy: (Math.random() - 0.5) * 3,
+                    vy: (Math.random() - 0.5) * 2, // Уменьшенная вертикальная скорость
                     life: 40,
-                    color: '#00d4ff'
+                    color: '#00d4ff',
+                    // Добавляем параметры для траектории
+                    originalY: particleY,
+                    amplitude: Math.random() * 10 + 5,
+                    frequency: Math.random() * 0.01 + 0.005
                 });
             }
         }
