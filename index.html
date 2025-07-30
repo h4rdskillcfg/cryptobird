@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Crypto Bird v2.1 - Telegram Game</title>
+    <title>Crypto Bird beta v.0.1 - Telegram Game</title>
     
     <!-- Preload critical resources -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" as="style">
@@ -454,7 +454,7 @@
             </div>
             
             <div id="versionDisplay">
-                v2.1
+                beta v.0.1
             </div>
             
             <div id="fpsDisplay">
@@ -488,7 +488,7 @@
 
     <script>
         // Game version
-        const GAME_VERSION = "2.1";
+        const GAME_VERSION = "beta v.0.1";
         
         // Check if running in Telegram Web App
         let isTelegramApp = false;
@@ -500,8 +500,10 @@
         let score = 0;
         let highScore = localStorage.getItem('cryptoBirdHighScore') || 0;
         let gameSpeed = 2;
-        let gravity = 0.5;
-        let jumpForce = -8;
+        let gravity = 0.4;
+        let jumpForce = -7;
+        let airResistance = 0.98; // Air resistance for more realistic physics
+        let maxFallSpeed = 12; // Maximum fall speed
         let lastTime = 0;
         let fps = 60;
         let frameInterval = 1000 / fps;
@@ -509,16 +511,18 @@
         let fpsTime = 0;
         let currentFPS = 60;
         
-        // Unified physics for all devices
+        // Enhanced physics for all devices with time-based scaling
         function setupUnifiedPhysics() {
-            // Унифицированная физика для всех устройств
-            gravity = 0.5;
-            jumpForce = -8;
+            // Улучшенная физика для всех устройств с учетом времени
+            gravity = 0.4; // Оптимизированная гравитация для плавного падения
+            jumpForce = -7; // Оптимизированная сила прыжка для лучшего контроля
+            airResistance = 0.98; // Сопротивление воздуха для более реалистичной физики
+            maxFallSpeed = 12; // Максимальная скорость падения
             
-            console.log('✅ Unified physics applied: gravity =', gravity, 'jumpForce =', jumpForce);
+            console.log('✅ Enhanced physics applied: gravity =', gravity, 'jumpForce =', jumpForce, 'airResistance =', airResistance);
         }
         
-        // Bird object with improved design
+        // Bird object with enhanced physics
         let bird = {
             x: 100,
             y: 300,
@@ -527,8 +531,11 @@
             height: 35,
             color: '#00d4ff',
             rotation: 0,
+            targetRotation: 0, // Target rotation for smooth transitions
             wingAngle: 0,
-            wingSpeed: 0.3
+            wingSpeed: 0.4, // Slightly faster wing animation
+            isJumping: false, // Track jump state for better physics
+            jumpCooldown: 0 // Prevent rapid jumping
         };
         
         // Pipes array
@@ -705,12 +712,23 @@
             console.log('✅ Crypto Bird v' + GAME_VERSION + ' ready!');
         });
         
-        // Handle jump with vertical-only movement
+        // Enhanced jump handling with improved physics
         function handleJump() {
-            if (gameState === 'playing') {
-                bird.velocity = jumpForce;
-                bird.rotation = -15; // Tilt up when jumping
-                // createJumpParticles(); // Removed jump particles
+            if (gameState === 'playing' && bird.jumpCooldown <= 0) {
+                // Apply enhanced jump force with better responsiveness
+                const currentTime = performance.now();
+                const timeScale = Math.min((currentTime - lastTime) / 16.67, 2.0);
+                
+                // Enhanced jump mechanics
+                bird.velocity = jumpForce * Math.max(timeScale, 0.5);
+                bird.targetRotation = -20; // Smoother upward tilt
+                bird.isJumping = true;
+                bird.jumpCooldown = 5; // Prevent rapid jumping
+                
+                // Add slight horizontal movement for more dynamic feel
+                bird.x += Math.random() * 2 - 1; // Small random horizontal movement
+                
+                console.log('🦅 Jump executed: velocity =', bird.velocity.toFixed(2), 'timeScale =', timeScale.toFixed(2));
             }
         }
         
@@ -745,10 +763,14 @@
                 gameSpeed = 2;
                 setupUnifiedPhysics(); // Унифицированная физика
             
-            // Reset bird
+            // Reset bird with enhanced physics state
             bird.y = canvas.height / 2;
             bird.velocity = 0;
             bird.rotation = 0;
+            bird.targetRotation = 0;
+            bird.isJumping = false;
+            bird.jumpCooldown = 0;
+            bird.wingAngle = 0;
             
             // Clear arrays
             pipes = [];
@@ -848,10 +870,14 @@
             gameSpeed = 2;
             setupUnifiedPhysics(); // Унифицированная физика
                 
-                // Reset bird
+                // Reset bird with enhanced physics state
                 bird.y = canvas.height / 2;
                 bird.velocity = 0;
                 bird.rotation = 0;
+                bird.targetRotation = 0;
+                bird.isJumping = false;
+                bird.jumpCooldown = 0;
+                bird.wingAngle = 0;
                 
                 // Clear arrays
                 pipes = [];
@@ -999,26 +1025,58 @@
             requestAnimationFrame(gameLoop);
         }
         
-        // Update game state
+        // Enhanced game state update with improved physics
         function update(deltaTime) {
-            // Update bird with vertical-only movement
-            bird.velocity += gravity;
-            bird.y += bird.velocity;
+            // Enhanced bird physics with air resistance and fall speed limit
+            const timeScale = Math.min(deltaTime / 16.67, 2.0); // Normalize to 60 FPS, cap at 2x
             
-            // Update bird rotation based on velocity
+            // Apply gravity with air resistance
+            bird.velocity += gravity * timeScale;
+            
+            // Apply air resistance for more realistic physics
+            bird.velocity *= Math.pow(airResistance, timeScale);
+            
+            // Limit fall speed for better control
+            if (bird.velocity > maxFallSpeed) {
+                bird.velocity = maxFallSpeed;
+            }
+            
+            // Update position
+            bird.y += bird.velocity * timeScale;
+            
+            // Update jump cooldown
+            if (bird.jumpCooldown > 0) {
+                bird.jumpCooldown--;
+            }
+            
+            // Enhanced rotation system with smooth transitions
             if (bird.velocity > 0) {
-                bird.rotation = Math.min(90, bird.rotation + 3);
+                bird.targetRotation = Math.min(90, bird.targetRotation + 4);
             } else {
-                bird.rotation = Math.max(-15, bird.rotation - 2);
+                bird.targetRotation = Math.max(-20, bird.targetRotation - 3);
+            }
+            
+            // Smooth rotation interpolation
+            bird.rotation += (bird.targetRotation - bird.rotation) * 0.1;
+            
+            // Reset jump state when falling
+            if (bird.velocity > 0) {
+                bird.isJumping = false;
+            }
+            
+            // Debug physics (only in development)
+            if (currentFPS < 30) {
+                console.log('⚠️ Low FPS detected:', currentFPS, 'TimeScale:', timeScale.toFixed(2));
             }
             
             // Update wing animation
             bird.wingAngle += bird.wingSpeed;
             
-            // Check bird boundaries
+            // Enhanced boundary collision handling with physics
             if (bird.y < 0) {
                 bird.y = 0;
-                bird.velocity = 0;
+                bird.velocity = Math.abs(bird.velocity) * 0.3; // Bounce with reduced velocity
+                bird.targetRotation = Math.min(45, bird.targetRotation + 10); // Adjust rotation on bounce
             }
             if (bird.y + bird.height > canvas.height) {
                 gameOver();
@@ -1386,13 +1444,23 @@
             });
         }
         
-        // Check collision with improved precision
+        // Enhanced collision detection with physics-based response
         function checkCollision(rect1, rect2) {
-            const margin = 5;
-            return rect1.x + margin < rect2.x + rect2.width &&
+            const margin = 3; // Reduced margin for more precise collision
+            const collision = rect1.x + margin < rect2.x + rect2.width &&
                    rect1.x + rect1.width - margin > rect2.x &&
                    rect1.y + margin < rect2.y + rect2.height &&
                    rect1.y + rect1.height - margin > rect2.y;
+            
+            // Enhanced collision response for better physics feel
+            if (collision) {
+                // Add slight bounce effect on collision
+                if (rect1.velocity) {
+                    rect1.velocity *= -0.3; // Bounce back with reduced velocity
+                }
+            }
+            
+            return collision;
         }
         
         // Create token particles
@@ -1475,3 +1543,4 @@
     </script>
 </body>
 </html> 
+
