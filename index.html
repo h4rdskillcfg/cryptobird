@@ -535,6 +535,15 @@
         let fpsTime = 0;
         let currentFPS = 60;
         
+        // Unified physics for all devices
+        function setupUnifiedPhysics() {
+            // Унифицированная физика для всех устройств
+            gravity = 0.5;
+            jumpForce = -8;
+            
+            console.log('✅ Unified physics applied: gravity =', gravity, 'jumpForce =', jumpForce);
+        }
+        
         // Bird object with improved design
         let bird = {
             x: 100,
@@ -710,6 +719,9 @@
             // Initialize cached gradients
             initCachedGradients();
             
+            // Setup unified physics
+            setupUnifiedPhysics();
+            
             // Force initial draw
             setTimeout(() => {
                 draw();
@@ -754,10 +766,10 @@
             // Reset game state
             gameState = 'playing';
             
-            // Reset game variables
-            score = 0;
-            gameSpeed = 2;
-            gravity = 0.5;
+                            // Reset game variables
+                score = 0;
+                gameSpeed = 2;
+                setupUnifiedPhysics(); // Унифицированная физика
             
             // Reset bird
             bird.y = canvas.height / 2;
@@ -857,10 +869,10 @@
                     gameOverScreen.style.display = 'none';
                 }
                 
-                // Reset game variables
-                score = 0;
-                gameSpeed = 2;
-                gravity = 0.5;
+                            // Reset game variables
+            score = 0;
+            gameSpeed = 2;
+            setupUnifiedPhysics(); // Унифицированная физика
                 
                 // Reset bird
                 bird.y = canvas.height / 2;
@@ -1005,11 +1017,14 @@
                 fpsTime = 0;
             }
             
+            // Optimized update frequency
             if (deltaTime >= frameInterval) {
                 update(deltaTime);
-                draw();
                 lastTime = currentTime;
             }
+            
+            // Always draw for smooth visuals
+            draw();
             
             requestAnimationFrame(gameLoop);
         }
@@ -1040,22 +1055,12 @@
                 return;
             }
             
-            // Update particles with flight trajectory
+            // Update particles with simplified movement
             for (let i = particles.length - 1; i >= 0; i--) {
                 const particle = particles[i];
                 particle.x += particle.vx;
-                
-                // Траектория движения для частиц
-                if (particle.originalY && particle.amplitude && particle.frequency) {
-                    const time = Date.now() * particle.frequency;
-                    particle.y = particle.originalY + Math.sin(time) * particle.amplitude;
-                    particle.y += particle.vy;
-                } else {
-                    // Fallback для старых частиц
-                    particle.y += particle.vy;
-                }
-                
-                particle.vy += 0.15;
+                particle.y += particle.vy;
+                particle.vy += 0.1; // Simplified acceleration
                 particle.life--;
                 
                 if (particle.life <= 0) {
@@ -1093,22 +1098,13 @@
                 generateToken();
             }
             
-            // Update tokens with flight trajectory
+            // Update tokens with simplified movement
             for (let i = tokens.length - 1; i >= 0; i--) {
                 const token = tokens[i];
                 token.x -= gameSpeed;
                 
-                // Траектория движения по траектории полета
-                if (token.originalY && token.amplitude && token.frequency) {
-                    const time = Date.now() * token.frequency + token.phase;
-                    token.y = token.originalY + Math.sin(time) * token.amplitude;
-                    
-                    // Добавляем небольшое вертикальное движение для естественности
-                    token.y += Math.sin(Date.now() * 0.003) * 2;
-                } else {
-                    // Fallback для старых токенов
-                    token.y += Math.sin(Date.now() * 0.005) * 0.5;
-                }
+                // Simple vertical movement
+                token.y += Math.sin(Date.now() * 0.003) * 0.3;
                 
                 // Check collision with bird
                 if (checkCollision(bird, token)) {
@@ -1167,18 +1163,18 @@
         // Draw optimized grid background
         function drawGrid() {
             try {
-                ctx.strokeStyle = 'rgba(0, 212, 255, 0.03)';
+                ctx.strokeStyle = 'rgba(0, 212, 255, 0.02)';
                 ctx.lineWidth = 1;
                 
-                // Draw fewer lines for better performance
-                for (let x = 0; x < canvas.width; x += 120) {
+                // Draw even fewer lines for better performance
+                for (let x = 0; x < canvas.width; x += 200) {
                     ctx.beginPath();
                     ctx.moveTo(x, 0);
                     ctx.lineTo(x, canvas.height);
                     ctx.stroke();
                 }
                 
-                for (let y = 0; y < canvas.height; y += 120) {
+                for (let y = 0; y < canvas.height; y += 200) {
                     ctx.beginPath();
                     ctx.moveTo(0, y);
                     ctx.lineTo(canvas.width, y);
@@ -1194,10 +1190,10 @@
             try {
                 ctx.save();
                 
-                // Bird shadow (reduced blur)
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                // Bird shadow (minimal blur)
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
                 ctx.beginPath();
-                ctx.arc(bird.x + bird.width / 2 + 2, bird.y + bird.height + 2, bird.width / 2, 0, Math.PI * 2);
+                ctx.arc(bird.x + bird.width / 2 + 1, bird.y + bird.height + 1, bird.width / 2, 0, Math.PI * 2);
                 ctx.fill();
                 
                 // Apply rotation
@@ -1210,9 +1206,9 @@
                 ctx.arc(0, 0, bird.width / 2, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // Bird glow (reduced blur)
+                // Bird glow (minimal blur)
                 ctx.shadowColor = '#00d4ff';
-                ctx.shadowBlur = 10;
+                ctx.shadowBlur = 5;
                 ctx.beginPath();
                 ctx.arc(0, 0, bird.width / 2, 0, Math.PI * 2);
                 ctx.fill();
@@ -1230,10 +1226,10 @@
                 ctx.arc(8, -8, 2, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // Bird wing (animated)
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                // Bird wing (simplified animation)
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
                 ctx.beginPath();
-                ctx.arc(-8 + Math.sin(bird.wingAngle) * 2, 8, 8, 0, Math.PI * 2);
+                ctx.arc(-8, 8, 6, 0, Math.PI * 2);
                 ctx.fill();
                 
                 // Bird beak
@@ -1282,15 +1278,14 @@
         // Draw optimized crypto-styled pipe
         function drawPipe(pipe) {
             try {
-                // Simple animated glow effect
-                const time = Date.now() * 0.001;
-                const glowIntensity = Math.sin(time + pipe.x * 0.01) * 0.3 + 0.7;
+                // Fixed glow intensity for better performance
+                const glowIntensity = 0.8;
                 
-                // Pipe shadow (reduced blur)
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
-                ctx.shadowBlur = 4;
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-                ctx.fillRect(pipe.x + 2, pipe.y + 2, pipe.width, pipe.height);
+                // Pipe shadow (minimal blur)
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+                ctx.shadowBlur = 2;
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                ctx.fillRect(pipe.x + 1, pipe.y + 1, pipe.width, pipe.height);
                 ctx.shadowBlur = 0;
                 
                 // Main pipe body with cached gradient
@@ -1299,31 +1294,28 @@
                 
                 // Simplified border glow
                 ctx.shadowColor = '#00d4ff';
-                ctx.shadowBlur = 5 + glowIntensity * 5;
-                ctx.strokeStyle = `rgba(0, 212, 255, ${0.6 + glowIntensity * 0.2})`;
+                ctx.shadowBlur = 3;
+                ctx.strokeStyle = 'rgba(0, 212, 255, 0.7)';
                 ctx.lineWidth = 2;
                 ctx.strokeRect(pipe.x, pipe.y, pipe.width, pipe.height);
                 ctx.shadowBlur = 0;
                 
                 // Simple inner highlight
-                ctx.fillStyle = `rgba(255, 255, 255, ${0.1 + glowIntensity * 0.05})`;
-                ctx.fillRect(pipe.x + 2, pipe.y + 2, pipe.width - 4, 8);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.fillRect(pipe.x + 2, pipe.y + 2, pipe.width - 4, 6);
                 
-                // Simplified crypto symbols (no circuit pattern)
-                ctx.fillStyle = `rgba(0, 212, 255, ${0.8 + glowIntensity * 0.1})`;
+                // Simplified crypto symbols (static)
+                ctx.fillStyle = 'rgba(0, 212, 255, 0.8)';
                 ctx.font = 'bold 12px Inter';
                 ctx.textAlign = 'center';
                 
-                const symbols = ['₿', 'Ξ', '◈'];
-                const symbol = symbols[Math.floor((pipe.x + time * 30) / 60) % symbols.length];
+                // Only Bitcoin symbol for better performance
+                const symbol = '₿';
                 
-                // Draw symbols with minimal glow
-                ctx.shadowColor = '#00d4ff';
-                ctx.shadowBlur = 3;
-                for (let y = pipe.y + 20; y < pipe.y + pipe.height - 20; y += 30) {
+                // Draw fewer symbols
+                for (let y = pipe.y + 25; y < pipe.y + pipe.height - 25; y += 40) {
                     ctx.fillText(symbol, pipe.x + pipe.width / 2, y);
                 }
-                ctx.shadowBlur = 0;
                 
                 // Simple corner accents
                 ctx.fillStyle = '#00d4ff';
@@ -1340,15 +1332,15 @@
         // Draw optimized Bitcoin token
         function drawToken(token) {
             try {
-                // Token shadow
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+                // Token shadow (minimal)
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
                 ctx.beginPath();
-                ctx.arc(token.x + token.width / 2 + 2, token.y + token.height / 2 + 2, token.width / 2, 0, Math.PI * 2);
+                ctx.arc(token.x + token.width / 2 + 1, token.y + token.height / 2 + 1, token.width / 2, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // Token glow (reduced blur)
+                // Token glow (minimal blur)
                 ctx.shadowColor = '#f59e0b';
-                ctx.shadowBlur = 10;
+                ctx.shadowBlur = 5;
                 
                 // Token body with cached gradient
                 ctx.fillStyle = tokenGradient;
@@ -1406,11 +1398,11 @@
             createPipeEntranceParticles(canvas.width + 50, gapY);
         }
         
-        // Generate Bitcoin token with flight trajectory
+        // Generate Bitcoin token with simplified movement
         function generateToken() {
             // Генерируем токен в зоне полета птицы
             const birdCenterY = canvas.height / 2;
-            const flightZone = 200; // Зона полета вокруг центра
+            const flightZone = 150; // Reduced flight zone
             const minY = Math.max(50, birdCenterY - flightZone / 2);
             const maxY = Math.min(canvas.height - 100, birdCenterY + flightZone / 2);
             
@@ -1421,12 +1413,7 @@
                 y: tokenY,
                 width: 25,
                 height: 25,
-                color: '#f59e0b',
-                // Добавляем параметры для траектории
-                originalY: tokenY,
-                amplitude: Math.random() * 30 + 10, // Амплитуда колебаний
-                frequency: Math.random() * 0.01 + 0.005, // Частота колебаний
-                phase: Math.random() * Math.PI * 2 // Начальная фаза
+                color: '#f59e0b'
             });
         }
         
@@ -1453,26 +1440,22 @@
             }
         }
         
-        // Create pipe entrance particles with flight trajectory
+        // Create pipe entrance particles with simplified movement
         function createPipeEntranceParticles(x, gapY) {
             const centerY = gapY + pipeGap / 2; // Центр прохода между трубами
             
-            for (let i = 0; i < 8; i++) {
+            for (let i = 0; i < 6; i++) { // Reduced particle count
                 // Создаем частицы в зоне полета
-                const offsetY = (Math.random() - 0.5) * pipeGap * 0.6; // 60% от зазора
+                const offsetY = (Math.random() - 0.5) * pipeGap * 0.5; // 50% от зазора
                 const particleY = centerY + offsetY;
                 
                 particles.push({
                     x: x + pipeWidth / 2,
                     y: particleY,
-                    vx: -Math.random() * 2 - 1,
-                    vy: (Math.random() - 0.5) * 2, // Уменьшенная вертикальная скорость
-                    life: 40,
-                    color: '#00d4ff',
-                    // Добавляем параметры для траектории
-                    originalY: particleY,
-                    amplitude: Math.random() * 10 + 5,
-                    frequency: Math.random() * 0.01 + 0.005
+                    vx: -Math.random() * 1.0 - 0.5, // Simplified horizontal speed
+                    vy: (Math.random() - 0.5) * 1.0, // Simplified vertical speed
+                    life: 30, // Reduced life for better performance
+                    color: '#00d4ff'
                 });
             }
         }
