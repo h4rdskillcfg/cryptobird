@@ -183,6 +183,26 @@
             font-weight: 700;
         }
         
+        /* Game Mode Display */
+        #gameModeDisplay {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            background: rgba(26, 26, 46, 0.9);
+            padding: 8px 15px;
+            border-radius: 10px;
+            border: 1px solid var(--game-border);
+            pointer-events: none;
+            font-weight: 500;
+            font-size: 0.8rem;
+            color: var(--game-text-secondary);
+        }
+        
+        #gameModeValue {
+            color: var(--game-primary);
+            font-weight: 700;
+        }
+        
         /* Background Selector */
         #backgroundSelector {
             position: absolute;
@@ -490,6 +510,78 @@
         .overlay.show .overlay-content {
             transform: scale(1);
             opacity: 1;
+        }
+        
+        /* Mode Selector Styles */
+        .mode-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 25px 0;
+        }
+        
+        .mode-option {
+            display: flex;
+            align-items: center;
+            background: rgba(22, 33, 62, 0.8);
+            border: 2px solid var(--game-border);
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .mode-option:hover {
+            border-color: var(--game-primary);
+            background: rgba(22, 33, 62, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+        }
+        
+        .mode-option:active {
+            transform: translateY(0);
+        }
+        
+        .mode-icon {
+            font-size: 2.5rem;
+            margin-right: 20px;
+            min-width: 60px;
+            text-align: center;
+        }
+        
+        .mode-info {
+            flex: 1;
+            text-align: left;
+        }
+        
+        .mode-info h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--game-text);
+        }
+        
+        .mode-info p {
+            color: var(--game-text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        
+        .mode-stats {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .mode-stats span {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid var(--game-primary);
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            color: var(--game-primary);
         }
         
         .overlay-content h2 {
@@ -870,6 +962,11 @@
                 FPS: <span id="fpsValue">60</span>
             </div>
             
+            <!-- Game Mode Indicator -->
+            <div id="gameModeDisplay" class="hidden">
+                Режим: <span id="gameModeValue">Normal</span>
+            </div>
+            
             <!-- Кнопка быстрого выбора фона -->
             <div id="backgroundSelector" style="display: none;">
                 <button class="game-btn" onclick="showBackgroundSelector()" style="font-size: 0.8rem; padding: 8px 12px;">
@@ -885,11 +982,54 @@
                 <div id="modeIndicator" class="mode-indicator">🌐 Браузерный режим</div>
             </div>
             <p>Помогите крипто-птице пролететь через рыночные препятствия!</p>
-            <button class="game-btn" onclick="startGame()">🎮 Начать игру</button>
+            <button class="game-btn" onclick="showModeSelector()">🎮 Начать игру</button>
             <button class="game-btn" onclick="showRules()">📖 Правила</button>
             <button class="game-btn" onclick="showLeaderboard()">🏆 Таблица лидеров</button>
             <button class="game-btn" onclick="showClans()">👥 Кланы</button>
             <button class="game-btn" onclick="showSkinsShop()">🛒 Магазин скинов</button>
+        </div>
+        
+        <!-- Mode Selector Overlay -->
+        <div id="modeSelectorOverlay" class="overlay">
+            <div class="overlay-content">
+                <h2>🎮 Выберите режим игры</h2>
+                <div class="mode-selector">
+                    <div class="mode-option" onclick="selectGameMode('easy')">
+                        <div class="mode-icon">🟢</div>
+                        <div class="mode-info">
+                            <h3>Easy</h3>
+                            <p>Медленная скорость, широкие проемы</p>
+                                                             <div class="mode-stats">
+                                     <span>Скорость: 1.5x</span>
+                                     <span>Проем: 360px</span>
+                                 </div>
+                        </div>
+                    </div>
+                    <div class="mode-option" onclick="selectGameMode('normal')">
+                        <div class="mode-icon">🟡</div>
+                        <div class="mode-info">
+                            <h3>Normal</h3>
+                            <p>Средняя скорость, стандартные проемы</p>
+                                                             <div class="mode-stats">
+                                     <span>Скорость: 2.5x</span>
+                                     <span>Проем: 140px</span>
+                                 </div>
+                        </div>
+                    </div>
+                    <div class="mode-option" onclick="selectGameMode('hardcore')">
+                        <div class="mode-icon">🔴</div>
+                        <div class="mode-info">
+                            <h3>Hardcore</h3>
+                            <p>Высокая скорость, узкие проемы</p>
+                                                             <div class="mode-stats">
+                                     <span>Скорость: 3.5x</span>
+                                     <span>Проем: 360px</span>
+                                 </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="game-btn" onclick="hideModeSelector()">✖️ Отмена</button>
+            </div>
         </div>
         
         <div id="gameOverScreen">
@@ -1141,6 +1281,29 @@
         let jumpForce = -8.5;
         let airResistance = 0.99; // Air resistance for smoother movement
         let maxFallSpeed = 10; // Maximum fall speed
+        
+        // Game modes configuration
+        let currentGameMode = 'normal'; // easy, normal, hardcore
+        const gameModes = {
+            easy: {
+                name: 'Easy',
+                speed: 1.5,
+                pipeGap: 360, // Увеличен в 3 раза (было 120)
+                color: '#10b981'
+            },
+            normal: {
+                name: 'Normal',
+                speed: 2.5,
+                pipeGap: 140, // Увеличен (было 100)
+                color: '#f59e0b'
+            },
+            hardcore: {
+                name: 'Hardcore',
+                speed: 3.5,
+                pipeGap: 360, // Как в easy режиме
+                color: '#ef4444'
+            }
+        };
         let lastTime = 0;
         let fps = 60;
         let frameInterval = 1000 / fps;
@@ -1148,16 +1311,16 @@
         let fpsTime = 0;
         let currentFPS = 60;
         
-        // Balanced physics for all devices with improved time-based scaling
-        function setupUnifiedPhysics() {
-            // Сбалансированная физика для всех устройств с улучшенной нормализацией времени
-            gravity = 0.35; // Уменьшена гравитация для более легкого прыжка
-            jumpForce = -8.5; // Увеличена сила прыжка для лучшего отклика
-            airResistance = 0.99; // Уменьшено сопротивление воздуха для более легкого движения
-            maxFallSpeed = 10; // Уменьшена максимальная скорость падения
-            
-            console.log('✅ Balanced physics applied: gravity =', gravity, 'jumpForce =', jumpForce, 'airResistance =', airResistance);
-        }
+            // Unified physics for all devices with perfect consistency
+    function setupUnifiedPhysics() {
+        // Унифицированная физика для всех устройств с идеальной консистентностью
+        gravity = 0.45; // Уменьшенная гравитация для быстрого набора высоты
+        jumpForce = -11; // Увеличенная сила прыжка для быстрого подъёма
+        airResistance = 0.985; // Сбалансированное сопротивление воздуха
+        maxFallSpeed = 9; // Ограниченная максимальная скорость падения (8-10)
+        
+        console.log('✅ Enhanced physics for quick ascent: gravity =', gravity, 'jumpForce =', jumpForce, 'airResistance =', airResistance, 'maxFallSpeed =', maxFallSpeed);
+    }
         
         // Bird object with enhanced physics
         let bird = {
@@ -1360,6 +1523,12 @@
             canvas.addEventListener('click', handleJump);
             canvas.addEventListener('touchstart', handleJump);
             
+            // Load shop data
+            loadShopData();
+            
+            // Set initial bird skin
+            bird.skinType = currentBirdSkin;
+            
             // Add keyboard support
             document.addEventListener('keydown', function(e) {
                 if (e.code === 'Space' && gameState === 'playing') {
@@ -1387,26 +1556,26 @@
             console.log('✅ Crypto Bird v' + GAME_VERSION + ' ready!');
         });
         
-        // Balanced jump handling with improved responsiveness
+        // Unified jump handling with perfect device consistency
         function handleJump() {
             if (gameState === 'playing' && bird.jumpCooldown <= 0) {
-                // Apply balanced jump force with better responsiveness across all devices
+                // Apply unified jump force with perfect consistency across all devices
                 const currentTime = performance.now();
-                const timeScale = Math.min((currentTime - lastTime) / 16.67, 1.5); // Reduced max timeScale for more consistent behavior
+                const timeScale = Math.min((currentTime - lastTime) / 16.67, 1.2); // More conservative timeScale for consistency
                 
-                // Scale physics based on game speed for proportional behavior
-                const speedMultiplier = Math.max(0.5, Math.min(gameSpeed / 2, 3.0)); // Scale between 0.5x and 3x based on game speed
+                // Minimal speed scaling for consistent feel across all game speeds
+                const speedMultiplier = Math.max(0.8, Math.min(gameSpeed / 3, 2.0)); // Reduced scaling range
                 
-                // Balanced jump mechanics with improved device consistency, scaled by game speed
-                bird.velocity = jumpForce * Math.max(timeScale, 0.8) * speedMultiplier; // Higher minimum for better responsiveness
-                bird.targetRotation = -25; // More pronounced upward tilt
+                // Enhanced jump mechanics for quick ascent
+                bird.velocity = jumpForce * Math.max(timeScale, 0.95); // Higher minimum for faster response
+                bird.targetRotation = -25; // More aggressive upward tilt for quick ascent
                 bird.isJumping = true;
-                bird.jumpCooldown = 3; // Reduced cooldown for more responsive jumping
+                bird.jumpCooldown = 1; // Reduced cooldown for more responsive jumping
                 
-                // Minimal horizontal movement for stability
-                bird.x += (Math.random() - 0.5) * 0.5; // Very small random horizontal movement
+                // No horizontal movement for perfect stability
+                // bird.x += (Math.random() - 0.5) * 0.5; // Removed for stability
                 
-                console.log('🦅 Balanced jump executed: velocity =', bird.velocity.toFixed(2), 'timeScale =', timeScale.toFixed(2), 'speedMultiplier =', speedMultiplier.toFixed(2));
+                console.log('🦅 Unified jump executed: velocity =', bird.velocity.toFixed(2), 'timeScale =', timeScale.toFixed(2), 'speedMultiplier =', speedMultiplier.toFixed(2));
             }
         }
         
@@ -1436,10 +1605,18 @@
             // Reset game state
             gameState = 'playing';
             
-                            // Reset game variables with synchronized start speed
-                score = 0;
-                gameSpeed = 2; // Consistent starting speed across all devices
-                setupUnifiedPhysics(); // Сбалансированная физика
+            // Reset game variables with selected mode settings
+            score = 0;
+            const selectedMode = gameModes[currentGameMode];
+            gameSpeed = selectedMode.speed;
+            pipeGap = selectedMode.pipeGap;
+            setupUnifiedPhysics(); // Унифицированная физика
+            
+            console.log('🎮 Starting game in', selectedMode.name, 'mode: speed =', gameSpeed, 'pipeGap =', pipeGap);
+            
+            // Update game mode display
+            const gameModeValue = document.getElementById('gameModeValue');
+            if (gameModeValue) gameModeValue.textContent = selectedMode.name;
             
             // Reset bird with enhanced physics state
             bird.y = canvas.height / 2;
@@ -1469,6 +1646,7 @@
                 const versionDisplay = document.getElementById('versionDisplay');
                 const fpsDisplay = document.getElementById('fpsDisplay');
                 const backgroundSelector = document.getElementById('backgroundSelector');
+                const gameModeDisplay = document.getElementById('gameModeDisplay');
                 
                 if (scoreDisplay) scoreDisplay.classList.remove('hidden');
                 if (highScoreDisplay) highScoreDisplay.classList.remove('hidden');
@@ -1476,6 +1654,7 @@
                 if (versionDisplay) versionDisplay.classList.remove('hidden');
                 if (fpsDisplay) fpsDisplay.classList.remove('hidden');
                 if (backgroundSelector) backgroundSelector.style.display = 'block';
+                if (gameModeDisplay) gameModeDisplay.classList.remove('hidden');
             
             // Start game loop
             lastTime = performance.now();
@@ -1539,6 +1718,7 @@
             const versionDisplay = document.getElementById('versionDisplay');
             const fpsDisplay = document.getElementById('fpsDisplay');
             const backgroundSelector = document.getElementById('backgroundSelector');
+            const gameModeDisplay = document.getElementById('gameModeDisplay');
             
             if (scoreDisplay) scoreDisplay.classList.add('hidden');
             if (highScoreDisplay) highScoreDisplay.classList.add('hidden');
@@ -1546,6 +1726,7 @@
             if (versionDisplay) versionDisplay.classList.add('hidden');
             if (fpsDisplay) fpsDisplay.classList.add('hidden');
             if (backgroundSelector) backgroundSelector.style.display = 'none';
+            if (gameModeDisplay) gameModeDisplay.classList.add('hidden');
             
             console.log('Game over. Score:', score);
         }
@@ -1562,10 +1743,18 @@
                     gameOverScreen.style.display = 'none';
                 }
                 
-                                        // Reset game variables with synchronized start speed
+                // Reset game variables with selected mode settings
                 score = 0;
-                gameSpeed = 2; // Consistent starting speed across all devices
-                setupUnifiedPhysics(); // Сбалансированная физика
+                const selectedMode = gameModes[currentGameMode];
+                gameSpeed = selectedMode.speed;
+                pipeGap = selectedMode.pipeGap;
+                setupUnifiedPhysics(); // Унифицированная физика
+                
+                console.log('🔄 Restarting game in', selectedMode.name, 'mode: speed =', gameSpeed, 'pipeGap =', pipeGap);
+                
+                // Update game mode display
+                const gameModeValue = document.getElementById('gameModeValue');
+                if (gameModeValue) gameModeValue.textContent = selectedMode.name;
                 
                 // Reset bird with enhanced physics state
                 bird.y = canvas.height / 2;
@@ -1631,6 +1820,7 @@
             document.getElementById('instructions').classList.add('hidden');
             document.getElementById('versionDisplay').classList.add('hidden');
             document.getElementById('fpsDisplay').classList.add('hidden');
+            document.getElementById('gameModeDisplay').classList.add('hidden');
             
             console.log('Returned to menu');
         }
@@ -1711,6 +1901,56 @@
                 }
             } catch (error) {
                 console.log('Error hiding clans overlay:', error);
+            }
+        }
+        
+        // Show mode selector overlay
+        function showModeSelector() {
+            try {
+                const modeSelectorOverlay = document.getElementById('modeSelectorOverlay');
+                if (modeSelectorOverlay) {
+                    modeSelectorOverlay.style.display = 'flex';
+                    // Force reflow to ensure display change is applied
+                    modeSelectorOverlay.offsetHeight;
+                    modeSelectorOverlay.classList.add('show');
+                }
+            } catch (error) {
+                console.log('Error showing mode selector overlay:', error);
+            }
+        }
+        
+        // Hide mode selector overlay
+        function hideModeSelector() {
+            try {
+                const modeSelectorOverlay = document.getElementById('modeSelectorOverlay');
+                if (modeSelectorOverlay) {
+                    modeSelectorOverlay.classList.remove('show');
+                    setTimeout(() => {
+                        modeSelectorOverlay.style.display = 'none';
+                    }, 400);
+                }
+            } catch (error) {
+                console.log('Error hiding mode selector overlay:', error);
+            }
+        }
+        
+        // Select game mode and start game
+        function selectGameMode(mode) {
+            try {
+                if (gameModes[mode]) {
+                    currentGameMode = mode;
+                    console.log('🎮 Selected game mode:', mode, gameModes[mode]);
+                    
+                    // Hide mode selector
+                    hideModeSelector();
+                    
+                    // Start game with selected mode
+                    startGame();
+                } else {
+                    console.error('Invalid game mode:', mode);
+                }
+            } catch (error) {
+                console.log('Error selecting game mode:', error);
             }
         }
         
@@ -2245,7 +2485,7 @@
         window.hideBackgroundSelector = hideBackgroundSelector;
         window.selectBackgroundFromGame = selectBackgroundFromGame;
         
-        // Game loop with 60 FPS
+        // Unified game loop with perfect device consistency
         function gameLoop() {
             if (gameState !== 'playing') {
                 return;
@@ -2259,7 +2499,7 @@
             const currentTime = performance.now();
             const deltaTime = currentTime - lastTime;
             
-            // FPS calculation (simplified)
+            // FPS calculation with improved accuracy
             fpsCounter++;
             fpsTime += deltaTime;
             
@@ -2270,32 +2510,32 @@
                 fpsTime = 0;
             }
             
-            // Update and draw every frame for maximum smoothness
+            // Update and draw with consistent timing
             update(deltaTime);
             draw();
             lastTime = currentTime;
             
+            // Use requestAnimationFrame for consistent frame timing
             requestAnimationFrame(gameLoop);
         }
         
-        // Balanced game state update with improved device consistency
+        // Unified game state update with perfect device consistency
         function update(deltaTime) {
-            // Balanced bird physics with improved time normalization
-            const timeScale = Math.min(deltaTime / 16.67, 1.5); // Reduced max timeScale for more consistent behavior
+            // Unified bird physics with perfect time normalization
+            const timeScale = Math.min(deltaTime / 16.67, 1.2); // Conservative timeScale for consistency
             
-            // Scale physics based on game speed for proportional behavior
-            const speedMultiplier = Math.max(0.5, Math.min(gameSpeed / 2, 3.0)); // Scale between 0.5x and 3x based on game speed
+            // Minimal speed scaling for consistent feel across all game speeds
+            const speedMultiplier = Math.max(0.8, Math.min(gameSpeed / 3, 2.0)); // Reduced scaling range
             
-            // Apply gravity with improved air resistance, scaled by game speed
-            bird.velocity += gravity * timeScale * speedMultiplier;
+            // Apply gravity with consistent air resistance
+            bird.velocity += gravity * timeScale;
             
-            // Apply air resistance for smoother movement
+            // Apply air resistance for smooth movement
             bird.velocity *= Math.pow(airResistance, timeScale);
             
-            // Limit fall speed for better control, scaled by game speed
-            const scaledMaxFallSpeed = maxFallSpeed * speedMultiplier;
-            if (bird.velocity > scaledMaxFallSpeed) {
-                bird.velocity = scaledMaxFallSpeed;
+            // Limit fall speed for consistent control
+            if (bird.velocity > maxFallSpeed) {
+                bird.velocity = maxFallSpeed;
             }
             
             // Update position
@@ -2306,15 +2546,15 @@
                 bird.jumpCooldown--;
             }
             
-            // Balanced rotation system with smooth transitions
+            // Enhanced rotation system for quick ascent
             if (bird.velocity > 0) {
-                bird.targetRotation = Math.min(90, bird.targetRotation + 3); // Slower rotation for smoother feel
+                bird.targetRotation = Math.min(85, bird.targetRotation + 2.5); // Consistent rotation speed
             } else {
-                bird.targetRotation = Math.max(-25, bird.targetRotation - 2); // Adjusted for new jump angle
+                bird.targetRotation = Math.max(-25, bird.targetRotation - 2.2); // More aggressive upward rotation for quick ascent
             }
             
             // Smooth rotation interpolation
-            bird.rotation += (bird.targetRotation - bird.rotation) * 0.15; // Slightly faster interpolation
+            bird.rotation += (bird.targetRotation - bird.rotation) * 0.12; // Consistent interpolation
             
             // Reset jump state when falling
             if (bird.velocity > 0) {
@@ -2334,13 +2574,11 @@
             // Update wing animation
             bird.wingAngle += bird.wingSpeed;
             
-            // Enhanced boundary collision handling with physics
+            // Unified boundary collision handling
             if (bird.y < 0) {
                 bird.y = 0;
-                // Scale bounce based on game speed for proportional behavior
-                const speedMultiplier = Math.max(0.5, Math.min(gameSpeed / 2, 3.0));
-                bird.velocity = Math.abs(bird.velocity) * 0.3 * speedMultiplier; // Bounce with reduced velocity, scaled by game speed
-                bird.targetRotation = Math.min(45, bird.targetRotation + 10); // Adjust rotation on bounce
+                bird.velocity = Math.abs(bird.velocity) * 0.25; // Consistent bounce
+                bird.targetRotation = Math.min(40, bird.targetRotation + 8); // Consistent rotation on bounce
             }
             if (bird.y + bird.height > canvas.height) {
                 gameOver();
@@ -3224,6 +3462,9 @@
         
         // Export functions to global scope
         window.showMenu = showMenu;
+        window.showModeSelector = showModeSelector;
+        window.hideModeSelector = hideModeSelector;
+        window.selectGameMode = selectGameMode;
         
         // Event listeners for buttons
         document.addEventListener('DOMContentLoaded', function() {
@@ -3249,6 +3490,7 @@
     </script>
 </body>
 </html> 
+
 
 
 
