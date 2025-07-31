@@ -211,6 +211,13 @@
             pointer-events: auto;
         }
         
+        #boostersSelector {
+            position: absolute;
+            top: 120px;
+            right: 20px;
+            pointer-events: auto;
+        }
+        
         #backgroundSelector .game-btn {
             background: rgba(26, 26, 46, 0.9);
             border: 1px solid var(--game-border);
@@ -600,12 +607,35 @@
             line-height: 1.6;
         }
         
-        /* Skins grid */
+        /* Skins grid with scroll */
         .skins-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
             gap: 20px;
             margin: 20px 0;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--game-primary) var(--game-surface);
+        }
+        
+        .skins-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .skins-grid::-webkit-scrollbar-track {
+            background: var(--game-surface);
+            border-radius: 3px;
+        }
+        
+        .skins-grid::-webkit-scrollbar-thumb {
+            background: var(--game-primary);
+            border-radius: 3px;
+        }
+        
+        .skins-grid::-webkit-scrollbar-thumb:hover {
+            background: var(--game-accent);
         }
         
         .skin-item {
@@ -875,16 +905,291 @@
         
         .shop-skin-item .unlock-text {
             position: absolute;
-            bottom: 5px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.7rem;
+        }
+        
+        /* Achievements Styles */
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .achievement-item {
+            background: rgba(26, 26, 46, 0.8);
+            border: 2px solid var(--game-border);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .achievement-item:hover {
+            border-color: var(--game-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+        
+        .achievement-item.unlocked {
+            border-color: var(--game-success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .achievement-icon {
+            font-size: 2rem;
+            min-width: 50px;
+            text-align: center;
+        }
+        
+        .achievement-info {
+            flex: 1;
+        }
+        
+        .achievement-info h3 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+            color: var(--game-text);
+        }
+        
+        .achievement-info p {
+            margin: 0 0 10px 0;
+            font-size: 0.8rem;
+            color: var(--game-text-secondary);
+        }
+        
+        .achievement-progress {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: var(--game-surface);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--game-gradient);
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            font-size: 0.8rem;
+            color: var(--game-text-secondary);
+            min-width: 50px;
+        }
+        
+        .achievement-status {
+            font-size: 1.5rem;
+            min-width: 30px;
+            text-align: center;
+        }
+        
+        .achievement-status.locked {
             color: var(--game-warning);
+        }
+        
+        .achievement-status.unlocked {
+            color: var(--game-success);
+        }
+        
+        /* Daily Quests Styles */
+        .quests-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .quest-item {
+            background: rgba(26, 26, 46, 0.8);
+            border: 2px solid var(--game-border);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .quest-item:hover {
+            border-color: var(--game-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+        
+        .quest-item.completed {
+            border-color: var(--game-success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .quest-icon {
+            font-size: 2rem;
+            min-width: 50px;
+            text-align: center;
+        }
+        
+        .quest-info {
+            flex: 1;
+        }
+        
+        .quest-info h3 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+            color: var(--game-text);
+        }
+        
+        .quest-info p {
+            margin: 0 0 10px 0;
+            font-size: 0.8rem;
+            color: var(--game-text-secondary);
+        }
+        
+        .quest-progress {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .quest-reward {
+            font-size: 1rem;
             font-weight: 600;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 2px 6px;
-            border-radius: 8px;
-            white-space: nowrap;
+            color: var(--game-success);
+            min-width: 80px;
+            text-align: center;
+        }
+        
+        /* Boosters Styles */
+        .boosters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .booster-item {
+            background: rgba(26, 26, 46, 0.8);
+            border: 2px solid var(--game-border);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .booster-item:hover {
+            border-color: var(--game-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+        
+        .booster-icon {
+            font-size: 2rem;
+            min-width: 50px;
+            text-align: center;
+        }
+        
+        .booster-info {
+            flex: 1;
+        }
+        
+        .booster-info h3 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+            color: var(--game-text);
+        }
+        
+        .booster-info p {
+            margin: 0 0 10px 0;
+            font-size: 0.8rem;
+            color: var(--game-text-secondary);
+        }
+        
+        .booster-price {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--game-warning);
+            margin-bottom: 10px;
+        }
+        
+        .booster-btn {
+            background: var(--game-gradient);
+            color: var(--game-text);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .booster-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4);
+        }
+        
+        .booster-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Statistics Styles */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .stat-item {
+            background: rgba(26, 26, 46, 0.8);
+            border: 2px solid var(--game-border);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-item:hover {
+            border-color: var(--game-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+        
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .stat-info h3 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+            color: var(--game-text);
+        }
+        
+        .stat-info p {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--game-primary);
         }
         
         /* Tab Content */
@@ -973,6 +1278,19 @@
                     🎨 Фон
                 </button>
             </div>
+            
+            <!-- Кнопки бустеров -->
+            <div id="boostersSelector" style="display: none;">
+                <button class="game-btn" onclick="useBooster('slow-motion')" style="font-size: 0.8rem; padding: 8px 12px; margin-right: 5px;">
+                    ⏰ Замедление
+                </button>
+                <button class="game-btn" onclick="useBooster('magnet')" style="font-size: 0.8rem; padding: 8px 12px; margin-right: 5px;">
+                    🧲 Магнит
+                </button>
+                <button class="game-btn" onclick="useBooster('shield')" style="font-size: 0.8rem; padding: 8px 12px;">
+                    🛡️ Щит
+                </button>
+            </div>
         </div>
         
         <div id="gameMenu">
@@ -987,6 +1305,10 @@
             <button class="game-btn" onclick="showLeaderboard()">🏆 Таблица лидеров</button>
             <button class="game-btn" onclick="showClans()">👥 Кланы</button>
             <button class="game-btn" onclick="showSkinsShop()">🛒 Магазин скинов</button>
+            <button class="game-btn" onclick="showAchievements()">🏆 Достижения</button>
+            <button class="game-btn" onclick="showDailyQuests()">📋 Ежедневные задания</button>
+            <button class="game-btn" onclick="showBoosters()">⚡ Бустеры</button>
+            <button class="game-btn" onclick="showStatistics()">📊 Статистика</button>
         </div>
         
         <!-- Mode Selector Overlay -->
@@ -1261,6 +1583,199 @@
                 <button class="game-btn" onclick="hideSkinsShop()">✖️ Закрыть</button>
             </div>
         </div>
+        
+        <!-- Achievements Overlay -->
+        <div id="achievementsOverlay" class="overlay">
+            <div class="overlay-content">
+                <h2>🏆 Достижения</h2>
+                <div class="achievements-grid">
+                    <div class="achievement-item" data-id="first-flight">
+                        <div class="achievement-icon">🦅</div>
+                        <div class="achievement-info">
+                            <h3>Первый полет</h3>
+                            <p>Наберите 10 очков</p>
+                            <div class="achievement-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 0%"></div>
+                                </div>
+                                <span class="progress-text">0/10</span>
+                            </div>
+                        </div>
+                        <div class="achievement-status locked">🔒</div>
+                    </div>
+                    <div class="achievement-item" data-id="crypto-master">
+                        <div class="achievement-icon">💰</div>
+                        <div class="achievement-info">
+                            <h3>Крипто-мастер</h3>
+                            <p>Соберите 50 токенов</p>
+                            <div class="achievement-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 0%"></div>
+                                </div>
+                                <span class="progress-text">0/50</span>
+                            </div>
+                        </div>
+                        <div class="achievement-status locked">🔒</div>
+                    </div>
+                    <div class="achievement-item" data-id="speed-demon">
+                        <div class="achievement-icon">⚡</div>
+                        <div class="achievement-info">
+                            <h3>Демон скорости</h3>
+                            <p>Пролетите 100 труб</p>
+                            <div class="achievement-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 0%"></div>
+                                </div>
+                                <span class="progress-text">0/100</span>
+                            </div>
+                        </div>
+                        <div class="achievement-status locked">🔒</div>
+                    </div>
+                    <div class="achievement-item" data-id="survivor">
+                        <div class="achievement-icon">🛡️</div>
+                        <div class="achievement-info">
+                            <h3>Выживший</h3>
+                            <p>Наберите 500 очков</p>
+                            <div class="achievement-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 0%"></div>
+                                </div>
+                                <span class="progress-text">0/500</span>
+                            </div>
+                        </div>
+                        <div class="achievement-status locked">🔒</div>
+                    </div>
+                </div>
+                <button class="game-btn" onclick="hideAchievements()">✖️ Закрыть</button>
+            </div>
+        </div>
+        
+        <!-- Daily Quests Overlay -->
+        <div id="dailyQuestsOverlay" class="overlay">
+            <div class="overlay-content">
+                <h2>📋 Ежедневные задания</h2>
+                <div class="quests-grid">
+                    <div class="quest-item" data-id="daily-score">
+                        <div class="quest-icon">🎯</div>
+                        <div class="quest-info">
+                            <h3>Ежедневный рекорд</h3>
+                            <p>Наберите 100 очков за день</p>
+                            <div class="quest-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 0%"></div>
+                                </div>
+                                <span class="progress-text">0/100</span>
+                            </div>
+                        </div>
+                        <div class="quest-reward">+50 💰</div>
+                    </div>
+                    <div class="quest-item" data-id="daily-tokens">
+                        <div class="quest-icon">🪙</div>
+                        <div class="quest-info">
+                            <h3>Сборщик токенов</h3>
+                            <p>Соберите 20 токенов за день</p>
+                            <div class="quest-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 0%"></div>
+                                </div>
+                                <span class="progress-text">0/20</span>
+                            </div>
+                        </div>
+                        <div class="quest-reward">+30 💰</div>
+                    </div>
+                    <div class="quest-item" data-id="daily-playtime">
+                        <div class="quest-icon">⏱️</div>
+                        <div class="quest-info">
+                            <h3>Игрок дня</h3>
+                            <p>Играйте 10 минут за день</p>
+                            <div class="quest-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 0%"></div>
+                                </div>
+                                <span class="progress-text">0/10 мин</span>
+                            </div>
+                        </div>
+                        <div class="quest-reward">+25 💰</div>
+                    </div>
+                </div>
+                <button class="game-btn" onclick="hideDailyQuests()">✖️ Закрыть</button>
+            </div>
+        </div>
+        
+        <!-- Boosters Overlay -->
+        <div id="boostersOverlay" class="overlay">
+            <div class="overlay-content">
+                <h2>⚡ Бустеры</h2>
+                <div class="boosters-grid">
+                    <div class="booster-item" data-id="slow-motion">
+                        <div class="booster-icon">⏰</div>
+                        <div class="booster-info">
+                            <h3>Замедление времени</h3>
+                            <p>Замедляет игру на 10 секунд</p>
+                            <div class="booster-price">100 💰</div>
+                        </div>
+                        <button class="booster-btn" onclick="buyBooster('slow-motion', 100)">Купить</button>
+                    </div>
+                    <div class="booster-item" data-id="magnet">
+                        <div class="booster-icon">🧲</div>
+                        <div class="booster-info">
+                            <h3>Магнит для токенов</h3>
+                            <p>Притягивает токены к птице на 15 секунд</p>
+                            <div class="booster-price">150 💰</div>
+                        </div>
+                        <button class="booster-btn" onclick="buyBooster('magnet', 150)">Купить</button>
+                    </div>
+                    <div class="booster-item" data-id="shield">
+                        <div class="booster-icon">🛡️</div>
+                        <div class="booster-info">
+                            <h3>Щит</h3>
+                            <p>Защищает от одного столкновения</p>
+                            <div class="booster-price">200 💰</div>
+                        </div>
+                        <button class="booster-btn" onclick="buyBooster('shield', 200)">Купить</button>
+                    </div>
+                </div>
+                <button class="game-btn" onclick="hideBoosters()">✖️ Закрыть</button>
+            </div>
+        </div>
+        
+        <!-- Statistics Overlay -->
+        <div id="statisticsOverlay" class="overlay">
+            <div class="overlay-content">
+                <h2>📊 Статистика</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-icon">🏆</div>
+                        <div class="stat-info">
+                            <h3>Лучший результат</h3>
+                            <p id="statHighScore">0 очков</p>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">🪙</div>
+                        <div class="stat-info">
+                            <h3>Всего токенов</h3>
+                            <p id="statTotalTokens">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">⏱️</div>
+                        <div class="stat-info">
+                            <h3>Время игры</h3>
+                            <p id="statPlayTime">0 мин</p>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">🎮</div>
+                        <div class="stat-info">
+                            <h3>Игр сыграно</h3>
+                            <p id="statGamesPlayed">0</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="game-btn" onclick="hideStatistics()">✖️ Закрыть</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -1363,6 +1878,44 @@
         let currentBirdSkin = localStorage.getItem('currentBirdSkin') || 'bitcoin';
         let currentBackgroundSkin = localStorage.getItem('currentBackgroundSkin') || 'default';
         
+        // Achievements system
+        let achievements = JSON.parse(localStorage.getItem('achievements')) || {
+            'first-flight': { unlocked: false, progress: 0, max: 10 },
+            'crypto-master': { unlocked: false, progress: 0, max: 50 },
+            'speed-demon': { unlocked: false, progress: 0, max: 100 },
+            'survivor': { unlocked: false, progress: 0, max: 500 }
+        };
+        
+        // Daily quests system
+        let dailyQuests = JSON.parse(localStorage.getItem('dailyQuests')) || {
+            'daily-score': { completed: false, progress: 0, max: 100, reward: 50 },
+            'daily-tokens': { completed: false, progress: 0, max: 20, reward: 30 },
+            'daily-playtime': { completed: false, progress: 0, max: 10, reward: 25 }
+        };
+        
+        // Boosters system
+        let activeBoosters = [];
+        let boosterInventory = JSON.parse(localStorage.getItem('boosterInventory')) || {
+            'slow-motion': 0,
+            'magnet': 0,
+            'shield': 0
+        };
+        
+        // Statistics system
+        let gameStats = JSON.parse(localStorage.getItem('gameStats')) || {
+            totalScore: 0,
+            totalTokens: 0,
+            totalPlayTime: 0,
+            gamesPlayed: 0,
+            pipesPassed: 0,
+            lastPlayDate: null
+        };
+        
+        // Game session variables
+        let sessionStartTime = 0;
+        let sessionTokens = 0;
+        let sessionPipesPassed = 0;
+        
         // Shop items configuration
         const shopItems = {
             bird: {
@@ -1452,12 +2005,14 @@
             
             // Initialize canvas
             canvas = document.getElementById('gameCanvas');
+            console.log('🎮 Canvas element found:', !!canvas);
             if (!canvas) {
                 console.error('Canvas element not found!');
                 return;
             }
             
             ctx = canvas.getContext('2d');
+            console.log('🎮 Canvas context available:', !!ctx);
             if (!ctx) {
                 console.error('Canvas context not available!');
                 return;
@@ -1543,15 +2098,20 @@
             // Setup unified physics
             setupUnifiedPhysics();
             
-            // Load shop data and update bird skin
-            loadShopData();
-            bird.skinType = currentBirdSkin;
+            // Initialize game state
+            gameState = 'menu';
             
             // Force initial draw
             setTimeout(() => {
                 draw();
-                console.log('Initial draw completed');
             }, 100);
+            
+            // Initialize new systems
+            checkDailyQuests();
+            updateAchievementsDisplay();
+            updateDailyQuestsDisplay();
+            updateBoostersDisplay();
+            updateStatisticsDisplay();
             
             console.log('✅ Crypto Bird v' + GAME_VERSION + ' ready!');
         });
@@ -1595,8 +2155,7 @@
         
         // Start game
         function startGame() {
-            console.log('startGame() called!');
-            
+            console.log('🎮 startGame() called - canvas:', !!canvas, 'ctx:', !!ctx);
             if (!canvas || !ctx) {
                 console.error('Canvas not available for game start');
                 return;
@@ -1604,6 +2163,7 @@
             
             // Reset game state
             gameState = 'playing';
+            console.log('🎮 gameState set to playing');
             
             // Reset game variables with selected mode settings
             score = 0;
@@ -1633,6 +2193,17 @@
             particles = [];
             lastPipeX = canvas.width + 200;
             
+            // Initialize session variables for new systems
+            sessionStartTime = Date.now();
+            sessionTokens = 0;
+            sessionPipesPassed = 0;
+            
+            // Check daily quests
+            checkDailyQuests();
+            
+            // Clear active boosters
+            activeBoosters = [];
+            
             // Hide menu
             const gameMenu = document.getElementById('gameMenu');
             const gameOverScreen = document.getElementById('gameOverScreen');
@@ -1655,10 +2226,18 @@
                 if (fpsDisplay) fpsDisplay.classList.remove('hidden');
                 if (backgroundSelector) backgroundSelector.style.display = 'block';
                 if (gameModeDisplay) gameModeDisplay.classList.remove('hidden');
+                
+                // Show boosters selector
+                const boostersSelector = document.getElementById('boostersSelector');
+                if (boostersSelector) boostersSelector.style.display = 'block';
             
             // Start game loop
             lastTime = performance.now();
-            gameLoop();
+            console.log('🎮 Starting game loop with setTimeout');
+            setTimeout(() => {
+                console.log('🎮 Executing gameLoop() from setTimeout');
+                gameLoop();
+            }, 100);
             
             // Hide instructions after 5 seconds with smooth fade
             setTimeout(() => {
@@ -1699,6 +2278,20 @@
             const currencyEarned = Math.floor(score / 10) + 5; // 5 base + 1 per 10 points
             addCurrency(currencyEarned);
             
+            // Update game statistics
+            updateGameStats();
+            
+            // Check achievements
+            checkAchievement('first-flight', score);
+            checkAchievement('crypto-master', sessionTokens);
+            checkAchievement('speed-demon', sessionPipesPassed);
+            checkAchievement('survivor', score);
+            
+            // Update daily quests progress
+            updateQuestProgress('daily-score', score);
+            updateQuestProgress('daily-tokens', sessionTokens);
+            updateQuestProgress('daily-playtime', Math.floor((Date.now() - sessionStartTime) / 60000)); // Convert to minutes
+            
             // Show game over screen
             const finalScore = document.getElementById('finalScore');
             const gameOverScreen = document.getElementById('gameOverScreen');
@@ -1727,6 +2320,10 @@
             if (fpsDisplay) fpsDisplay.classList.add('hidden');
             if (backgroundSelector) backgroundSelector.style.display = 'none';
             if (gameModeDisplay) gameModeDisplay.classList.add('hidden');
+            
+            // Hide boosters selector
+            const boostersSelector = document.getElementById('boostersSelector');
+            if (boostersSelector) boostersSelector.style.display = 'none';
             
             console.log('Game over. Score:', score);
         }
@@ -1937,9 +2534,10 @@
         // Select game mode and start game
         function selectGameMode(mode) {
             try {
+                console.log('🎮 selectGameMode() called with mode:', mode);
                 if (gameModes[mode]) {
                     currentGameMode = mode;
-                    console.log('🎮 Selected game mode:', mode, gameModes[mode]);
+                    console.log('🎮 currentGameMode set to:', currentGameMode);
                     
                     // Hide mode selector
                     hideModeSelector();
@@ -2487,7 +3085,9 @@
         
         // Unified game loop with perfect device consistency
         function gameLoop() {
+            console.log('🎮 gameLoop() called - gameState:', gameState);
             if (gameState !== 'playing') {
+                console.log('🎮 gameLoop() returning early - gameState:', gameState);
                 return;
             }
             
@@ -2521,6 +3121,20 @@
         
         // Unified game state update with perfect device consistency
         function update(deltaTime) {
+            
+            // Calculate effective game speed with booster effects
+            let effectiveGameSpeed = gameSpeed;
+            let hasShield = false;
+            
+            for (const booster of activeBoosters) {
+                if (booster.id === 'slow-motion') {
+                    effectiveGameSpeed *= 0.5; // Slow down game speed
+                }
+                if (booster.id === 'shield') {
+                    hasShield = true;
+                }
+            }
+            
             // Unified bird physics with perfect time normalization
             const timeScale = Math.min(deltaTime / 16.67, 1.2); // Conservative timeScale for consistency
             
@@ -2574,6 +3188,17 @@
             // Update wing animation
             bird.wingAngle += bird.wingSpeed;
             
+            // Update active boosters
+            for (let i = activeBoosters.length - 1; i >= 0; i--) {
+                const booster = activeBoosters[i];
+                const elapsed = Date.now() - booster.startTime;
+                
+                if (elapsed >= booster.duration) {
+                    activeBoosters.splice(i, 1);
+                    showNotification(`⚡ Бустер "${getBoosterName(booster.id)}" закончился`);
+                }
+            }
+            
             // Unified boundary collision handling
             if (bird.y < 0) {
                 bird.y = 0;
@@ -2607,18 +3232,25 @@
             // Update pipes
             for (let i = pipes.length - 1; i >= 0; i--) {
                 const pipe = pipes[i];
-                pipe.x -= gameSpeed;
+                pipe.x -= effectiveGameSpeed;
                 
                 // Check collision with bird
                 if (checkCollision(bird, pipe)) {
-                    gameOver();
-                    return;
+                    if (hasShield) {
+                        // Remove shield and continue
+                        activeBoosters = activeBoosters.filter(b => b.id !== 'shield');
+                        showNotification(`🛡️ Щит защитил от столкновения!`);
+                    } else {
+                        gameOver();
+                        return;
+                    }
                 }
                 
                 // Remove off-screen pipes
                 if (pipe.x + pipe.width < 0) {
                     pipes.splice(i, 1);
                     score += 10;
+                    sessionPipesPassed++; // Update session pipes passed count
                     updateScore();
                 }
             }
@@ -2631,15 +3263,30 @@
             // Update tokens with simplified movement
             for (let i = tokens.length - 1; i >= 0; i--) {
                 const token = tokens[i];
-                token.x -= gameSpeed;
+                token.x -= effectiveGameSpeed;
                 
                 // Simple vertical movement
                 token.y += Math.sin(Date.now() * 0.003) * 0.3;
+                
+                // Apply magnet effect
+                const hasMagnet = activeBoosters.some(b => b.id === 'magnet');
+                if (hasMagnet) {
+                    const dx = bird.x - token.x;
+                    const dy = bird.y - token.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 150) { // Magnet range
+                        const force = 0.3;
+                        token.x += (dx / distance) * force;
+                        token.y += (dy / distance) * force;
+                    }
+                }
                 
                 // Check collision with bird
                 if (checkCollision(bird, token)) {
                     tokens.splice(i, 1);
                     score += 50;
+                    sessionTokens++; // Update session token count
                     updateScore();
                     createTokenParticles(token.x, token.y);
                 }
@@ -2684,6 +3331,9 @@
                 particles.forEach(particle => {
                     drawParticle(particle);
                 });
+                
+                // Draw active boosters effects
+                drawBoosterEffects();
             } catch (error) {
                 console.error('Error in draw function:', error);
             }
@@ -3306,6 +3956,45 @@
             ctx.globalAlpha = 1;
         }
         
+        // Draw booster effects
+        function drawBoosterEffects() {
+            try {
+                for (const booster of activeBoosters) {
+                    if (booster.id === 'shield') {
+                        // Draw shield effect around bird
+                        ctx.save();
+                        ctx.strokeStyle = 'rgba(0, 255, 255, 0.6)';
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        ctx.arc(bird.x + bird.width/2, bird.y + bird.height/2, 40, 0, Math.PI * 2);
+                        ctx.stroke();
+                        ctx.restore();
+                    }
+                    
+                    if (booster.id === 'magnet') {
+                        // Draw magnet field
+                        ctx.save();
+                        ctx.strokeStyle = 'rgba(255, 255, 0, 0.3)';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.arc(bird.x + bird.width/2, bird.y + bird.height/2, 150, 0, Math.PI * 2);
+                        ctx.stroke();
+                        ctx.restore();
+                    }
+                    
+                    if (booster.id === 'slow-motion') {
+                        // Draw slow motion effect
+                        ctx.save();
+                        ctx.fillStyle = 'rgba(0, 255, 255, 0.1)';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.restore();
+                    }
+                }
+            } catch (error) {
+                console.error('Error drawing booster effects:', error);
+            }
+        }
+        
         // Generate pipe with proper spacing
         function generatePipe() {
             const gapY = Math.random() * (canvas.height - pipeGap - 140) + 70;
@@ -3460,16 +4149,385 @@
             }
         }
         
+        // Achievements Functions
+        function showAchievements() {
+            try {
+                const achievementsOverlay = document.getElementById('achievementsOverlay');
+                if (achievementsOverlay) {
+                    updateAchievementsDisplay();
+                    achievementsOverlay.style.display = 'flex';
+                    achievementsOverlay.offsetHeight;
+                    achievementsOverlay.classList.add('show');
+                }
+            } catch (error) {
+                console.log('Error showing achievements:', error);
+            }
+        }
+        
+        function hideAchievements() {
+            try {
+                const achievementsOverlay = document.getElementById('achievementsOverlay');
+                if (achievementsOverlay) {
+                    achievementsOverlay.classList.remove('show');
+                    setTimeout(() => {
+                        achievementsOverlay.style.display = 'none';
+                    }, 400);
+                }
+            } catch (error) {
+                console.log('Error hiding achievements:', error);
+            }
+        }
+        
+        function updateAchievementsDisplay() {
+            try {
+                for (const [achievementId, achievement] of Object.entries(achievements)) {
+                    const element = document.querySelector(`[data-id="${achievementId}"]`);
+                    if (element) {
+                        const progressFill = element.querySelector('.progress-fill');
+                        const progressText = element.querySelector('.progress-text');
+                        const status = element.querySelector('.achievement-status');
+                        
+                        if (progressFill) {
+                            const percentage = Math.min((achievement.progress / achievement.max) * 100, 100);
+                            progressFill.style.width = percentage + '%';
+                        }
+                        
+                        if (progressText) {
+                            progressText.textContent = `${achievement.progress}/${achievement.max}`;
+                        }
+                        
+                        if (status) {
+                            if (achievement.unlocked) {
+                                status.textContent = '✅';
+                                status.className = 'achievement-status unlocked';
+                                element.classList.add('unlocked');
+                            } else {
+                                status.textContent = '🔒';
+                                status.className = 'achievement-status locked';
+                                element.classList.remove('unlocked');
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.log('Error updating achievements display:', error);
+            }
+        }
+        
+        function checkAchievement(achievementId, progress) {
+            try {
+                if (achievements[achievementId]) {
+                    achievements[achievementId].progress = Math.min(progress, achievements[achievementId].max);
+                    
+                    if (achievements[achievementId].progress >= achievements[achievementId].max && !achievements[achievementId].unlocked) {
+                        achievements[achievementId].unlocked = true;
+                        localStorage.setItem('achievements', JSON.stringify(achievements));
+                        showNotification(`🏆 Достижение разблокировано: ${getAchievementName(achievementId)}`);
+                        updateAchievementsDisplay();
+                    }
+                }
+            } catch (error) {
+                console.log('Error checking achievement:', error);
+            }
+        }
+        
+        function getAchievementName(achievementId) {
+            const names = {
+                'first-flight': 'Первый полет',
+                'crypto-master': 'Крипто-мастер',
+                'speed-demon': 'Демон скорости',
+                'survivor': 'Выживший'
+            };
+            return names[achievementId] || achievementId;
+        }
+        
+        // Daily Quests Functions
+        function showDailyQuests() {
+            try {
+                const dailyQuestsOverlay = document.getElementById('dailyQuestsOverlay');
+                if (dailyQuestsOverlay) {
+                    updateDailyQuestsDisplay();
+                    dailyQuestsOverlay.style.display = 'flex';
+                    dailyQuestsOverlay.offsetHeight;
+                    dailyQuestsOverlay.classList.add('show');
+                }
+            } catch (error) {
+                console.log('Error showing daily quests:', error);
+            }
+        }
+        
+        function hideDailyQuests() {
+            try {
+                const dailyQuestsOverlay = document.getElementById('dailyQuestsOverlay');
+                if (dailyQuestsOverlay) {
+                    dailyQuestsOverlay.classList.remove('show');
+                    setTimeout(() => {
+                        dailyQuestsOverlay.style.display = 'none';
+                    }, 400);
+                }
+            } catch (error) {
+                console.log('Error hiding daily quests:', error);
+            }
+        }
+        
+        function updateDailyQuestsDisplay() {
+            try {
+                for (const [questId, quest] of Object.entries(dailyQuests)) {
+                    const element = document.querySelector(`[data-id="${questId}"]`);
+                    if (element) {
+                        const progressFill = element.querySelector('.progress-fill');
+                        const progressText = element.querySelector('.progress-text');
+                        
+                        if (progressFill) {
+                            const percentage = Math.min((quest.progress / quest.max) * 100, 100);
+                            progressFill.style.width = percentage + '%';
+                        }
+                        
+                        if (progressText) {
+                            if (questId === 'daily-playtime') {
+                                progressText.textContent = `${quest.progress}/${quest.max} мин`;
+                            } else {
+                                progressText.textContent = `${quest.progress}/${quest.max}`;
+                            }
+                        }
+                        
+                        if (quest.completed) {
+                            element.classList.add('completed');
+                        } else {
+                            element.classList.remove('completed');
+                        }
+                    }
+                }
+            } catch (error) {
+                console.log('Error updating daily quests display:', error);
+            }
+        }
+        
+        function checkDailyQuests() {
+            try {
+                const today = new Date().toDateString();
+                const lastQuestDate = localStorage.getItem('lastQuestDate');
+                
+                if (lastQuestDate !== today) {
+                    // Reset daily quests
+                    for (const questId in dailyQuests) {
+                        dailyQuests[questId].completed = false;
+                        dailyQuests[questId].progress = 0;
+                    }
+                    localStorage.setItem('lastQuestDate', today);
+                }
+                
+                localStorage.setItem('dailyQuests', JSON.stringify(dailyQuests));
+            } catch (error) {
+                console.log('Error checking daily quests:', error);
+            }
+        }
+        
+        function updateQuestProgress(questId, progress) {
+            try {
+                if (dailyQuests[questId] && !dailyQuests[questId].completed) {
+                    dailyQuests[questId].progress = Math.min(progress, dailyQuests[questId].max);
+                    
+                    if (dailyQuests[questId].progress >= dailyQuests[questId].max) {
+                        dailyQuests[questId].completed = true;
+                        addCurrency(dailyQuests[questId].reward);
+                        showNotification(`✅ Задание выполнено! +${dailyQuests[questId].reward} 💰`);
+                    }
+                    
+                    localStorage.setItem('dailyQuests', JSON.stringify(dailyQuests));
+                    updateDailyQuestsDisplay();
+                }
+            } catch (error) {
+                console.log('Error updating quest progress:', error);
+            }
+        }
+        
+        // Boosters Functions
+        function showBoosters() {
+            try {
+                const boostersOverlay = document.getElementById('boostersOverlay');
+                if (boostersOverlay) {
+                    updateBoostersDisplay();
+                    boostersOverlay.style.display = 'flex';
+                    boostersOverlay.offsetHeight;
+                    boostersOverlay.classList.add('show');
+                }
+            } catch (error) {
+                console.log('Error showing boosters:', error);
+            }
+        }
+        
+        function hideBoosters() {
+            try {
+                const boostersOverlay = document.getElementById('boostersOverlay');
+                if (boostersOverlay) {
+                    boostersOverlay.classList.remove('show');
+                    setTimeout(() => {
+                        boostersOverlay.style.display = 'none';
+                    }, 400);
+                }
+            } catch (error) {
+                console.log('Error hiding boosters:', error);
+            }
+        }
+        
+        function updateBoostersDisplay() {
+            try {
+                for (const [boosterId, count] of Object.entries(boosterInventory)) {
+                    const element = document.querySelector(`[data-id="${boosterId}"]`);
+                    if (element) {
+                        const btn = element.querySelector('.booster-btn');
+                        if (btn) {
+                            if (count > 0) {
+                                btn.textContent = `Использовать (${count})`;
+                                btn.disabled = false;
+                            } else {
+                                btn.textContent = 'Купить';
+                                btn.disabled = false;
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.log('Error updating boosters display:', error);
+            }
+        }
+        
+        function buyBooster(boosterId, price) {
+            try {
+                if (playerCurrency >= price) {
+                    playerCurrency -= price;
+                    boosterInventory[boosterId]++;
+                    localStorage.setItem('playerCurrency', playerCurrency);
+                    localStorage.setItem('boosterInventory', JSON.stringify(boosterInventory));
+                    updateCurrencyDisplay();
+                    updateBoostersDisplay();
+                    showNotification(`✅ Бустер куплен!`);
+                } else {
+                    showNotification(`❌ Недостаточно валюты!`);
+                }
+            } catch (error) {
+                console.log('Error buying booster:', error);
+            }
+        }
+        
+        function useBooster(boosterId) {
+            try {
+                if (boosterInventory[boosterId] > 0) {
+                    boosterInventory[boosterId]--;
+                    activeBoosters.push({
+                        id: boosterId,
+                        startTime: Date.now(),
+                        duration: getBoosterDuration(boosterId)
+                    });
+                    localStorage.setItem('boosterInventory', JSON.stringify(boosterInventory));
+                    updateBoostersDisplay();
+                    showNotification(`⚡ Бустер активирован!`);
+                }
+            } catch (error) {
+                console.log('Error using booster:', error);
+            }
+        }
+        
+        function getBoosterDuration(boosterId) {
+            const durations = {
+                'slow-motion': 10000, // 10 seconds
+                'magnet': 15000, // 15 seconds
+                'shield': 30000 // 30 seconds
+            };
+            return durations[boosterId] || 10000;
+        }
+        
+        function getBoosterName(boosterId) {
+            const names = {
+                'slow-motion': 'Замедление времени',
+                'magnet': 'Магнит для токенов',
+                'shield': 'Щит'
+            };
+            return names[boosterId] || boosterId;
+        }
+        
+        // Statistics Functions
+        function showStatistics() {
+            try {
+                const statisticsOverlay = document.getElementById('statisticsOverlay');
+                if (statisticsOverlay) {
+                    updateStatisticsDisplay();
+                    statisticsOverlay.style.display = 'flex';
+                    statisticsOverlay.offsetHeight;
+                    statisticsOverlay.classList.add('show');
+                }
+            } catch (error) {
+                console.log('Error showing statistics:', error);
+            }
+        }
+        
+        function hideStatistics() {
+            try {
+                const statisticsOverlay = document.getElementById('statisticsOverlay');
+                if (statisticsOverlay) {
+                    statisticsOverlay.classList.remove('show');
+                    setTimeout(() => {
+                        statisticsOverlay.style.display = 'none';
+                    }, 400);
+                }
+            } catch (error) {
+                console.log('Error hiding statistics:', error);
+            }
+        }
+        
+        function updateStatisticsDisplay() {
+            try {
+                document.getElementById('statHighScore').textContent = `${gameStats.totalScore} очков`;
+                document.getElementById('statTotalTokens').textContent = gameStats.totalTokens;
+                document.getElementById('statPlayTime').textContent = `${Math.floor(gameStats.totalPlayTime / 60)} мин`;
+                document.getElementById('statGamesPlayed').textContent = gameStats.gamesPlayed;
+            } catch (error) {
+                console.log('Error updating statistics display:', error);
+            }
+        }
+        
+        function updateGameStats() {
+            try {
+                gameStats.totalScore = Math.max(gameStats.totalScore, score);
+                gameStats.totalTokens += sessionTokens;
+                gameStats.totalPlayTime += Math.floor((Date.now() - sessionStartTime) / 1000);
+                gameStats.gamesPlayed++;
+                gameStats.pipesPassed += sessionPipesPassed;
+                gameStats.lastPlayDate = new Date().toISOString();
+                
+                localStorage.setItem('gameStats', JSON.stringify(gameStats));
+            } catch (error) {
+                console.log('Error updating game stats:', error);
+            }
+        }
+        
         // Export functions to global scope
         window.showMenu = showMenu;
         window.showModeSelector = showModeSelector;
         window.hideModeSelector = hideModeSelector;
         window.selectGameMode = selectGameMode;
+        window.showAchievements = showAchievements;
+        window.hideAchievements = hideAchievements;
+        window.showDailyQuests = showDailyQuests;
+        window.hideDailyQuests = hideDailyQuests;
+        window.showBoosters = showBoosters;
+        window.hideBoosters = hideBoosters;
+        window.showStatistics = showStatistics;
+        window.hideStatistics = hideStatistics;
+        window.buyBooster = buyBooster;
         
         // Event listeners for buttons
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize skin system
             initSkinSystem();
+            
+            // Initialize new systems
+            checkDailyQuests();
+            updateAchievementsDisplay();
+            updateDailyQuestsDisplay();
+            updateBoostersDisplay();
+            updateStatisticsDisplay();
             
             const restartBtn = document.getElementById('restartBtn');
             if (restartBtn) {
@@ -3490,6 +4548,9 @@
     </script>
 </body>
 </html> 
+
+
+
 
 
 
