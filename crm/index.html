@@ -257,21 +257,330 @@
             gap: 2rem;
         }
 
-        @media (max-width: 768px) {
+        /* Enhanced CRM Responsive Design */
+        
+        /* Large Desktop (1440px+) */
+        @media (min-width: 1440px) {
             .container {
-                padding: 1rem;
+                max-width: 1600px;
+                padding: 2.5rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 2rem;
+            }
+            
+            .header {
+                padding: 1.5rem 2.5rem;
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+            }
+        }
+        
+        /* Desktop (1024px to 1439px) */
+        @media (min-width: 1024px) and (max-width: 1439px) {
+            .container {
+                padding: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+                gap: 1.8rem;
+            }
+        }
+        
+        /* Tablet Landscape (768px to 1023px) */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+                gap: 1.5rem;
             }
             
             .grid-2 {
                 grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .header {
+                padding: 1.2rem 1.5rem;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .table th,
+            .table td {
+                padding: 0.8rem;
+                font-size: 0.9rem;
+            }
+            
+            .filters {
+                gap: 0.8rem;
+            }
+            
+            .filter-btn {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Tablet Portrait & Large Mobile (481px to 767px) */
+        @media (min-width: 481px) and (max-width: 767px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1rem;
+            }
+            
+            .stat-card {
+                padding: 1.2rem;
+            }
+            
+            .stat-value {
+                font-size: 2rem;
+            }
+            
+            .grid-2 {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
             }
             
             .header {
                 padding: 1rem;
             }
             
+            .header h1 {
+                font-size: 1.6rem;
+            }
+            
+            .header .subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .filters {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 0.6rem;
+            }
+            
+            .filter-btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+                flex: 1;
+                min-width: 80px;
+            }
+            
+            .table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .table {
+                min-width: 600px;
+            }
+            
+            .table th,
+            .table td {
+                padding: 0.7rem;
+                font-size: 0.85rem;
+                white-space: nowrap;
+            }
+            
+            .chart-container h3 {
+                font-size: 1.2rem;
+            }
+        }
+        
+        /* Mobile (320px to 480px) */
+        @media (max-width: 480px) {
+            .container {
+                padding: 0.8rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 0.8rem;
+            }
+            
+            .stat-card {
+                padding: 1rem;
+            }
+            
+            .stat-value {
+                font-size: 1.8rem;
+            }
+            
+            .stat-label {
+                font-size: 0.8rem;
+            }
+            
+            .grid-2 {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .header {
+                padding: 0.8rem;
+            }
+            
+            .header h1 {
+                font-size: 1.4rem;
+            }
+            
+            .header .subtitle {
+                font-size: 0.8rem;
+                margin-top: 0.3rem;
+            }
+            
             .filters {
                 flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .filter-btn {
+                padding: 0.8rem 1rem;
+                font-size: 0.9rem;
+                width: 100%;
+            }
+            
+            .table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                border-radius: 8px;
+            }
+            
+            .table {
+                min-width: 500px;
+                font-size: 0.8rem;
+            }
+            
+            .table th,
+            .table td {
+                padding: 0.6rem 0.4rem;
+                font-size: 0.75rem;
+            }
+            
+            .badge {
+                padding: 0.2rem 0.6rem;
+                font-size: 0.65rem;
+            }
+            
+            .chart-container {
+                margin-bottom: 1.5rem;
+            }
+            
+            .chart-container h3 {
+                font-size: 1.1rem;
+                margin-bottom: 0.8rem;
+            }
+            
+            .section-title {
+                font-size: 1.3rem;
+                margin-bottom: 1rem;
+            }
+        }
+        
+        /* Very Small Mobile (max 320px) */
+        @media (max-width: 320px) {
+            .container {
+                padding: 0.6rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 0.6rem;
+            }
+            
+            .header h1 {
+                font-size: 1.2rem;
+            }
+            
+            .table {
+                min-width: 400px;
+            }
+            
+            .table th,
+            .table td {
+                padding: 0.4rem 0.3rem;
+                font-size: 0.7rem;
+            }
+        }
+        
+        /* Landscape orientation optimizations */
+        @media (max-height: 600px) and (orientation: landscape) {
+            .header {
+                padding: 0.8rem 1rem;
+            }
+            
+            .header h1 {
+                font-size: 1.3rem;
+                margin-bottom: 0.2rem;
+            }
+            
+            .header .subtitle {
+                font-size: 0.8rem;
+                margin-top: 0.2rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                gap: 0.8rem;
+                margin-bottom: 1rem;
+            }
+            
+            .stat-card {
+                padding: 0.8rem;
+            }
+            
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            
+            .chart-container {
+                margin-bottom: 1rem;
+            }
+        }
+        
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .stat-card,
+            .table-container,
+            .filter-btn {
+                border-width: 2px;
+            }
+            
+            .stat-card:hover {
+                border-color: var(--text-primary);
+            }
+        }
+        
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            .stat-card {
+                transition: none;
+            }
+            
+            .stat-card:hover {
+                transform: none;
+            }
+            
+            .filter-btn {
+                transition: background-color 0.2s ease;
             }
         }
     </style>

@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no, shrink-to-fit=no">
     <title>Crypto Bird beta v.0.1 - Telegram Game</title>
     
     <!-- Preload critical resources -->
@@ -39,6 +39,11 @@
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
             user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
         }
 
         body {
@@ -54,6 +59,11 @@
             width: 100vw;
             margin: 0;
             padding: 0;
+            /* Enhanced touch support */
+            touch-action: manipulation;
+            -webkit-overflow-scrolling: touch;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
         }
         
         /* Force full screen in Telegram */
@@ -105,6 +115,76 @@
             height: 100%;
             z-index: 10;
             pointer-events: none;
+        }
+
+        /* Enhanced UI positioning for different screen sizes */
+        @media (max-width: 768px) {
+            #scoreDisplay,
+            #highScoreDisplay {
+                top: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: 1rem;
+                padding: 8px 16px;
+            }
+            
+            #scoreDisplay {
+                top: 10px;
+            }
+            
+            #highScoreDisplay {
+                top: 50px;
+            }
+            
+            #versionDisplay {
+                bottom: 60px;
+                left: 10px;
+                font-size: 0.7rem;
+                padding: 4px 8px;
+            }
+            
+            #instructions {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+                text-align: center;
+                font-size: 0.75rem;
+                padding: 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #scoreDisplay,
+            #highScoreDisplay {
+                font-size: 0.9rem;
+                padding: 6px 12px;
+            }
+            
+            #versionDisplay {
+                font-size: 0.6rem;
+                padding: 3px 6px;
+            }
+            
+            #instructions {
+                font-size: 0.7rem;
+                padding: 6px;
+                max-width: none;
+            }
+        }
+
+        /* Safe area support for devices with notches */
+        @supports (padding: max(0px)) {
+            #gameUI {
+                padding-top: max(10px, env(safe-area-inset-top));
+                padding-bottom: max(10px, env(safe-area-inset-bottom));
+                padding-left: max(10px, env(safe-area-inset-left));
+                padding-right: max(10px, env(safe-area-inset-right));
+            }
+            
+            #gameMenu {
+                margin-top: max(0px, env(safe-area-inset-top));
+                margin-bottom: max(0px, env(safe-area-inset-bottom));
+            }
         }
 
         /* Score Display */
@@ -328,6 +408,194 @@
             transform: translateY(0);
         }
 
+        /* Menu Button Groups */
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .menu-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .menu-group-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--game-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            text-align: center;
+            border-bottom: 1px solid var(--game-border);
+            padding-bottom: 5px;
+        }
+
+        /* Primary Action Buttons */
+        .menu-group.primary .game-btn {
+            background: var(--game-gradient);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+        }
+
+        .menu-group.primary .game-btn:hover {
+            box-shadow: 0 12px 35px rgba(0, 212, 255, 0.5);
+            transform: translateY(-4px);
+        }
+
+        /* Secondary Action Buttons */
+        .menu-group.secondary .game-btn {
+            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.3);
+        }
+
+        .menu-group.secondary .game-btn:hover {
+            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.5);
+            transform: translateY(-3px);
+        }
+
+        /* Utility Action Buttons */
+        .menu-group.utility .game-btn {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border: 1px solid var(--game-border);
+            box-shadow: 0 4px 15px rgba(15, 52, 96, 0.3);
+        }
+
+        .menu-group.utility .game-btn:hover {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-color: var(--game-primary);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Enhanced Touch-friendly improvements */
+        @media (hover: none) and (pointer: coarse) {
+            .game-btn {
+                min-height: 48px;
+                padding: 16px 24px;
+                font-size: 1.05rem;
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
+            }
+            
+            .game-btn:active {
+                transform: scale(0.95);
+                transition: transform 0.1s ease;
+                background: linear-gradient(135deg, #00b8e6 0%, #6d28d9 50%, #0891b2 100%);
+            }
+            
+            .menu-group {
+                gap: 12px;
+            }
+            
+            .menu-group-title {
+                padding: 8px;
+                margin-bottom: 8px;
+            }
+            
+            /* Touch-friendly overlays */
+            .overlay-content {
+                padding: 30px 25px;
+            }
+            
+            .mode-option {
+                min-height: 88px;
+                padding: 20px;
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
+            }
+            
+            .mode-option:active {
+                transform: scale(0.98);
+                background: rgba(22, 33, 62, 0.95);
+                border-color: var(--game-primary);
+            }
+            
+            /* Touch scrolling improvements */
+            .overlay-content {
+                -webkit-overflow-scrolling: touch;
+                scroll-behavior: smooth;
+            }
+            
+            /* Improved tap targets for small elements */
+            .tab-btn,
+            .filter-btn,
+            .booster-btn {
+                min-height: 44px;
+                padding: 12px 20px;
+                margin: 4px;
+                touch-action: manipulation;
+                -webkit-tap-highlight-color: transparent;
+            }
+            
+            .tab-btn:active,
+            .filter-btn:active,
+            .booster-btn:active {
+                transform: scale(0.95);
+                transition: transform 0.1s ease;
+            }
+            
+            /* Skin selection touch improvements */
+            .skin-item {
+                min-height: 60px;
+                min-width: 60px;
+                padding: 8px;
+                margin: 4px;
+                touch-action: manipulation;
+                -webkit-tap-highlight-color: transparent;
+            }
+            
+            .skin-item:active {
+                transform: scale(0.9);
+                transition: transform 0.1s ease;
+            }
+            
+            /* Achievement and quest touch improvements */
+            .achievement-item,
+            .quest-item {
+                padding: 20px;
+                margin: 8px 0;
+                touch-action: manipulation;
+                -webkit-tap-highlight-color: transparent;
+            }
+            
+            .achievement-item:active,
+            .quest-item:active {
+                transform: scale(0.98);
+                transition: transform 0.1s ease;
+            }
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .game-btn {
+                border: 2px solid var(--game-text);
+                font-weight: 700;
+            }
+            
+            .menu-group-title {
+                color: var(--game-text);
+                border-bottom-color: var(--game-text);
+            }
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            .game-btn {
+                transition: background-color 0.2s ease;
+            }
+            
+            .game-btn:hover {
+                transform: none;
+            }
+            
+            .game-btn:active {
+                transform: none;
+            }
+        }
+
         /* Game Over Screen */
         #gameOverScreen {
             position: absolute;
@@ -343,6 +611,8 @@
             z-index: 20;
             pointer-events: auto;
             display: none;
+            width: 90%;
+            max-width: 400px;
         }
 
         #gameOverScreen h2 {
@@ -377,60 +647,234 @@
             text-align: center;
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
+        /* Enhanced Responsive Design */
+        
+        /* Large Desktop (1440px+) */
+        @media (min-width: 1440px) {
+            #gameMenu {
+                max-width: 500px;
+                padding: 50px;
+            }
+            
+            #gameMenu h1 {
+                font-size: 3rem;
+            }
+            
+            .game-btn {
+                padding: 18px 35px;
+                font-size: 1.2rem;
+                margin: 12px 8px;
+            }
+            
+            .menu-buttons {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+                max-width: 100%;
+            }
+        }
+        
+        /* Desktop (1024px to 1439px) */
+        @media (min-width: 1024px) and (max-width: 1439px) {
+            #gameMenu {
+                max-width: 450px;
+                padding: 45px;
+            }
+            
+            .menu-buttons {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .game-btn {
+                margin: 8px 0;
+            }
+        }
+        
+        /* Tablet Landscape (768px to 1023px) */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            #gameMenu {
+                max-width: 400px;
+                padding: 40px 35px;
+            }
+            
+            #gameMenu h1 {
+                font-size: 2.2rem;
+            }
+            
+            .menu-buttons {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            
+            .game-btn {
+                padding: 14px 20px;
+                font-size: 1rem;
+                margin: 6px 0;
+                min-height: 50px;
+            }
+        }
+        
+        /* Tablet Portrait & Large Mobile (481px to 767px) */
+        @media (min-width: 481px) and (max-width: 767px) {
+            #gameMenu {
+                max-width: 380px;
+                padding: 35px 25px;
+                width: 95%;
+            }
+            
             #gameMenu h1 {
                 font-size: 2rem;
             }
             
             #gameMenu p {
                 font-size: 1rem;
+                margin-bottom: 25px;
+            }
+            
+            .menu-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
             }
             
             .game-btn {
-                padding: 12px 25px;
+                padding: 15px 25px;
                 font-size: 1rem;
+                margin: 4px 0;
+                width: 100%;
+                min-height: 50px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            /* Reset menu button width on tablet */
+            #gameMenu .game-btn {
+                min-width: auto;
+                width: 100%;
+                max-width: none;
+            }
+        }
+        
+        /* Mobile (320px to 480px) */
+        @media (max-width: 480px) {
+            #gameMenu {
+                padding: 25px 20px;
+                width: 95%;
+                max-width: 350px;
+                margin: 0 auto;
+            }
+            
+            #gameMenu h1 {
+                font-size: 1.8rem;
+                margin-bottom: 8px;
+            }
+            
+            #gameMenu p {
+                font-size: 0.9rem;
+                margin-bottom: 20px;
+                line-height: 1.4;
+            }
+            
+            .menu-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+            
+            .game-btn {
+                padding: 14px 20px;
+                font-size: 0.95rem;
+                margin: 3px 0;
+                width: 100%;
+                min-height: 48px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 20px;
             }
             
             /* Reset menu button width on mobile */
             #gameMenu .game-btn {
                 min-width: auto;
-                width: auto;
+                width: 100%;
                 max-width: none;
             }
             
             #scoreDisplay,
             #highScoreDisplay {
-                padding: 10px 20px;
-                font-size: 1rem;
+                padding: 8px 16px;
+                font-size: 0.9rem;
             }
             
-            /* Daily challenge removed as requested */
-            
             #instructions {
-                font-size: 0.8rem;
-                padding: 10px 20px;
+                font-size: 0.75rem;
+                padding: 8px 16px;
+                bottom: 10px;
+                right: 10px;
+                max-width: 200px;
             }
             
             #versionDisplay {
-                font-size: 0.7rem;
-                padding: 6px 12px;
+                font-size: 0.65rem;
+                padding: 5px 10px;
             }
         }
-
-        @media (max-width: 480px) {
+        
+        /* Very Small Mobile (max 320px) */
+        @media (max-width: 320px) {
             #gameMenu {
-                padding: 30px 20px;
+                padding: 20px 15px;
+                width: 98%;
             }
             
             #gameMenu h1 {
-                font-size: 1.8rem;
+                font-size: 1.6rem;
             }
             
             .game-btn {
-                padding: 10px 20px;
+                padding: 12px 16px;
                 font-size: 0.9rem;
-                margin: 5px;
+                min-height: 44px;
+            }
+            
+            #instructions {
+                display: none;
+            }
+        }
+        
+        /* Landscape Orientation for Mobile */
+        @media (max-height: 500px) and (orientation: landscape) {
+            #gameMenu {
+                padding: 20px;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+            
+            #gameMenu h1 {
+                font-size: 1.5rem;
+                margin-bottom: 5px;
+            }
+            
+            #gameMenu p {
+                font-size: 0.85rem;
+                margin-bottom: 15px;
+            }
+            
+            .menu-buttons {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            
+            .game-btn {
+                padding: 10px 8px;
+                font-size: 0.8rem;
+                min-height: 40px;
+                margin: 2px 0;
             }
         }
 
@@ -537,11 +981,73 @@
             padding: 30px;
             max-width: 500px;
             width: 90%;
+            max-height: 90vh;
             text-align: center;
             box-shadow: var(--game-shadow);
             transform: scale(0.8);
             opacity: 0;
             transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            overflow-y: auto;
+        }
+
+        /* Responsive overlay content */
+        @media (max-width: 768px) {
+            .overlay-content {
+                padding: 25px 20px;
+                max-width: 95%;
+                width: 95%;
+                border-radius: 15px;
+                max-height: 85vh;
+            }
+            
+            .overlay-content h2 {
+                font-size: 1.8rem;
+                margin-bottom: 15px;
+            }
+            
+            .mode-selector {
+                gap: 12px;
+                margin: 20px 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .overlay-content {
+                padding: 20px 15px;
+                max-width: 98%;
+                width: 98%;
+                border-radius: 12px;
+                max-height: 80vh;
+            }
+            
+            .overlay-content h2 {
+                font-size: 1.6rem;
+                margin-bottom: 12px;
+            }
+            
+            .mode-selector {
+                gap: 10px;
+                margin: 15px 0;
+            }
+        }
+
+        /* Landscape orientation for modals */
+        @media (max-height: 600px) and (orientation: landscape) {
+            .overlay-content {
+                max-height: 95vh;
+                padding: 20px;
+                overflow-y: auto;
+            }
+            
+            .overlay-content h2 {
+                font-size: 1.4rem;
+                margin-bottom: 10px;
+            }
+            
+            .mode-selector {
+                gap: 8px;
+                margin: 10px 0;
+            }
         }
         
         .overlay.show .overlay-content {
@@ -568,6 +1074,85 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            min-height: 80px;
+        }
+
+        /* Responsive mode options */
+        @media (max-width: 768px) {
+            .mode-option {
+                padding: 16px;
+                min-height: 70px;
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .mode-icon {
+                margin-right: 0;
+                margin-bottom: 10px;
+                font-size: 2rem;
+            }
+            
+            .mode-info {
+                text-align: center;
+            }
+            
+            .mode-info h3 {
+                font-size: 1.2rem;
+            }
+            
+            .mode-info p {
+                font-size: 0.85rem;
+            }
+            
+            .mode-stats {
+                justify-content: center;
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .mode-option {
+                padding: 14px;
+                min-height: 60px;
+                border-radius: 12px;
+            }
+            
+            .mode-icon {
+                font-size: 1.8rem;
+                margin-bottom: 8px;
+            }
+            
+            .mode-info h3 {
+                font-size: 1.1rem;
+                margin-bottom: 4px;
+            }
+            
+            .mode-info p {
+                font-size: 0.8rem;
+                margin-bottom: 8px;
+            }
+            
+            .mode-stats {
+                gap: 8px;
+            }
+            
+            .mode-stats span {
+                font-size: 0.7rem;
+                padding: 3px 8px;
+            }
+        }
+
+        /* Touch-friendly mode options */
+        @media (hover: none) and (pointer: coarse) {
+            .mode-option {
+                min-height: 88px;
+                padding: 20px;
+            }
+            
+            .mode-option:active {
+                transform: scale(0.98);
+                background: rgba(22, 33, 62, 0.95);
+            }
         }
         
         .mode-option:hover {
@@ -1335,15 +1920,37 @@
                 <div id="modeIndicator" class="mode-indicator">🌐 Браузерный режим</div>
             </div>
             <p>Помогите крипто-птице пролететь через рыночные препятствия!</p>
-            <button class="game-btn" onclick="showModeSelector()">🎮 Начать игру</button>
-            <button class="game-btn" onclick="showRules()">📖 Правила</button>
-            <button class="game-btn" onclick="showLeaderboard()">🏆 Таблица лидеров</button>
-            <button class="game-btn" onclick="showClans()">👥 Кланы</button>
-            <button class="game-btn" onclick="showSkinsShop()">🛒 Магазин скинов</button>
-            <button class="game-btn" onclick="showAchievements()">🏆 Достижения</button>
-            <button class="game-btn" onclick="showDailyQuests()">📋 Ежедневные задания</button>
-            <button class="game-btn" onclick="showBoosters()">⚡ Бустеры</button>
-            <button class="game-btn" onclick="showStatistics()">📊 Статистика</button>
+            
+            <div class="menu-buttons">
+                <!-- Primary Actions -->
+                <div class="menu-group primary">
+                    <div class="menu-group-title">🎮 Игра</div>
+                    <button class="game-btn" onclick="showModeSelector()">🎮 Начать игру</button>
+                    <button class="game-btn" onclick="showRules()">📖 Правила</button>
+                </div>
+                
+                <!-- Social & Competition -->
+                <div class="menu-group secondary">
+                    <div class="menu-group-title">🏆 Соревнования</div>
+                    <button class="game-btn" onclick="showLeaderboard()">🏆 Таблица лидеров</button>
+                    <button class="game-btn" onclick="showClans()">👥 Кланы</button>
+                    <button class="game-btn" onclick="showAchievements()">🏅 Достижения</button>
+                </div>
+                
+                <!-- Shop & Progression -->
+                <div class="menu-group secondary">
+                    <div class="menu-group-title">🛒 Прогресс</div>
+                    <button class="game-btn" onclick="showSkinsShop()">🛒 Магазин скинов</button>
+                    <button class="game-btn" onclick="showDailyQuests()">📋 Ежедневные задания</button>
+                    <button class="game-btn" onclick="showBoosters()">⚡ Бустеры</button>
+                </div>
+                
+                <!-- Utilities -->
+                <div class="menu-group utility">
+                    <div class="menu-group-title">📊 Данные</div>
+                    <button class="game-btn" onclick="showStatistics()">📊 Статистика</button>
+                </div>
+            </div>
         </div>
         
         <!-- Mode Selector Overlay -->
