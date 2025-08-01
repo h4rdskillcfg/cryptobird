@@ -51,9 +51,10 @@ class CryptoBirdBot {
 Готовы начать? Нажмите кнопку ниже! 👇`;
 
             const keyboard = Markup.inlineKeyboard([
-                [Markup.button.webApp('🎮 Играть', process.env.GAME_URL)],
-                [Markup.button.callback('📊 Статистика', 'stats')],
-                [Markup.button.callback('🏆 Топ игроков', 'leaderboard')]
+                [Markup.button.webApp('🎮 Играть', 'https://h4rdskillcfg.github.io/cryptobird/')],
+                [Markup.button.callback('📊 Статистика', 'stats'), Markup.button.callback('🏆 Топ игроков', 'leaderboard')],
+                [Markup.button.callback('🏅 Достижения', 'achievements'), Markup.button.callback('🎁 Рефералы', 'referral_info')],
+                [Markup.button.callback('❓ Помощь', 'help_info')]
             ]);
 
             await ctx.reply(welcomeMessage, keyboard);
@@ -62,7 +63,9 @@ class CryptoBirdBot {
         // Play command - launch web app
         this.bot.command('play', async (ctx) => {
             const keyboard = Markup.inlineKeyboard([
-                [Markup.button.webApp('🎮 Играть в Crypto Bird', process.env.GAME_URL)]
+                [Markup.button.webApp('🎮 Играть в Crypto Bird', 'https://h4rdskillcfg.github.io/cryptobird/')],
+                [Markup.button.callback('📊 Статистика', 'stats'), Markup.button.callback('🏆 Топ игроков', 'leaderboard')],
+                [Markup.button.callback('🏅 Достижения', 'achievements')]
             ]);
             
             await ctx.reply('🚀 Запускаем игру Crypto Bird!', keyboard);
@@ -111,36 +114,12 @@ ${referralLink}
 
         // Help command
         this.bot.command('help', async (ctx) => {
-            const helpMessage = `
-❓ Помощь по Crypto Bird Bot
+            await this.showHelpInfo(ctx);
+        });
 
-🎮 Основные команды:
-/start - Начать игру
-/play - Запустить игру
-/stats - Показать статистику
-/leaderboard - Топ игроков
-/achievements - Достижения
-/referral - Пригласить друзей
-/help - Эта справка
-
-🎯 Как играть:
-1. Нажмите /play или кнопку "Играть"
-2. Управляйте птичкой тапами
-3. Собирайте монеты и избегайте препятствий
-4. Достигайте новых рекордов!
-
-💎 Система достижений:
-• Первая игра
-• 100, 500, 1000 очков
-• 10, 50, 100 игр
-• Специальные достижения
-
-🎁 Реферальная программа:
-Приглашайте друзей и получайте бонусы!
-
-Удачи в игре! 🚀`;
-
-            await ctx.reply(helpMessage);
+        // Menu command
+        this.bot.command('menu', async (ctx) => {
+            await this.showMainMenu(ctx);
         });
 
         // Callback query handlers
@@ -157,6 +136,26 @@ ${referralLink}
         this.bot.action('achievements', async (ctx) => {
             await ctx.answerCbQuery();
             await this.showAchievements(ctx);
+        });
+
+        this.bot.action('referral_info', async (ctx) => {
+            await ctx.answerCbQuery();
+            await this.showReferralInfo(ctx);
+        });
+
+        this.bot.action('help_info', async (ctx) => {
+            await ctx.answerCbQuery();
+            await this.showHelpInfo(ctx);
+        });
+
+        this.bot.action('referral_stats', async (ctx) => {
+            await ctx.answerCbQuery();
+            await this.showReferralStats(ctx);
+        });
+
+        this.bot.action('main_menu', async (ctx) => {
+            await ctx.answerCbQuery();
+            await this.showMainMenu(ctx);
         });
 
         // Admin commands
@@ -266,8 +265,9 @@ ${referralLink}
 🎯 Продолжайте играть, чтобы улучшить результаты!`;
 
                 const keyboard = Markup.inlineKeyboard([
-                    [Markup.button.webApp('🎮 Играть', process.env.GAME_URL)],
-                    [Markup.button.callback('🏆 Топ игроков', 'leaderboard')]
+                    [Markup.button.webApp('🎮 Играть', 'https://h4rdskillcfg.github.io/cryptobird/')],
+                    [Markup.button.callback('🏆 Топ игроков', 'leaderboard'), Markup.button.callback('🏅 Достижения', 'achievements')],
+                    [Markup.button.callback('🏠 Главное меню', 'main_menu')]
                 ]);
 
                 ctx.reply(statsMessage, keyboard);
@@ -309,8 +309,9 @@ ${referralLink}
                 }
 
                 const keyboard = Markup.inlineKeyboard([
-                    [Markup.button.webApp('🎮 Играть', process.env.GAME_URL)],
-                    [Markup.button.callback('📊 Моя статистика', 'stats')]
+                    [Markup.button.webApp('🎮 Играть', 'https://h4rdskillcfg.github.io/cryptobird/')],
+                    [Markup.button.callback('📊 Моя статистика', 'stats'), Markup.button.callback('🏅 Достижения', 'achievements')],
+                    [Markup.button.callback('🏠 Главное меню', 'main_menu')]
                 ]);
 
                 ctx.reply(leaderboard, keyboard);
@@ -345,7 +346,9 @@ ${referralLink}
                 }
 
                 const keyboard = Markup.inlineKeyboard([
-                    [Markup.button.webApp('🎮 Играть', process.env.GAME_URL)]
+                    [Markup.button.webApp('🎮 Играть', 'https://h4rdskillcfg.github.io/cryptobird/')],
+                    [Markup.button.callback('📊 Статистика', 'stats'), Markup.button.callback('🏆 Топ игроков', 'leaderboard')],
+                    [Markup.button.callback('🏠 Главное меню', 'main_menu')]
                 ]);
 
                 ctx.reply(message, keyboard);
@@ -376,7 +379,13 @@ ${referralLink}
 
 💡 Приглашайте больше друзей для получения дополнительных бонусов!`;
 
-                ctx.reply(message);
+                const keyboard = Markup.inlineKeyboard([
+                    [Markup.button.webApp('🎮 Играть', 'https://h4rdskillcfg.github.io/cryptobird/')],
+                    [Markup.button.callback('🎁 Реферальная ссылка', 'referral_info')],
+                    [Markup.button.callback('🏠 Главное меню', 'main_menu')]
+                ]);
+
+                ctx.reply(message, keyboard);
             }
         );
     }
@@ -408,6 +417,88 @@ ${referralLink}
                 ctx.reply(message);
             }
         );
+    }
+
+    async showReferralInfo(ctx) {
+        const telegramId = ctx.from.id.toString();
+        const botUsername = ctx.botInfo.username;
+        const referralLink = `https://t.me/${botUsername}?start=${telegramId}`;
+        
+        const message = `
+🎁 Пригласите друзей и получайте бонусы!
+
+🔗 Ваша реферальная ссылка:
+${referralLink}
+
+💰 За каждого приглашенного друга вы получите:
+• 100 монет
+• +10% к очкам в первых 5 играх
+
+📊 Узнать статистику: /referral_stats`;
+
+        const keyboard = Markup.inlineKeyboard([
+            [Markup.button.webApp('🎮 Играть', 'https://h4rdskillcfg.github.io/cryptobird/')],
+            [Markup.button.callback('📊 Статистика рефералов', 'referral_stats')],
+            [Markup.button.callback('🏠 Главное меню', 'main_menu')]
+        ]);
+
+        await ctx.reply(message, keyboard);
+    }
+
+    async showHelpInfo(ctx) {
+        const helpMessage = `
+❓ Помощь по Crypto Bird Bot
+
+🎮 Основные команды:
+/start - Начать игру
+/play - Запустить игру
+/stats - Показать статистику
+/leaderboard - Топ игроков
+/achievements - Достижения
+/referral - Пригласить друзей
+/help - Эта справка
+/menu - Главное меню
+
+🎯 Как играть:
+1. Нажмите /play или кнопку "Играть"
+2. Управляйте птичкой тапами
+3. Собирайте монеты и избегайте препятствий
+4. Достигайте новых рекордов!
+
+💎 Система достижений:
+• Первая игра
+• 100, 500, 1000 очков
+• 10, 50, 100 игр
+• Специальные достижения
+
+🎁 Реферальная программа:
+Приглашайте друзей и получайте бонусы!
+
+Удачи в игре! 🚀`;
+
+        const keyboard = Markup.inlineKeyboard([
+            [Markup.button.webApp('🎮 Играть', 'https://h4rdskillcfg.github.io/cryptobird/')],
+            [Markup.button.callback('📊 Статистика', 'stats'), Markup.button.callback('🏆 Топ игроков', 'leaderboard')],
+            [Markup.button.callback('🏠 Главное меню', 'main_menu')]
+        ]);
+
+        await ctx.reply(helpMessage, keyboard);
+    }
+
+    async showMainMenu(ctx) {
+        const menuMessage = `
+🏠 Главное меню Crypto Bird
+
+🎮 Выберите действие из меню ниже:`;
+
+        const keyboard = Markup.inlineKeyboard([
+            [Markup.button.webApp('🎮 Играть', 'https://h4rdskillcfg.github.io/cryptobird/')],
+            [Markup.button.callback('📊 Статистика', 'stats'), Markup.button.callback('🏆 Топ игроков', 'leaderboard')],
+            [Markup.button.callback('🏅 Достижения', 'achievements'), Markup.button.callback('🎁 Рефералы', 'referral_info')],
+            [Markup.button.callback('❓ Помощь', 'help_info')]
+        ]);
+
+        await ctx.reply(menuMessage, keyboard);
     }
 
     start() {
