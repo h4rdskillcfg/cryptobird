@@ -148,6 +148,36 @@
             font-weight: 700;
         }
 
+        /* Lives Display */
+        #livesDisplay {
+            position: absolute;
+            top: 90px;
+            right: 20px;
+            background: rgba(26, 26, 46, 0.9);
+            padding: 15px 25px;
+            border-radius: 15px;
+            border: 1px solid var(--game-border);
+            pointer-events: none;
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--game-text-secondary);
+            box-shadow: var(--game-shadow);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .life-heart {
+            color: #ef4444;
+            font-size: 1.2rem;
+            filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.6));
+        }
+
+        .life-heart.lost {
+            color: #4a4a4a;
+            filter: none;
+        }
+
         /* Version Display */
         #versionDisplay {
             position: absolute;
@@ -1249,9 +1279,14 @@
                 Счет: <span id="scoreValue">0</span>
             </div>
             
-            <div id="highScoreDisplay">
-                Рекорд: <span id="highScoreValue">0</span>
-            </div>
+                    <div id="highScoreDisplay">
+            Рекорд: <span id="highScoreValue">0</span>
+        </div>
+
+        <div id="livesDisplay" class="hidden">
+            <span>Жизни:</span>
+            <div id="livesHearts"></div>
+        </div>
             
             <!-- Daily challenge removed as requested -->
             
@@ -1320,10 +1355,11 @@
                         <div class="mode-icon">🟢</div>
                         <div class="mode-info">
                             <h3>Easy</h3>
-                            <p>Медленная скорость, широкие проемы</p>
+                            <p>Медленная скорость, широкие проемы, 2 жизни</p>
                                                              <div class="mode-stats">
                                      <span>Скорость: 1.5x</span>
                                      <span>Проем: 360px</span>
+                                     <span>Жизни: 2</span>
                                  </div>
                         </div>
                     </div>
@@ -1335,6 +1371,7 @@
                                                              <div class="mode-stats">
                                      <span>Скорость: 2.5x</span>
                                      <span>Проем: 140px</span>
+                                     <span>Жизни: 1</span>
                                  </div>
                         </div>
                     </div>
@@ -1346,6 +1383,7 @@
                                                              <div class="mode-stats">
                                      <span>Скорость: 3.5x</span>
                                      <span>Проем: 360px</span>
+                                     <span>Жизни: 1</span>
                                  </div>
                         </div>
                     </div>
@@ -1804,21 +1842,28 @@
                 name: 'Easy',
                 speed: 1.5,
                 pipeGap: 360, // Увеличен в 3 раза (было 120)
-                color: '#10b981'
+                color: '#10b981',
+                lives: 2 // 2 жизни в Easy режиме
             },
             normal: {
                 name: 'Normal',
                 speed: 2.5,
                 pipeGap: 140, // Увеличен (было 100)
-                color: '#f59e0b'
+                color: '#f59e0b',
+                lives: 1 // 1 жизнь в Normal режиме
             },
             hardcore: {
                 name: 'Hardcore',
                 speed: 3.5,
                 pipeGap: 360, // Как в easy режиме
-                color: '#ef4444'
+                color: '#ef4444',
+                lives: 1 // 1 жизнь в Hardcore режиме
             }
         };
+
+        // Lives system
+        let currentLives = 1;
+        let maxLives = 1;
         let lastTime = 0;
         let fps = 60;
         let frameInterval = 1000 / fps;
@@ -1935,6 +1980,127 @@
             }
         };
         
+        // Update lives display
+        function updateLivesDisplay() {
+            const livesDisplay = document.getElementById('livesDisplay');
+            const livesHearts = document.getElementById('livesHearts');
+            
+            if (!livesDisplay || !livesHearts) return;
+
+            // Show lives display only if maxLives > 1
+            if (maxLives > 1) {
+                livesDisplay.classList.remove('hidden');
+                
+                // Clear previous hearts
+                livesHearts.innerHTML = '';
+                
+                // Add hearts for each life
+                for (let i = 0; i < maxLives; i++) {
+                    const heart = document.createElement('span');
+                    heart.className = 'life-heart';
+                    heart.textContent = '❤️';
+                    
+                    if (i >= currentLives) {
+                        heart.classList.add('lost');
+                    }
+                    
+                    livesHearts.appendChild(heart);
+                }
+            } else {
+                livesDisplay.classList.add('hidden');
+            }
+        }
+
+        // Handle life loss
+        function loseLife() {
+            currentLives--;
+            updateLivesDisplay();
+            
+            if (currentLives > 0) {
+                // Still have lives, respawn
+                showNotification(`💔 Жизнь потеряна! Осталось: ${currentLives}`);
+                respawnBird();
+                return false; // Don't game over
+            } else {
+                // No more lives, game over
+                return true; // Game over
+            }
+        }
+
+        // Respawn bird after losing a life
+        function respawnBird() {
+            // Reset bird position and physics
+            bird.y = canvas.height / 2;
+            bird.velocity = 0;
+            bird.rotation = 0;
+            bird.targetRotation = 0;
+            
+            // Clear nearby pipes for safety
+            pipes = pipes.filter(pipe => pipe.x > bird.x + 200);
+            
+            // Brief invincibility
+            let invincible = true;
+            setTimeout(() => {
+                invincible = false;
+            }, 2000); // 2 seconds of invincibility
+            
+            // Store original collision function
+            const originalCheckCollision = window.checkCollision;
+            window.checkCollision = function(rect1, rect2) {
+                if (invincible && rect1 === bird) {
+                    return false;
+                }
+                return originalCheckCollision(rect1, rect2);
+            };
+            
+            // Restore collision after invincibility
+            setTimeout(() => {
+                window.checkCollision = originalCheckCollision;
+            }, 2000);
+        }
+
+        // Send game statistics to server
+        async function sendGameStats(gameData) {
+            if (!isTelegramApp || !tg?.initDataUnsafe?.user?.id) {
+                console.log('⚠️ Not in Telegram app or no user ID, skipping stats');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/game/save-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        telegram_id: tg.initDataUnsafe.user.id.toString(),
+                        score: gameData.score,
+                        level: gameData.level,
+                        coins_earned: gameData.coins_earned,
+                        duration: gameData.duration
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('✅ Game stats sent successfully:', result);
+                    
+                    // Show achievements if any
+                    if (result.achievements && result.achievements.length > 0) {
+                        for (const achievement of result.achievements) {
+                            if (isTelegramApp && tg?.showAlert) {
+                                tg.showAlert(`🏆 Новое достижение!\n${achievement.name}\n${achievement.description}`);
+                            }
+                        }
+                    }
+                } else {
+                    console.error('❌ Failed to send game stats:', response.status);
+                }
+            } catch (error) {
+                console.error('❌ Error sending game stats:', error);
+            }
+        }
+
         // Initialize Telegram Web App
         function initTelegramApp() {
             try {
@@ -1981,12 +2147,11 @@
                             document.body.style.height = tg.viewportHeight + 'px';
                         }
                     });
-                    // Main button disabled for this game
-                    // tg.MainButton.setText('🎮 Играть в Crypto Bird');
-                    // tg.MainButton.show();
-                    // tg.MainButton.onClick(function() {
-                    //     startGame();
-                    // });
+                    
+                    // Log user info for debugging
+                    if (tg.initDataUnsafe?.user) {
+                        console.log('👤 Telegram user:', tg.initDataUnsafe.user);
+                    }
                     
                     console.log('✅ Telegram Web App initialized successfully');
                 } else {
@@ -2170,6 +2335,8 @@
             const selectedMode = gameModes[currentGameMode];
             gameSpeed = selectedMode.speed;
             pipeGap = selectedMode.pipeGap;
+            maxLives = selectedMode.lives;
+            currentLives = maxLives;
             setupUnifiedPhysics(); // Унифицированная физика
             
             console.log('🎮 Starting game in', selectedMode.name, 'mode: speed =', gameSpeed, 'pipeGap =', pipeGap);
@@ -2177,6 +2344,9 @@
             // Update game mode display
             const gameModeValue = document.getElementById('gameModeValue');
             if (gameModeValue) gameModeValue.textContent = selectedMode.name;
+
+            // Update lives display
+            updateLivesDisplay();
             
             // Reset bird with enhanced physics state
             bird.y = canvas.height / 2;
@@ -2292,6 +2462,15 @@
             updateQuestProgress('daily-tokens', sessionTokens);
             updateQuestProgress('daily-playtime', Math.floor((Date.now() - sessionStartTime) / 60000)); // Convert to minutes
             
+            // Send game statistics to server
+            const gameData = {
+                score: score,
+                level: Math.floor(score / 100) + 1, // Level based on score
+                coins_earned: currencyEarned,
+                duration: Date.now() - sessionStartTime
+            };
+            sendGameStats(gameData);
+            
             // Show game over screen
             const finalScore = document.getElementById('finalScore');
             const gameOverScreen = document.getElementById('gameOverScreen');
@@ -2315,6 +2494,10 @@
             
             if (scoreDisplay) scoreDisplay.classList.add('hidden');
             if (highScoreDisplay) highScoreDisplay.classList.add('hidden');
+            
+            // Hide lives display
+            const livesDisplay = document.getElementById('livesDisplay');
+            if (livesDisplay) livesDisplay.classList.add('hidden');
             if (instructions) instructions.classList.add('hidden');
             if (versionDisplay) versionDisplay.classList.add('hidden');
             if (fpsDisplay) fpsDisplay.classList.add('hidden');
@@ -2345,6 +2528,8 @@
                 const selectedMode = gameModes[currentGameMode];
                 gameSpeed = selectedMode.speed;
                 pipeGap = selectedMode.pipeGap;
+                maxLives = selectedMode.lives;
+                currentLives = maxLives;
                 setupUnifiedPhysics(); // Унифицированная физика
                 
                 console.log('🔄 Restarting game in', selectedMode.name, 'mode: speed =', gameSpeed, 'pipeGap =', pipeGap);
@@ -2352,6 +2537,9 @@
                 // Update game mode display
                 const gameModeValue = document.getElementById('gameModeValue');
                 if (gameModeValue) gameModeValue.textContent = selectedMode.name;
+
+                // Update lives display
+                updateLivesDisplay();
                 
                 // Reset bird with enhanced physics state
                 bird.y = canvas.height / 2;
@@ -2378,6 +2566,12 @@
             
             if (scoreDisplay) scoreDisplay.classList.remove('hidden');
             if (highScoreDisplay) highScoreDisplay.classList.remove('hidden');
+            
+            // Show lives display if more than 1 life
+            const livesDisplay = document.getElementById('livesDisplay');
+            if (livesDisplay && maxLives > 1) {
+                livesDisplay.classList.remove('hidden');
+            }
             if (dailyChallenge) dailyChallenge.classList.remove('hidden');
             if (instructions) instructions.classList.remove('hidden');
             if (versionDisplay) versionDisplay.classList.remove('hidden');
@@ -3206,8 +3400,11 @@
                 bird.targetRotation = Math.min(40, bird.targetRotation + 8); // Consistent rotation on bounce
             }
             if (bird.y + bird.height > canvas.height) {
-                gameOver();
-                return;
+                // Check if we should lose a life or game over
+                if (loseLife()) {
+                    gameOver();
+                    return;
+                }
             }
             
             // Update particles with simplified movement
@@ -3241,8 +3438,14 @@
                         activeBoosters = activeBoosters.filter(b => b.id !== 'shield');
                         showNotification(`🛡️ Щит защитил от столкновения!`);
                     } else {
-                        gameOver();
-                        return;
+                        // Check if we should lose a life or game over
+                        if (loseLife()) {
+                            gameOver();
+                            return;
+                        } else {
+                            // Continue playing with fewer lives
+                            continue;
+                        }
                     }
                 }
                 

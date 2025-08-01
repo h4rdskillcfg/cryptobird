@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  crypto-bird-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - BOT_TOKEN=${BOT_TOKEN}
+      - DB_PATH=/app/database/crypto_bird.db
+      - GAME_URL=${GAME_URL:-http://localhost:3000}
+      - ADMIN_TELEGRAM_ID=${ADMIN_TELEGRAM_ID}
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-key-change-in-production}
+      - CRM_PASSWORD=${CRM_PASSWORD:-admin123}
+    volumes:
+      - crypto_bird_data:/app/database
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  crypto_bird_data:
