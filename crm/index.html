@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Bird CRM - Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #00d4ff;
+            --secondary-color: #7c3aed;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --dark-bg: #0a0a0f;
+            --surface-bg: #1a1a2e;
+            --card-bg: #16213e;
+            --border-color: #0f3460;
+            --text-primary: #ffffff;
+            --text-secondary: #8892b0;
+            --gradient: linear-gradient(135deg, #00d4ff 0%, #7c3aed 50%, #06b6d4 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: var(--surface-bg);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 10px rgba(0, 212, 255, 0.1);
+        }
+
+        .header h1 {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .header .subtitle {
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .chart-section {
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            position: relative;
+            padding-left: 1rem;
+        }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 20px;
+            background: var(--gradient);
+            border-radius: 2px;
+        }
+
+        .chart-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+        }
+
+        .table-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table th {
+            background: var(--surface-bg);
+            color: var(--text-primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        .table td {
+            color: var(--text-secondary);
+        }
+
+        .table tr:hover {
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success-color);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning-color);
+        }
+
+        .badge-primary {
+            background: rgba(0, 212, 255, 0.2);
+            color: var(--primary-color);
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: var(--surface-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: var(--dark-bg);
+            border-color: var(--primary-color);
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                padding: 1rem;
+            }
+            
+            .filters {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎮 Crypto Bird CRM</h1>
+        <p class="subtitle">Система управления и аналитики игры</p>
+    </div>
+
+    <div class="container">
+        <!-- Overview Stats -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalUsers">-</div>
+                <div class="stat-label">Всего пользователей</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalGames">-</div>
+                <div class="stat-label">Всего игр</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="todayUsers">-</div>
+                <div class="stat-label">Новых пользователей сегодня</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="todayGames">-</div>
+                <div class="stat-label">Игр сегодня</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgScore">-</div>
+                <div class="stat-label">Средний счет</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="maxScore">-</div>
+                <div class="stat-label">Максимальный счет</div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="chart-section">
+            <h2 class="section-title">📊 Аналитика</h2>
+            
+            <div class="filters">
+                <button class="filter-btn active" data-period="7">7 дней</button>
+                <button class="filter-btn" data-period="30">30 дней</button>
+                <button class="filter-btn" data-period="90">90 дней</button>
+            </div>
+
+            <div class="grid-2">
+                <div class="chart-container">
+                    <h3>Игры по дням</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="gamesChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <h3>Уникальные пользователи</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="usersChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>Средний счет по дням</h3>
+                <div class="chart-wrapper">
+                    <canvas id="scoresChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="chart-section">
+            <h2 class="section-title">👥 Пользователи</h2>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Имя</th>
+                            <th>Telegram ID</th>
+                            <th>Игр</th>
+                            <th>Лучший счет</th>
+                            <th>Общий счет</th>
+                            <th>Регистрация</th>
+                            <th>Статус</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTable">
+                        <tr>
+                            <td colspan="7" class="loading">
+                                <div class="spinner"></div>
+                                Загрузка пользователей...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Recent Sessions -->
+        <div class="chart-section">
+            <h2 class="section-title">🎮 Последние игры</h2>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Игрок</th>
+                            <th>Счет</th>
+                            <th>Уровень</th>
+                            <th>Монеты</th>
+                            <th>Время игры</th>
+                            <th>Дата</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sessionsTable">
+                        <tr>
+                            <td colspan="6" class="loading">
+                                <div class="spinner"></div>
+                                Загрузка игровых сессий...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class CryptoBirdCRM {
+            constructor() {
+                this.charts = {};
+                this.currentPeriod = 7;
+                this.init();
+            }
+
+            async init() {
+                await this.loadOverview();
+                await this.loadAnalytics(this.currentPeriod);
+                await this.loadUsers();
+                await this.loadSessions();
+                this.setupEventListeners();
+            }
+
+            setupEventListeners() {
+                // Period filters
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.currentPeriod = parseInt(e.target.dataset.period);
+                        await this.loadAnalytics(this.currentPeriod);
+                    });
+                });
+
+                // Auto-refresh every 5 minutes
+                setInterval(() => {
+                    this.loadOverview();
+                    this.loadAnalytics(this.currentPeriod);
+                }, 5 * 60 * 1000);
+            }
+
+            async loadOverview() {
+                try {
+                    const response = await fetch('/api/crm/overview');
+                    const data = await response.json();
+
+                    document.getElementById('totalUsers').textContent = data.total_users || 0;
+                    document.getElementById('totalGames').textContent = data.total_games || 0;
+                    document.getElementById('todayUsers').textContent = data.new_users_today || 0;
+                    document.getElementById('todayGames').textContent = data.games_today || 0;
+                    document.getElementById('avgScore').textContent = Math.round(data.avg_score || 0);
+                    document.getElementById('maxScore').textContent = data.max_score || 0;
+                } catch (error) {
+                    console.error('Error loading overview:', error);
+                }
+            }
+
+            async loadAnalytics(days) {
+                try {
+                    const response = await fetch(`/api/crm/analytics?days=${days}`);
+                    const data = await response.json();
+
+                    this.updateCharts(data);
+                } catch (error) {
+                    console.error('Error loading analytics:', error);
+                }
+            }
+
+            updateCharts(data) {
+                const labels = data.map(d => moment(d.date).format('DD.MM'));
+                const gamesData = data.map(d => d.games_count);
+                const usersData = data.map(d => d.unique_users);
+                const scoresData = data.map(d => Math.round(d.avg_score || 0));
+
+                // Games chart
+                this.updateChart('gamesChart', {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Игры',
+                            data: gamesData,
+                            borderColor: '#00d4ff',
+                            backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    }
+                });
+
+                // Users chart
+                this.updateChart('usersChart', {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Пользователи',
+                            data: usersData,
+                            backgroundColor: 'rgba(124, 58, 237, 0.7)',
+                            borderColor: '#7c3aed',
+                            borderWidth: 1
+                        }]
+                    }
+                });
+
+                // Scores chart
+                this.updateChart('scoresChart', {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Средний счет',
+                            data: scoresData,
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    }
+                });
+            }
+
+            updateChart(canvasId, config) {
+                if (this.charts[canvasId]) {
+                    this.charts[canvasId].destroy();
+                }
+
+                const ctx = document.getElementById(canvasId).getContext('2d');
+                this.charts[canvasId] = new Chart(ctx, {
+                    ...config,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#ffffff'
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: { color: '#8892b0' },
+                                grid: { color: '#0f3460' }
+                            },
+                            y: {
+                                ticks: { color: '#8892b0' },
+                                grid: { color: '#0f3460' }
+                            }
+                        }
+                    }
+                });
+            }
+
+            async loadUsers() {
+                try {
+                    const response = await fetch('/api/crm/users?limit=20');
+                    const users = await response.json();
+
+                    const tbody = document.getElementById('usersTable');
+                    tbody.innerHTML = '';
+
+                    if (users.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #8892b0;">Пользователи не найдены</td></tr>';
+                        return;
+                    }
+
+                    users.forEach(user => {
+                        const row = document.createElement('tr');
+                        const registrationDate = new Date(user.created_at).toLocaleDateString('ru-RU');
+                        const isActive = new Date() - new Date(user.last_active) < 24 * 60 * 60 * 1000;
+
+                        row.innerHTML = `
+                            <td>${user.first_name || user.username || 'Аноним'}</td>
+                            <td>${user.telegram_id}</td>
+                            <td>${user.total_games || 0}</td>
+                            <td>${user.best_score || 0}</td>
+                            <td>${user.total_score || 0}</td>
+                            <td>${registrationDate}</td>
+                            <td>
+                                <span class="badge ${isActive ? 'badge-success' : 'badge-warning'}">
+                                    ${isActive ? 'Активен' : 'Неактивен'}
+                                </span>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } catch (error) {
+                    console.error('Error loading users:', error);
+                    document.getElementById('usersTable').innerHTML = 
+                        '<tr><td colspan="7" style="text-align: center; color: #ef4444;">Ошибка загрузки пользователей</td></tr>';
+                }
+            }
+
+            async loadSessions() {
+                try {
+                    const response = await fetch('/api/crm/sessions?limit=20');
+                    const sessions = await response.json();
+
+                    const tbody = document.getElementById('sessionsTable');
+                    tbody.innerHTML = '';
+
+                    if (sessions.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #8892b0;">Игровые сессии не найдены</td></tr>';
+                        return;
+                    }
+
+                    sessions.forEach(session => {
+                        const row = document.createElement('tr');
+                        const sessionDate = new Date(session.created_at).toLocaleString('ru-RU');
+                        const duration = Math.round(session.duration / 1000) || 0;
+
+                        row.innerHTML = `
+                            <td>${session.first_name || session.username || 'Аноним'}</td>
+                            <td>
+                                <span class="badge badge-primary">${session.score}</span>
+                            </td>
+                            <td>${session.level}</td>
+                            <td>${session.coins_earned}</td>
+                            <td>${duration}с</td>
+                            <td>${sessionDate}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } catch (error) {
+                    console.error('Error loading sessions:', error);
+                    document.getElementById('sessionsTable').innerHTML = 
+                        '<tr><td colspan="6" style="text-align: center; color: #ef4444;">Ошибка загрузки сессий</td></tr>';
+                }
+            }
+        }
+
+        // Initialize CRM when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new CryptoBirdCRM();
+        });
+    </script>
+</body>
+</html>

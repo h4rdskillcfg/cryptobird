@@ -1935,6 +1935,48 @@
             }
         };
         
+        // Send game statistics to server
+        async function sendGameStats(gameData) {
+            if (!isTelegramApp || !tg?.initDataUnsafe?.user?.id) {
+                console.log('⚠️ Not in Telegram app or no user ID, skipping stats');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/game/save-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        telegram_id: tg.initDataUnsafe.user.id.toString(),
+                        score: gameData.score,
+                        level: gameData.level,
+                        coins_earned: gameData.coins_earned,
+                        duration: gameData.duration
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('✅ Game stats sent successfully:', result);
+                    
+                    // Show achievements if any
+                    if (result.achievements && result.achievements.length > 0) {
+                        for (const achievement of result.achievements) {
+                            if (isTelegramApp && tg?.showAlert) {
+                                tg.showAlert(`🏆 Новое достижение!\n${achievement.name}\n${achievement.description}`);
+                            }
+                        }
+                    }
+                } else {
+                    console.error('❌ Failed to send game stats:', response.status);
+                }
+            } catch (error) {
+                console.error('❌ Error sending game stats:', error);
+            }
+        }
+
         // Initialize Telegram Web App
         function initTelegramApp() {
             try {
@@ -1981,12 +2023,11 @@
                             document.body.style.height = tg.viewportHeight + 'px';
                         }
                     });
-                    // Main button disabled for this game
-                    // tg.MainButton.setText('🎮 Играть в Crypto Bird');
-                    // tg.MainButton.show();
-                    // tg.MainButton.onClick(function() {
-                    //     startGame();
-                    // });
+                    
+                    // Log user info for debugging
+                    if (tg.initDataUnsafe?.user) {
+                        console.log('👤 Telegram user:', tg.initDataUnsafe.user);
+                    }
                     
                     console.log('✅ Telegram Web App initialized successfully');
                 } else {
@@ -2291,6 +2332,15 @@
             updateQuestProgress('daily-score', score);
             updateQuestProgress('daily-tokens', sessionTokens);
             updateQuestProgress('daily-playtime', Math.floor((Date.now() - sessionStartTime) / 60000)); // Convert to minutes
+            
+            // Send game statistics to server
+            const gameData = {
+                score: score,
+                level: Math.floor(score / 100) + 1, // Level based on score
+                coins_earned: currencyEarned,
+                duration: Date.now() - sessionStartTime
+            };
+            sendGameStats(gameData);
             
             // Show game over screen
             const finalScore = document.getElementById('finalScore');
