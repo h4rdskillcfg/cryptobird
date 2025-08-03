@@ -1830,32 +1830,32 @@
         let score = 0;
         let highScore = localStorage.getItem('cryptoBirdHighScore') || 0;
         let gameSpeed = 2;
-        let gravity = 0.35;
-        let jumpForce = -8.5;
-        let airResistance = 0.99; // Air resistance for smoother movement
-        let maxFallSpeed = 10; // Maximum fall speed
+        let gravity = 0.4; // Flappy Bird style gravity
+        let jumpForce = -8.0; // Flappy Bird style jump force
+        let airResistance = 1.0; // No air resistance like Flappy Bird
+        let maxFallSpeed = 8; // Flappy Bird style max fall speed
         
-        // Game modes configuration
+        // Game modes configuration - Flappy Bird style
         let currentGameMode = 'normal'; // easy, normal, hardcore
         const gameModes = {
             easy: {
                 name: 'Easy',
-                speed: 1.5,
-                pipeGap: 360, // Увеличен в 3 раза (было 120)
+                speed: 2.0, // Slower speed like Flappy Bird
+                pipeGap: 200, // Wider gap for easier gameplay
                 color: '#10b981',
                 lives: 2 // 2 жизни в Easy режиме
             },
             normal: {
                 name: 'Normal',
-                speed: 2.5,
-                pipeGap: 140, // Увеличен (было 100)
+                speed: 2.5, // Standard Flappy Bird speed
+                pipeGap: 140, // Standard gap
                 color: '#f59e0b',
                 lives: 1 // 1 жизнь в Normal режиме
             },
             hardcore: {
                 name: 'Hardcore',
-                speed: 3.5,
-                pipeGap: 360, // Как в easy режиме
+                speed: 3.0, // Faster but not too fast
+                pipeGap: 120, // Narrower gap for challenge
                 color: '#ef4444',
                 lives: 1 // 1 жизнь в Hardcore режиме
             }
@@ -1871,18 +1871,18 @@
         let fpsTime = 0;
         let currentFPS = 60;
         
-            // Unified physics for all devices with perfect consistency
+            // Flappy Bird style physics for consistent gameplay
     function setupUnifiedPhysics() {
-        // Унифицированная физика для всех устройств с идеальной консистентностью
-        gravity = 0.45; // Уменьшенная гравитация для быстрого набора высоты
-        jumpForce = -11; // Увеличенная сила прыжка для быстрого подъёма
-        airResistance = 0.985; // Сбалансированное сопротивление воздуха
-        maxFallSpeed = 9; // Ограниченная максимальная скорость падения (8-10)
+        // Flappy Bird style physics - simple and responsive
+        gravity = 0.4; // Classic Flappy Bird gravity
+        jumpForce = -8.0; // Classic Flappy Bird jump force
+        airResistance = 1.0; // No air resistance like Flappy Bird
+        maxFallSpeed = 8; // Classic Flappy Bird max fall speed
         
-        console.log('✅ Enhanced physics for quick ascent: gravity =', gravity, 'jumpForce =', jumpForce, 'airResistance =', airResistance, 'maxFallSpeed =', maxFallSpeed);
+        console.log('✅ Flappy Bird style physics: gravity =', gravity, 'jumpForce =', jumpForce, 'airResistance =', airResistance, 'maxFallSpeed =', maxFallSpeed);
     }
         
-        // Bird object with enhanced physics
+        // Bird object with Flappy Bird style physics
         let bird = {
             x: 100,
             y: 300,
@@ -1894,7 +1894,7 @@
             rotation: 0,
             targetRotation: 0, // Target rotation for smooth transitions
             wingAngle: 0,
-            wingSpeed: 0.4, // Slightly faster wing animation
+            wingSpeed: 0.3, // Slower wing animation like Flappy Bird
             isJumping: false, // Track jump state for better physics
             jumpCooldown: 0 // Prevent rapid jumping
         };
@@ -2281,22 +2281,19 @@
             console.log('✅ Crypto Bird v' + GAME_VERSION + ' ready!');
         });
         
-        // Unified jump handling with time-based physics
+        // Flappy Bird style jump handling
         function handleJump() {
             if (gameState === 'playing' && bird.jumpCooldown <= 0) {
                 // Apply jump force with time-based physics
                 const jumpForcePerSecond = jumpForce * 60; // Convert from per-frame to per-second
                 
-                // Enhanced jump mechanics for quick ascent
+                // Simple jump mechanics like Flappy Bird
                 bird.velocity = jumpForcePerSecond;
-                bird.targetRotation = -25; // More aggressive upward tilt for quick ascent
+                bird.targetRotation = -20; // Simple upward tilt like Flappy Bird
                 bird.isJumping = true;
-                bird.jumpCooldown = 0.016; // 16ms cooldown (1 frame at 60 FPS)
+                bird.jumpCooldown = 0.1; // 100ms cooldown for responsive jumping
                 
-                // No horizontal movement for perfect stability
-                // bird.x += (Math.random() - 0.5) * 0.5; // Removed for stability
-                
-                console.log('🦅 Time-based jump executed: velocity =', bird.velocity.toFixed(2), 'jumpForcePerSecond =', jumpForcePerSecond.toFixed(2));
+                console.log('🦅 Flappy Bird style jump: velocity =', bird.velocity.toFixed(2));
             }
         }
         
@@ -3334,17 +3331,13 @@
                 }
             }
             
-            // Time-based physics with consistent scaling
+            // Flappy Bird style physics - simple and responsive
             // Convert physics constants to per-second values
             const gravityPerSecond = gravity * 60; // Convert from per-frame to per-second
-            const airResistancePerSecond = Math.pow(airResistance, 60); // Convert from per-frame to per-second
             const maxFallSpeedPerSecond = maxFallSpeed * 60; // Convert from per-frame to per-second
             
-            // Apply gravity with time-based physics
+            // Apply gravity with time-based physics (no air resistance like Flappy Bird)
             bird.velocity += gravityPerSecond * deltaTimeSeconds;
-            
-            // Apply air resistance for smooth movement
-            bird.velocity *= Math.pow(airResistancePerSecond, deltaTimeSeconds);
             
             // Limit fall speed for consistent control
             if (bird.velocity > maxFallSpeedPerSecond) {
@@ -3359,16 +3352,16 @@
                 bird.jumpCooldown -= deltaTimeSeconds * 60; // Convert to per-second
             }
             
-            // Enhanced rotation system with time-based physics
-            const rotationSpeed = 150; // degrees per second
+            // Flappy Bird style rotation - simple and responsive
+            const rotationSpeed = 120; // degrees per second (slower than before)
             if (bird.velocity > 0) {
-                bird.targetRotation = Math.min(85, bird.targetRotation + rotationSpeed * deltaTimeSeconds);
+                bird.targetRotation = Math.min(90, bird.targetRotation + rotationSpeed * deltaTimeSeconds);
             } else {
-                bird.targetRotation = Math.max(-25, bird.targetRotation - rotationSpeed * deltaTimeSeconds);
+                bird.targetRotation = Math.max(-20, bird.targetRotation - rotationSpeed * deltaTimeSeconds);
             }
             
-            // Smooth rotation interpolation with time-based smoothing
-            const rotationSmoothing = 7.2; // per second (was 0.12 per frame)
+            // Simple rotation interpolation like Flappy Bird
+            const rotationSmoothing = 5.0; // per second (simpler than before)
             bird.rotation += (bird.targetRotation - bird.rotation) * rotationSmoothing * deltaTimeSeconds;
             
             // Reset jump state when falling
@@ -3401,11 +3394,11 @@
                 }
             }
             
-            // Unified boundary collision handling
+            // Flappy Bird style boundary collision handling
             if (bird.y < 0) {
                 bird.y = 0;
-                bird.velocity = Math.abs(bird.velocity) * 0.25; // Consistent bounce
-                bird.targetRotation = Math.min(40, bird.targetRotation + 8); // Consistent rotation on bounce
+                bird.velocity = 0; // Simple stop like Flappy Bird
+                bird.targetRotation = 0; // Reset rotation
             }
             if (bird.y + bird.height > canvas.height) {
                 // Check if we should lose a life or game over
@@ -3508,8 +3501,8 @@
                 }
             }
             
-            // Increase game speed gradually with time-based scaling
-            gameSpeed += 0.06 * deltaTimeSeconds; // 0.06 units per second
+            // Increase game speed gradually like Flappy Bird
+            gameSpeed += 0.02 * deltaTimeSeconds; // 0.02 units per second (slower increase)
         }
         
         // Draw game
