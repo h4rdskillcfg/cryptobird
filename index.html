@@ -1899,10 +1899,10 @@
             jumpCooldown: 0 // Prevent rapid jumping
         };
         
-        // Pipes array
+        // Pipes array - Flappy Bird style
         let pipes = [];
-        let pipeGap = 180;
-        let pipeWidth = 120;
+        let pipeGap = 140; // Standard Flappy Bird gap
+        let pipeWidth = 80; // Thinner pipes like Flappy Bird
         let lastPipeX = 800;
         
         // Tokens array (only Bitcoin)
@@ -2341,7 +2341,7 @@
             // Update lives display
             updateLivesDisplay();
             
-            // Reset bird with enhanced physics state
+            // Reset bird with Flappy Bird style physics state
             bird.y = canvas.height / 2;
             bird.velocity = 0;
             bird.rotation = 0;
@@ -2534,7 +2534,7 @@
                 // Update lives display
                 updateLivesDisplay();
                 
-                // Reset bird with enhanced physics state
+                // Reset bird with Flappy Bird style physics state
                 bird.y = canvas.height / 2;
                 bird.velocity = 0;
                 bird.rotation = 0;
@@ -3270,7 +3270,7 @@
         window.hideBackgroundSelector = hideBackgroundSelector;
         window.selectBackgroundFromGame = selectBackgroundFromGame;
         
-        // Unified game loop with time-based physics and deltaTime limiting
+        // Flappy Bird style game loop with time-based physics and deltaTime limiting
         function gameLoop() {
             console.log('🎮 gameLoop() called - gameState:', gameState);
             if (gameState !== 'playing') {
@@ -3315,7 +3315,7 @@
             requestAnimationFrame(gameLoop);
         }
         
-        // Unified game state update with time-based physics
+        // Flappy Bird style game state update with time-based physics
         function update(deltaTimeSeconds) {
             
             // Calculate effective game speed with booster effects
@@ -3421,8 +3421,8 @@
                 }
             }
             
-            // Generate pipes with proper spacing
-            if (pipes.length === 0 || lastPipeX - canvas.width > 250) {
+            // Generate pipes with Flappy Bird style spacing
+            if (pipes.length === 0 || lastPipeX - canvas.width > 200) {
                 generatePipe();
                 lastPipeX = canvas.width + 100;
             }
@@ -4199,9 +4199,12 @@
             }
         }
         
-        // Generate pipe with proper spacing
+        // Generate pipe with Flappy Bird style spacing
         function generatePipe() {
-            const gapY = Math.random() * (canvas.height - pipeGap - 140) + 70;
+            // Flappy Bird style gap positioning - more centered
+            const minGapY = 100; // Minimum distance from top
+            const maxGapY = canvas.height - pipeGap - 100; // Maximum distance from bottom
+            const gapY = Math.random() * (maxGapY - minGapY) + minGapY;
             
             // Top pipe
             pipes.push({
