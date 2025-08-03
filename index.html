@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Crypto Bird beta v.0.1 - Telegram Game</title>
+    <title>Crypto Bird beta v.0.2 - Telegram Game</title>
     
     <!-- Preload critical resources -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" as="style">
@@ -1294,9 +1294,9 @@
                 💡 Нажмите на экран для прыжка
             </div>
             
-            <div id="versionDisplay">
-                beta v.0.1
-            </div>
+                    <div id="versionDisplay">
+            beta v.0.2
+        </div>
             
             <div id="fpsDisplay">
                 FPS: <span id="fpsValue">60</span>
@@ -1817,8 +1817,8 @@
     </div>
 
     <script>
-        // Game version
-        const GAME_VERSION = "beta v.0.1";
+            // Game version
+    const GAME_VERSION = "beta v.0.2";
         
         // Check if running in Telegram Web App
         let isTelegramApp = false;
@@ -2281,26 +2281,22 @@
             console.log('✅ Crypto Bird v' + GAME_VERSION + ' ready!');
         });
         
-        // Unified jump handling with perfect device consistency
+        // Unified jump handling with time-based physics
         function handleJump() {
             if (gameState === 'playing' && bird.jumpCooldown <= 0) {
-                // Apply unified jump force with perfect consistency across all devices
-                const currentTime = performance.now();
-                const timeScale = Math.min((currentTime - lastTime) / 16.67, 1.2); // More conservative timeScale for consistency
-                
-                // Minimal speed scaling for consistent feel across all game speeds
-                const speedMultiplier = Math.max(0.8, Math.min(gameSpeed / 3, 2.0)); // Reduced scaling range
+                // Apply jump force with time-based physics
+                const jumpForcePerSecond = jumpForce * 60; // Convert from per-frame to per-second
                 
                 // Enhanced jump mechanics for quick ascent
-                bird.velocity = jumpForce * Math.max(timeScale, 0.95); // Higher minimum for faster response
+                bird.velocity = jumpForcePerSecond;
                 bird.targetRotation = -25; // More aggressive upward tilt for quick ascent
                 bird.isJumping = true;
-                bird.jumpCooldown = 1; // Reduced cooldown for more responsive jumping
+                bird.jumpCooldown = 0.016; // 16ms cooldown (1 frame at 60 FPS)
                 
                 // No horizontal movement for perfect stability
                 // bird.x += (Math.random() - 0.5) * 0.5; // Removed for stability
                 
-                console.log('🦅 Unified jump executed: velocity =', bird.velocity.toFixed(2), 'timeScale =', timeScale.toFixed(2), 'speedMultiplier =', speedMultiplier.toFixed(2));
+                console.log('🦅 Time-based jump executed: velocity =', bird.velocity.toFixed(2), 'jumpForcePerSecond =', jumpForcePerSecond.toFixed(2));
             }
         }
         
@@ -3277,7 +3273,7 @@
         window.hideBackgroundSelector = hideBackgroundSelector;
         window.selectBackgroundFromGame = selectBackgroundFromGame;
         
-        // Unified game loop with perfect device consistency
+        // Unified game loop with time-based physics and deltaTime limiting
         function gameLoop() {
             console.log('🎮 gameLoop() called - gameState:', gameState);
             if (gameState !== 'playing') {
@@ -3291,7 +3287,16 @@
             }
             
             const currentTime = performance.now();
-            const deltaTime = currentTime - lastTime;
+            let deltaTime = currentTime - lastTime;
+            
+            // Limit maximum deltaTime to prevent large jumps on lag spikes
+            const maxDeltaTime = 50; // Maximum 50ms (20 FPS minimum)
+            if (deltaTime > maxDeltaTime) {
+                deltaTime = maxDeltaTime;
+            }
+            
+            // Convert deltaTime to seconds for consistent physics
+            const deltaTimeSeconds = deltaTime / 1000;
             
             // FPS calculation with improved accuracy
             fpsCounter++;
@@ -3305,7 +3310,7 @@
             }
             
             // Update and draw with consistent timing
-            update(deltaTime);
+            update(deltaTimeSeconds);
             draw();
             lastTime = currentTime;
             
@@ -3313,8 +3318,8 @@
             requestAnimationFrame(gameLoop);
         }
         
-        // Unified game state update with perfect device consistency
-        function update(deltaTime) {
+        // Unified game state update with time-based physics
+        function update(deltaTimeSeconds) {
             
             // Calculate effective game speed with booster effects
             let effectiveGameSpeed = gameSpeed;
@@ -3329,40 +3334,42 @@
                 }
             }
             
-            // Unified bird physics with perfect time normalization
-            const timeScale = Math.min(deltaTime / 16.67, 1.2); // Conservative timeScale for consistency
+            // Time-based physics with consistent scaling
+            // Convert physics constants to per-second values
+            const gravityPerSecond = gravity * 60; // Convert from per-frame to per-second
+            const airResistancePerSecond = Math.pow(airResistance, 60); // Convert from per-frame to per-second
+            const maxFallSpeedPerSecond = maxFallSpeed * 60; // Convert from per-frame to per-second
             
-            // Minimal speed scaling for consistent feel across all game speeds
-            const speedMultiplier = Math.max(0.8, Math.min(gameSpeed / 3, 2.0)); // Reduced scaling range
-            
-            // Apply gravity with consistent air resistance
-            bird.velocity += gravity * timeScale;
+            // Apply gravity with time-based physics
+            bird.velocity += gravityPerSecond * deltaTimeSeconds;
             
             // Apply air resistance for smooth movement
-            bird.velocity *= Math.pow(airResistance, timeScale);
+            bird.velocity *= Math.pow(airResistancePerSecond, deltaTimeSeconds);
             
             // Limit fall speed for consistent control
-            if (bird.velocity > maxFallSpeed) {
-                bird.velocity = maxFallSpeed;
+            if (bird.velocity > maxFallSpeedPerSecond) {
+                bird.velocity = maxFallSpeedPerSecond;
             }
             
-            // Update position
-            bird.y += bird.velocity * timeScale;
+            // Update position with time-based movement
+            bird.y += bird.velocity * deltaTimeSeconds;
             
-            // Update jump cooldown
+            // Update jump cooldown (convert to time-based)
             if (bird.jumpCooldown > 0) {
-                bird.jumpCooldown--;
+                bird.jumpCooldown -= deltaTimeSeconds * 60; // Convert to per-second
             }
             
-            // Enhanced rotation system for quick ascent
+            // Enhanced rotation system with time-based physics
+            const rotationSpeed = 150; // degrees per second
             if (bird.velocity > 0) {
-                bird.targetRotation = Math.min(85, bird.targetRotation + 2.5); // Consistent rotation speed
+                bird.targetRotation = Math.min(85, bird.targetRotation + rotationSpeed * deltaTimeSeconds);
             } else {
-                bird.targetRotation = Math.max(-25, bird.targetRotation - 2.2); // More aggressive upward rotation for quick ascent
+                bird.targetRotation = Math.max(-25, bird.targetRotation - rotationSpeed * deltaTimeSeconds);
             }
             
-            // Smooth rotation interpolation
-            bird.rotation += (bird.targetRotation - bird.rotation) * 0.12; // Consistent interpolation
+            // Smooth rotation interpolation with time-based smoothing
+            const rotationSmoothing = 7.2; // per second (was 0.12 per frame)
+            bird.rotation += (bird.targetRotation - bird.rotation) * rotationSmoothing * deltaTimeSeconds;
             
             // Reset jump state when falling
             if (bird.velocity > 0) {
@@ -3371,16 +3378,17 @@
             
             // Debug physics (only in development)
             if (currentFPS < 30) {
-                console.log('⚠️ Low FPS detected:', currentFPS, 'TimeScale:', timeScale.toFixed(2));
+                console.log('⚠️ Low FPS detected:', currentFPS, 'DeltaTime:', (deltaTimeSeconds * 1000).toFixed(2), 'ms');
             }
             
             // Debug speed scaling (only when game speed changes significantly)
             if (Math.abs(gameSpeed - Math.floor(gameSpeed * 10) / 10) < 0.01) { // Log every 0.1 speed increase
-                console.log('🎮 Speed scaling: gameSpeed =', gameSpeed.toFixed(2), 'speedMultiplier =', speedMultiplier.toFixed(2));
+                console.log('🎮 Speed scaling: gameSpeed =', gameSpeed.toFixed(2));
             }
             
-            // Update wing animation
-            bird.wingAngle += bird.wingSpeed;
+            // Update wing animation with time-based movement
+            const wingSpeedPerSecond = bird.wingSpeed * 60; // Convert from per-frame to per-second
+            bird.wingAngle += wingSpeedPerSecond * deltaTimeSeconds;
             
             // Update active boosters
             for (let i = activeBoosters.length - 1; i >= 0; i--) {
@@ -3407,13 +3415,13 @@
                 }
             }
             
-            // Update particles with simplified movement
+            // Update particles with time-based movement
             for (let i = particles.length - 1; i >= 0; i--) {
                 const particle = particles[i];
-                particle.x += particle.vx;
-                particle.y += particle.vy;
-                particle.vy += 0.1; // Simplified acceleration
-                particle.life--;
+                particle.x += particle.vx * deltaTimeSeconds;
+                particle.y += particle.vy * deltaTimeSeconds;
+                particle.vy += 6 * deltaTimeSeconds; // 6 units per second acceleration
+                particle.life -= deltaTimeSeconds * 60; // Convert to per-second
                 
                 if (particle.life <= 0) {
                     particles.splice(i, 1);
@@ -3426,10 +3434,10 @@
                 lastPipeX = canvas.width + 100;
             }
             
-            // Update pipes
+            // Update pipes with time-based movement
             for (let i = pipes.length - 1; i >= 0; i--) {
                 const pipe = pipes[i];
-                pipe.x -= effectiveGameSpeed;
+                pipe.x -= effectiveGameSpeed * deltaTimeSeconds * 60; // Convert to per-second movement
                 
                 // Check collision with bird
                 if (checkCollision(bird, pipe)) {
@@ -3463,15 +3471,15 @@
                 generateToken();
             }
             
-            // Update tokens with simplified movement
+            // Update tokens with time-based movement
             for (let i = tokens.length - 1; i >= 0; i--) {
                 const token = tokens[i];
-                token.x -= effectiveGameSpeed;
+                token.x -= effectiveGameSpeed * deltaTimeSeconds * 60; // Convert to per-second movement
                 
-                // Simple vertical movement
-                token.y += Math.sin(Date.now() * 0.003) * 0.3;
+                // Time-based vertical movement
+                token.y += Math.sin(Date.now() * 0.003) * 18 * deltaTimeSeconds; // 18 units per second
                 
-                // Apply magnet effect
+                // Apply magnet effect with time-based movement
                 const hasMagnet = activeBoosters.some(b => b.id === 'magnet');
                 if (hasMagnet) {
                     const dx = bird.x - token.x;
@@ -3479,7 +3487,7 @@
                     const distance = Math.sqrt(dx * dx + dy * dy);
                     
                     if (distance < 150) { // Magnet range
-                        const force = 0.3;
+                        const force = 18 * deltaTimeSeconds; // 18 units per second
                         token.x += (dx / distance) * force;
                         token.y += (dy / distance) * force;
                     }
@@ -3500,8 +3508,8 @@
                 }
             }
             
-            // Increase game speed gradually
-            gameSpeed += 0.001;
+            // Increase game speed gradually with time-based scaling
+            gameSpeed += 0.06 * deltaTimeSeconds; // 0.06 units per second
         }
         
         // Draw game
