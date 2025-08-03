@@ -94,6 +94,7 @@
             width: 100%;
             height: 100%;
             z-index: 1;
+            transition: all 0.3s ease;
         }
 
         /* UI Overlay */
@@ -1841,21 +1842,21 @@
             easy: {
                 name: 'Easy',
                 speed: 1.5,
-                pipeGap: 360, // Увеличен в 3 раза (было 120)
+                pipeGap: 160, // Увеличенный зазор для легкого режима
                 color: '#10b981',
                 lives: 2 // 2 жизни в Easy режиме
             },
             normal: {
                 name: 'Normal',
                 speed: 2.5,
-                pipeGap: 140, // Увеличен (было 100)
+                pipeGap: 130, // Точный зазор как в оригинальном Flappy Bird
                 color: '#f59e0b',
                 lives: 1 // 1 жизнь в Normal режиме
             },
             hardcore: {
                 name: 'Hardcore',
                 speed: 3.5,
-                pipeGap: 360, // Как в easy режиме
+                pipeGap: 100, // Уменьшенный зазор для сложного режима
                 color: '#ef4444',
                 lives: 1 // 1 жизнь в Hardcore режиме
             }
@@ -1871,38 +1872,38 @@
         let fpsTime = 0;
         let currentFPS = 60;
         
-            // Unified physics for all devices with perfect consistency
-    function setupUnifiedPhysics() {
-        // Унифицированная физика для всех устройств с идеальной консистентностью
-        gravity = 0.45; // Уменьшенная гравитация для быстрого набора высоты
-        jumpForce = -11; // Увеличенная сила прыжка для быстрого подъёма
-        airResistance = 0.985; // Сбалансированное сопротивление воздуха
-        maxFallSpeed = 9; // Ограниченная максимальная скорость падения (8-10)
+        // Оригинальная физика Flappy Bird
+        function setupOriginalFlappyBirdPhysics() {
+            // Точные параметры оригинальной Flappy Bird
+            gravity = 0.4; // Гравитация как в оригинале
+            jumpForce = -6.5; // Сила прыжка как в оригинале
+            airResistance = 0.99; // Сопротивление воздуха
+            maxFallSpeed = 8; // Максимальная скорость падения
+            
+            console.log('✅ Original Flappy Bird physics: gravity =', gravity, 'jumpForce =', jumpForce);
+        }
         
-        console.log('✅ Enhanced physics for quick ascent: gravity =', gravity, 'jumpForce =', jumpForce, 'airResistance =', airResistance, 'maxFallSpeed =', maxFallSpeed);
-    }
-        
-        // Bird object with enhanced physics
+        // Bird object with original Flappy Bird physics
         let bird = {
             x: 100,
             y: 300,
             velocity: 0,
-            width: 35,
-            height: 35,
+            width: 34, // Размер как в оригинале
+            height: 24, // Размер как в оригинале
             color: '#00d4ff',
             skinType: 'bitcoin', // Current skin type
             rotation: 0,
             targetRotation: 0, // Target rotation for smooth transitions
             wingAngle: 0,
-            wingSpeed: 0.4, // Slightly faster wing animation
+            wingSpeed: 0.3, // Скорость анимации крыльев
             isJumping: false, // Track jump state for better physics
             jumpCooldown: 0 // Prevent rapid jumping
         };
         
-        // Pipes array
+        // Pipes array with original Flappy Bird mechanics
         let pipes = [];
-        let pipeGap = 180;
-        let pipeWidth = 120;
+        let pipeGap = 130; // Точный зазор как в оригинальном Flappy Bird
+        let pipeWidth = 52; // Ширина труб как в оригинале
         let lastPipeX = 800;
         
         // Tokens array (only Bitcoin)
@@ -2183,12 +2184,41 @@
                 return;
             }
             
-            // Set canvas size
-            function resizeCanvas() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-                console.log('Canvas resized to:', canvas.width, 'x', canvas.height);
-            }
+                // Set canvas size
+    function resizeCanvas() {
+        if (isTelegramApp) {
+            // In Telegram Web App, use full screen
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            // Reset canvas positioning for Telegram
+            canvas.style.position = 'absolute';
+            canvas.style.left = '0';
+            canvas.style.top = '0';
+            canvas.style.transform = 'none';
+            canvas.style.border = 'none';
+            canvas.style.borderRadius = '0';
+            canvas.style.boxShadow = 'none';
+        } else {
+            // On PC, limit to phone-like size
+            const maxWidth = 375; // iPhone width
+            const maxHeight = 667; // iPhone height
+            const scale = Math.min(window.innerWidth / maxWidth, window.innerHeight / maxHeight, 1.5);
+            
+            canvas.width = maxWidth * scale;
+            canvas.height = maxHeight * scale;
+            
+            // Center the canvas
+            canvas.style.position = 'absolute';
+            canvas.style.left = '50%';
+            canvas.style.top = '50%';
+            canvas.style.transform = 'translate(-50%, -50%)';
+            canvas.style.border = '2px solid var(--game-border)';
+            canvas.style.borderRadius = '20px';
+            canvas.style.boxShadow = '0 0 30px rgba(0, 212, 255, 0.3)';
+        }
+        console.log('Canvas resized to:', canvas.width, 'x', canvas.height);
+    }
             
             resizeCanvas();
             window.addEventListener('resize', function() {
@@ -2220,7 +2250,7 @@
                     modeIndicator.style.borderColor = '#10b981';
                     modeIndicator.style.color = '#10b981';
                 } else {
-                    modeIndicator.textContent = '🌐 Браузерный режим';
+                    modeIndicator.textContent = '🖥️ PC режим (телефонный размер)';
                     modeIndicator.style.background = 'rgba(0, 212, 255, 0.1)';
                     modeIndicator.style.borderColor = '#00d4ff';
                     modeIndicator.style.color = '#00d4ff';
@@ -2260,8 +2290,8 @@
             // Initialize cached gradients
             initCachedGradients();
             
-            // Setup unified physics
-            setupUnifiedPhysics();
+            // Setup original Flappy Bird physics
+            setupOriginalFlappyBirdPhysics();
             
             // Initialize game state
             gameState = 'menu';
@@ -2281,42 +2311,18 @@
             console.log('✅ Crypto Bird v' + GAME_VERSION + ' ready!');
         });
         
-        // Unified jump handling with perfect device consistency
+        // Оригинальный прыжок Flappy Bird
         function handleJump() {
             if (gameState === 'playing' && bird.jumpCooldown <= 0) {
-                // Apply unified jump force with perfect consistency across all devices
-                const currentTime = performance.now();
-                const timeScale = Math.min((currentTime - lastTime) / 16.67, 1.2); // More conservative timeScale for consistency
-                
-                // Minimal speed scaling for consistent feel across all game speeds
-                const speedMultiplier = Math.max(0.8, Math.min(gameSpeed / 3, 2.0)); // Reduced scaling range
-                
-                // Enhanced jump mechanics for quick ascent
-                bird.velocity = jumpForce * Math.max(timeScale, 0.95); // Higher minimum for faster response
-                bird.targetRotation = -25; // More aggressive upward tilt for quick ascent
+                // Точная механика прыжка как в оригинальной Flappy Bird
+                bird.velocity = jumpForce;
+                bird.targetRotation = -25; // Наклон вверх при прыжке
                 bird.isJumping = true;
-                bird.jumpCooldown = 1; // Reduced cooldown for more responsive jumping
+                bird.jumpCooldown = 3; // Небольшая задержка между прыжками
                 
-                // No horizontal movement for perfect stability
-                // bird.x += (Math.random() - 0.5) * 0.5; // Removed for stability
-                
-                console.log('🦅 Unified jump executed: velocity =', bird.velocity.toFixed(2), 'timeScale =', timeScale.toFixed(2), 'speedMultiplier =', speedMultiplier.toFixed(2));
+                console.log('🦅 Original Flappy Bird jump: velocity =', bird.velocity);
             }
         }
-        
-        // Create jump particles (removed for performance)
-        // function createJumpParticles() {
-        //     for (let i = 0; i < 8; i++) {
-        //         particles.push({
-        //             x: bird.x + bird.width / 2,
-        //             y: bird.y + bird.height,
-        //             vx: (Math.random() - 0.5) * 3,
-        //             vy: Math.random() * 2 + 1,
-        //             life: 25,
-        //             color: '#00d4ff'
-        //         });
-        //     }
-        // }
         
         // Start game
         function startGame() {
@@ -2337,7 +2343,7 @@
             pipeGap = selectedMode.pipeGap;
             maxLives = selectedMode.lives;
             currentLives = maxLives;
-            setupUnifiedPhysics(); // Унифицированная физика
+            setupOriginalFlappyBirdPhysics(); // Оригинальная физика Flappy Bird
             
             console.log('🎮 Starting game in', selectedMode.name, 'mode: speed =', gameSpeed, 'pipeGap =', pipeGap);
             
@@ -2348,7 +2354,7 @@
             // Update lives display
             updateLivesDisplay();
             
-            // Reset bird with enhanced physics state
+            // Reset bird with original Flappy Bird physics
             bird.y = canvas.height / 2;
             bird.velocity = 0;
             bird.rotation = 0;
@@ -2530,7 +2536,7 @@
                 pipeGap = selectedMode.pipeGap;
                 maxLives = selectedMode.lives;
                 currentLives = maxLives;
-                setupUnifiedPhysics(); // Унифицированная физика
+                setupOriginalFlappyBirdPhysics(); // Оригинальная физика Flappy Bird
                 
                 console.log('🔄 Restarting game in', selectedMode.name, 'mode: speed =', gameSpeed, 'pipeGap =', pipeGap);
                 
@@ -2541,7 +2547,7 @@
                 // Update lives display
                 updateLivesDisplay();
                 
-                // Reset bird with enhanced physics state
+                // Reset bird with original Flappy Bird physics
                 bird.y = canvas.height / 2;
                 bird.velocity = 0;
                 bird.rotation = 0;
@@ -3277,11 +3283,9 @@
         window.hideBackgroundSelector = hideBackgroundSelector;
         window.selectBackgroundFromGame = selectBackgroundFromGame;
         
-        // Unified game loop with perfect device consistency
+        // Оригинальный игровой цикл Flappy Bird
         function gameLoop() {
-            console.log('🎮 gameLoop() called - gameState:', gameState);
             if (gameState !== 'playing') {
-                console.log('🎮 gameLoop() returning early - gameState:', gameState);
                 return;
             }
             
@@ -3293,7 +3297,7 @@
             const currentTime = performance.now();
             const deltaTime = currentTime - lastTime;
             
-            // FPS calculation with improved accuracy
+            // FPS calculation
             fpsCounter++;
             fpsTime += deltaTime;
             
@@ -3304,16 +3308,15 @@
                 fpsTime = 0;
             }
             
-            // Update and draw with consistent timing
+            // Update and draw
             update(deltaTime);
             draw();
             lastTime = currentTime;
             
-            // Use requestAnimationFrame for consistent frame timing
             requestAnimationFrame(gameLoop);
         }
         
-        // Unified game state update with perfect device consistency
+        // Оригинальная физика Flappy Bird
         function update(deltaTime) {
             
             // Calculate effective game speed with booster effects
@@ -3322,67 +3325,51 @@
             
             for (const booster of activeBoosters) {
                 if (booster.id === 'slow-motion') {
-                    effectiveGameSpeed *= 0.5; // Slow down game speed
+                    effectiveGameSpeed *= 0.5;
                 }
                 if (booster.id === 'shield') {
                     hasShield = true;
                 }
             }
             
-            // Unified bird physics with perfect time normalization
-            const timeScale = Math.min(deltaTime / 16.67, 1.2); // Conservative timeScale for consistency
+            // Оригинальная физика птицы как в Flappy Bird
+            const timeScale = Math.min(deltaTime / 16.67, 1.0); // Стабильный timeScale
             
-            // Minimal speed scaling for consistent feel across all game speeds
-            const speedMultiplier = Math.max(0.8, Math.min(gameSpeed / 3, 2.0)); // Reduced scaling range
-            
-            // Apply gravity with consistent air resistance
+            // Применяем гравитацию
             bird.velocity += gravity * timeScale;
             
-            // Apply air resistance for smooth movement
-            bird.velocity *= Math.pow(airResistance, timeScale);
-            
-            // Limit fall speed for consistent control
+            // Ограничиваем максимальную скорость падения
             if (bird.velocity > maxFallSpeed) {
                 bird.velocity = maxFallSpeed;
             }
             
-            // Update position
+            // Обновляем позицию
             bird.y += bird.velocity * timeScale;
             
-            // Update jump cooldown
+            // Обновляем задержку прыжка
             if (bird.jumpCooldown > 0) {
                 bird.jumpCooldown--;
             }
             
-            // Enhanced rotation system for quick ascent
+            // Оригинальная система поворота Flappy Bird
             if (bird.velocity > 0) {
-                bird.targetRotation = Math.min(85, bird.targetRotation + 2.5); // Consistent rotation speed
+                bird.targetRotation = Math.min(90, bird.targetRotation + 3);
             } else {
-                bird.targetRotation = Math.max(-25, bird.targetRotation - 2.2); // More aggressive upward rotation for quick ascent
+                bird.targetRotation = Math.max(-25, bird.targetRotation - 3);
             }
             
-            // Smooth rotation interpolation
-            bird.rotation += (bird.targetRotation - bird.rotation) * 0.12; // Consistent interpolation
+            // Плавная интерполяция поворота
+            bird.rotation += (bird.targetRotation - bird.rotation) * 0.1;
             
-            // Reset jump state when falling
+            // Сброс состояния прыжка при падении
             if (bird.velocity > 0) {
                 bird.isJumping = false;
             }
             
-            // Debug physics (only in development)
-            if (currentFPS < 30) {
-                console.log('⚠️ Low FPS detected:', currentFPS, 'TimeScale:', timeScale.toFixed(2));
-            }
-            
-            // Debug speed scaling (only when game speed changes significantly)
-            if (Math.abs(gameSpeed - Math.floor(gameSpeed * 10) / 10) < 0.01) { // Log every 0.1 speed increase
-                console.log('🎮 Speed scaling: gameSpeed =', gameSpeed.toFixed(2), 'speedMultiplier =', speedMultiplier.toFixed(2));
-            }
-            
-            // Update wing animation
+            // Обновляем анимацию крыльев
             bird.wingAngle += bird.wingSpeed;
             
-            // Update active boosters
+            // Обновляем активные бустеры
             for (let i = activeBoosters.length - 1; i >= 0; i--) {
                 const booster = activeBoosters[i];
                 const elapsed = Date.now() - booster.startTime;
@@ -3393,26 +3380,25 @@
                 }
             }
             
-            // Unified boundary collision handling
+            // Обработка столкновений с границами
             if (bird.y < 0) {
                 bird.y = 0;
-                bird.velocity = Math.abs(bird.velocity) * 0.25; // Consistent bounce
-                bird.targetRotation = Math.min(40, bird.targetRotation + 8); // Consistent rotation on bounce
+                bird.velocity = 0;
             }
             if (bird.y + bird.height > canvas.height) {
-                // Check if we should lose a life or game over
+                // Проверяем, нужно ли потерять жизнь или закончить игру
                 if (loseLife()) {
                     gameOver();
                     return;
                 }
             }
             
-            // Update particles with simplified movement
+            // Обновляем частицы
             for (let i = particles.length - 1; i >= 0; i--) {
                 const particle = particles[i];
                 particle.x += particle.vx;
                 particle.y += particle.vy;
-                particle.vy += 0.1; // Simplified acceleration
+                particle.vy += 0.1;
                 particle.life--;
                 
                 if (particle.life <= 0) {
@@ -3420,81 +3406,87 @@
                 }
             }
             
-            // Generate pipes with proper spacing
+            // Генерируем трубы с правильными интервалами
             if (pipes.length === 0 || lastPipeX - canvas.width > 250) {
                 generatePipe();
                 lastPipeX = canvas.width + 100;
             }
             
-            // Update pipes
+            // Обновляем трубы
             for (let i = pipes.length - 1; i >= 0; i--) {
                 const pipe = pipes[i];
                 pipe.x -= effectiveGameSpeed;
                 
-                // Check collision with bird
+                // Проверяем столкновение с птицей
                 if (checkCollision(bird, pipe)) {
                     if (hasShield) {
-                        // Remove shield and continue
+                        // Убираем щит и продолжаем
                         activeBoosters = activeBoosters.filter(b => b.id !== 'shield');
                         showNotification(`🛡️ Щит защитил от столкновения!`);
                     } else {
-                        // Check if we should lose a life or game over
+                        // Проверяем, нужно ли потерять жизнь или закончить игру
                         if (loseLife()) {
                             gameOver();
                             return;
                         } else {
-                            // Continue playing with fewer lives
+                            // Продолжаем играть с меньшим количеством жизней
                             continue;
                         }
                     }
                 }
                 
-                // Remove off-screen pipes
+                // Удаляем трубы за пределами экрана
                 if (pipe.x + pipe.width < 0) {
                     pipes.splice(i, 1);
                     score += 10;
-                    sessionPipesPassed++; // Update session pipes passed count
+                    sessionPipesPassed++;
                     updateScore();
                 }
             }
             
-            // Generate tokens
+            // Генерируем токены
             if (Math.random() < 0.02) {
                 generateToken();
             }
             
-            // Update tokens with simplified movement
+            // Обновляем токены
             for (let i = tokens.length - 1; i >= 0; i--) {
                 const token = tokens[i];
                 token.x -= effectiveGameSpeed;
                 
-                // Simple vertical movement
+                // Простое вертикальное движение
                 token.y += Math.sin(Date.now() * 0.003) * 0.3;
                 
-                // Apply magnet effect
-                const hasMagnet = activeBoosters.some(b => b.id === 'magnet');
+                // Применяем эффект магнита
+                let hasMagnet = false;
+                for (const booster of activeBoosters) {
+                    if (booster.id === 'magnet') {
+                        hasMagnet = true;
+                        break;
+                    }
+                }
+                
                 if (hasMagnet) {
+                    // Притягиваем токен к птице
                     const dx = bird.x - token.x;
                     const dy = bird.y - token.y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
                     
-                    if (distance < 150) { // Magnet range
-                        const force = 0.3;
-                        token.x += (dx / distance) * force;
-                        token.y += (dy / distance) * force;
+                    if (distance < 100) {
+                        token.x += dx * 0.05;
+                        token.y += dy * 0.05;
                     }
                 }
                 
-                // Check collision with bird
+                // Проверяем столкновение с птицей
                 if (checkCollision(bird, token)) {
                     tokens.splice(i, 1);
-                    score += 50;
-                    sessionTokens++; // Update session token count
-                    updateScore();
-                    createTokenParticles(token.x, token.y);
+                    sessionTokens++;
+                    addCurrency(1);
+                    showNotification('💰 +1 токен!');
                 }
                 
-                // Remove off-screen tokens
+                // Удаляем токены за пределами экрана
                 if (token.x + token.width < 0) {
                     tokens.splice(i, 1);
                 }
@@ -4198,11 +4190,14 @@
             }
         }
         
-        // Generate pipe with proper spacing
+        // Генерация труб как в оригинальной Flappy Bird
         function generatePipe() {
-            const gapY = Math.random() * (canvas.height - pipeGap - 140) + 70;
+            // Точная логика генерации зазора как в оригинальном Flappy Bird
+            const minGapY = 100; // Минимальная высота от верха
+            const maxGapY = canvas.height - pipeGap - 100; // Минимальная высота от низа
+            const gapY = Math.random() * (maxGapY - minGapY) + minGapY;
             
-            // Top pipe
+            // Верхняя труба
             pipes.push({
                 x: canvas.width + 50,
                 y: 0,
@@ -4212,7 +4207,7 @@
                 glowPhase: Math.random() * Math.PI * 2
             });
             
-            // Bottom pipe
+            // Нижняя труба
             pipes.push({
                 x: canvas.width + 50,
                 y: gapY + pipeGap,
@@ -4222,7 +4217,7 @@
                 glowPhase: Math.random() * Math.PI * 2
             });
             
-            // Add entrance particles
+            // Добавляем частицы входа
             createPipeEntranceParticles(canvas.width + 50, gapY);
         }
         
@@ -4751,6 +4746,9 @@
     </script>
 </body>
 </html> 
+
+
+
 
 
 
