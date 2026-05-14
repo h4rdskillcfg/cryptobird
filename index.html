@@ -3,361 +3,493 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CYBER KICKS</title>
+    <title>TRIPPLE STORE</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
+        /* Базовые настройки в стиле iOS */
         :root {
-            --cyan: #00f3ff;
-            --pink: #ff00ff;
-            --yellow: #fcee0a;
-            --bg: #050505;
-            --panel: rgba(20, 20, 25, 0.8);
+            --bg-color: #f2f2f7;
+            --card-bg: #ffffff;
+            --text-main: #000000;
+            --text-secondary: #8e8e93;
+            --accent-blue: #007aff;
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.3);
         }
 
         * {
             box-sizing: border-box;
-            user-select: none;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
 
         body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg);
-            color: #fff;
-            font-family: 'Share Tech Mono', monospace;
-            background-image: 
-                linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
-            background-size: 20px 20px;
-            overflow: hidden; /* Prevent scrolling body, handle in containers */
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            padding-bottom: 90px; /* Место для навбара */
         }
 
-        h1, h2, h3 {
-            font-family: 'Orbitron', sans-serif;
-            text-transform: uppercase;
-            margin: 0;
+        /* Эффект матового стекла (Glassmorphism) */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
         }
 
-        /* Header */
+        /* Шапка */
         header {
-            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 16px 20px;
             text-align: center;
-            border-bottom: 2px solid var(--cyan);
-            box-shadow: 0 0 10px var(--cyan);
-            background: #000;
-            z-index: 10;
         }
 
-        header h1 {
-            color: var(--yellow);
-            text-shadow: 2px 2px 0px var(--pink);
-            letter-spacing: 2px;
+        h1 {
+            font-size: 17px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
         }
 
-        /* Content Area */
-        #content {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 20px;
-            padding-bottom: 80px; /* Space for nav */
-        }
-
-        .tab-section {
-            display: none;
-            animation: glitch-in 0.3s forwards;
-        }
-
-        .tab-section.active {
-            display: block;
-        }
-
-        /* Item Cards */
-        .card {
-            background: var(--panel);
-            border: 1px solid var(--cyan);
-            padding: 15px;
-            margin-bottom: 15px;
-            position: relative;
-            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
-            transition: 0.2s;
-        }
-
-        .card:active {
-            transform: scale(0.98);
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 5px; height: 100%;
-            background: var(--pink);
-        }
-
-        .item-name { color: var(--cyan); font-size: 1.2rem; margin-bottom: 5px; font-family: 'Orbitron', sans-serif;}
-        .item-price { color: var(--yellow); font-size: 1.1rem; }
-        .item-img { font-size: 3rem; text-align: center; margin: 10px 0; text-shadow: 0 0 15px var(--cyan);}
-        
-        button.cyber-btn {
-            width: 100%;
-            background: transparent;
-            color: var(--cyan);
-            border: 1px solid var(--cyan);
-            padding: 10px;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: all 0.3s;
-        }
-
-        button.cyber-btn:active {
-            background: var(--cyan);
-            color: #000;
-        }
-
-        /* Armory Shelf */
-        .shelf {
-            border-bottom: 4px solid var(--pink);
-            box-shadow: 0 5px 15px rgba(255, 0, 255, 0.4);
-            display: flex;
-            gap: 15px;
-            padding: 20px 10px 5px 10px;
-            margin-bottom: 30px;
-            overflow-x: auto;
-            min-height: 100px;
-        }
-
-        .shelf-item {
-            font-size: 3rem;
-            filter: drop-shadow(0 0 10px var(--cyan));
-        }
-
-        /* Profile Info */
-        .profile-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-            border: 1px solid var(--pink);
-            padding: 15px;
-            background: rgba(255, 0, 255, 0.05);
-        }
-
-        .avatar {
-            width: 50px;
-            height: 50px;
-            background: var(--cyan);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #000;
-            font-weight: bold;
-        }
-
-        /* Bottom Nav */
-        nav {
+        /* Навигация (Нижний бар) */
+        .tab-bar {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
             display: flex;
-            background: #000;
-            border-top: 2px solid var(--pink);
+            justify-content: space-around;
+            padding: 10px 0 25px 0; /* Отступ снизу для iPhone */
             z-index: 100;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            border-bottom: none;
         }
 
-        .nav-btn {
-            flex: 1;
-            padding: 15px 0;
-            text-align: center;
-            color: #888;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.9rem;
-            text-transform: uppercase;
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
             cursor: pointer;
-            transition: 0.3s;
+            transition: color 0.2s ease;
         }
 
-        .nav-btn.active {
-            color: var(--pink);
-            text-shadow: 0 0 10px var(--pink);
-            background: rgba(255, 0, 255, 0.1);
+        .tab-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
         }
 
-        @keyframes glitch-in {
-            0% { opacity: 0; transform: translateX(-10px); }
-            50% { opacity: 1; transform: translateX(5px); }
-            100% { transform: translateX(0); }
+        .tab-btn.active {
+            color: var(--accent-blue);
+        }
+
+        /* Контент вкладок */
+        .tab-content {
+            display: none;
+            padding: 20px;
+            animation: fadeSlideUp 0.4s cubic-bezier(0.1, 0.8, 0.2, 1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Сетка товаров */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* Карточка товара (iOS Style) */
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+            transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .card:active {
+            transform: scale(0.96);
+        }
+
+        .card-img-container {
+            width: 100%;
+            height: 140px;
+            background: #f8f8f8;
+            overflow: hidden;
+        }
+
+        .card-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .card-info {
+            padding: 12px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-price {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .btn-buy {
+            width: 100%;
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-buy:active {
+            background: #005ecb;
+        }
+
+        /* Списки (Релизы) */
+        .list-item {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        .list-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            object-fit: cover;
+            margin-right: 16px;
+        }
+
+        .list-info {
+            flex-grow: 1;
+        }
+
+        .list-title {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .list-date {
+            font-size: 13px;
+            color: var(--accent-blue);
+            margin-top: 4px;
+        }
+
+        /* Профиль (Оружейная) */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        .avatar {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 50%;
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .profile-name {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .profile-stat {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: -0.5px;
+        }
+
+        /* Полка покупок */
+        .shelf {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .shelf-item {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 8px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            animation: scaleIn 0.3s cubic-bezier(0.1, 0.8, 0.2, 1);
+        }
+
+        .shelf-item img {
+            width: 100%;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .shelf-item-name {
+            font-size: 10px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+            padding: 40px 0;
+            grid-column: span 3;
+        }
+
+        /* iOS Toast Notification */
+        .toast {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 12px 24px;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.1, 0.8, 0.2, 1);
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>SYS.KICKS</h1>
+    <header class="glass">
+        <h1>TRIPPLE STORE</h1>
     </header>
 
-    <div id="content">
-        <!-- Магазин -->
-        <div id="shop" class="tab-section active">
-            <!-- Сюда JS добавит товары -->
-        </div>
+    <!-- Всплывающее уведомление -->
+    <div id="toast" class="toast">Добавлено в Оружейную</div>
 
-        <!-- Релизы -->
-        <div id="releases" class="tab-section">
-            <h2 style="color: var(--cyan); margin-bottom: 15px;">>>> UPLOAD SCHEDULE</h2>
-            <div id="releases-container"></div>
-        </div>
+    <main>
+        <!-- МАГАЗИН -->
+        <section id="store" class="tab-content active">
+            <div class="grid" id="products-grid">
+                <!-- Карточки генерируются через JS -->
+            </div>
+        </section>
 
-        <!-- Оружейная -->
-        <div id="armory" class="tab-section">
+        <!-- РЕЛИЗЫ -->
+        <section id="releases" class="tab-content">
+            <div class="section-title">Скоро в продаже</div>
+            <div class="list-item">
+                <img src="https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=400&q=80" alt="Release" class="list-img">
+                <div class="list-info">
+                    <div class="list-title">Puma RS-X3</div>
+                    <div class="list-date">Дроп: 15 Мая, 10:00</div>
+                </div>
+            </div>
+            <div class="list-item">
+                <img src="https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=400&q=80" alt="Release" class="list-img">
+                <div class="list-info">
+                    <div class="list-title">Nike Dunk Low Retro</div>
+                    <div class="list-date">Дроп: 20 Мая, 12:00</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ПРОФИЛЬ (ОРУЖЕЙНАЯ) -->
+        <section id="armory" class="tab-content">
             <div class="profile-header">
-                <div class="avatar" id="userAvatar">U</div>
+                <div class="avatar">✌️</div>
                 <div>
-                    <div style="color: var(--yellow); font-family: 'Orbitron';">USER_ID: <span id="username">UNKNOWN</span></div>
-                    <div style="font-size: 0.8rem; color: #888;">STATUS: PREMIUM RUNNER</div>
+                    <div class="profile-name" id="userName">Гость</div>
+                    <div class="profile-stat" id="userStats">Покупок: 0</div>
                 </div>
             </div>
 
-            <h3 style="color: var(--pink);">>>> COLLECTION SHELF</h3>
-            <div class="shelf" id="inventory-shelf">
-                <!-- Купленные модели -->
+            <div class="section-title">Оружейная</div>
+            <div class="shelf" id="purchased-shelf">
+                <div class="empty-state" id="empty-shelf">
+                    Полка пуста.<br>Выбери что-нибудь в магазине.
+                </div>
             </div>
-            <p id="empty-msg" style="color: #666; text-align: center; margin-top: 20px;">[ ОРУЖЕЙНАЯ ПУСТА ]</p>
-        </div>
-    </div>
+        </section>
+    </main>
 
-    <nav>
-        <div class="nav-btn active" onclick="switchTab('shop')">SHOP</div>
-        <div class="nav-btn" onclick="switchTab('releases')">DROPS</div>
-        <div class="nav-btn" onclick="switchTab('armory')">ARMORY</div>
+    <!-- Навигация (Bottom Bar) -->
+    <nav class="tab-bar glass">
+        <button class="tab-btn active" onclick="switchTab('store', this)">
+            <svg viewBox="0 0 24 24"><path d="M10 4V2.25C10 1.01 10.95 0 12.18 0C13.41 0 14.36 1.01 14.36 2.25V4H20.67C21.84 4 22.84 4.87 22.98 6.03L23.95 19.53C24.05 20.84 23.01 22 21.64 22H2.72C1.35 22 0.31 20.84 0.41 19.53L1.38 6.03C1.52 4.87 2.52 4 3.69 4H10ZM12.18 1.83C11.96 1.83 11.82 2.01 11.82 2.25V4H12.55V2.25C12.55 2.01 12.4 1.83 12.18 1.83Z"/></svg>
+            Магазин
+        </button>
+        <button class="tab-btn" onclick="switchTab('releases', this)">
+            <svg viewBox="0 0 24 24"><path d="M19 4H18V2H16V4H8V2H6V4H5C3.89 4 3 4.9 3 6V20C3 21.1 3.89 22 5 22H19C20.1 22 21 21.1 21 20V6C21 4.9 20.1 4 19 4ZM19 20H5V10H19V20ZM19 8H5V6H19V8Z"/></svg>
+            Релизы
+        </button>
+        <button class="tab-btn" onclick="switchTab('armory', this)">
+            <svg viewBox="0 0 24 24"><path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z"/></svg>
+            Профиль
+        </button>
     </nav>
 
     <script>
+        // Инициализация Telegram Web App
         const tg = window.Telegram.WebApp;
-
-        // Инициализация Telegram WebApp
+        tg.expand(); // Разворачиваем на весь экран
         tg.ready();
-        
-        // Запрос полноэкранного режима
-        try {
-            tg.requestFullscreen();
-        } catch (e) {
-            console.warn("Fullscreen API не поддерживается на данном клиенте", e);
-            tg.expand(); // Фолбэк для старых клиентов
+
+        // Устанавливаем имя пользователя из ТГ
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            document.getElementById('userName').innerText = tg.initDataUnsafe.user.first_name;
         }
 
-        // Данные пользователя
-        const user = tg.initDataUnsafe?.user;
-        if (user) {
-            document.getElementById('username').innerText = user.username || user.first_name;
-            document.getElementById('userAvatar').innerText = (user.first_name || 'U').charAt(0).toUpperCase();
-        }
-
-        // Базы данных
-        const shopData = [
-            { id: 1, name: "V-STOMPER X", price: 15000, img: "🥾", corp: "MILITECH" },
-            { id: 2, name: "NEON GLIDER", price: 12500, img: "👟", corp: "ARASAKA" },
-            { id: 3, name: "SYNTH-RUN v3", price: 8900, img: "🏃‍♂️", corp: "KANG TAO" }
+        // База данных товаров (Используем качественные фото с Unsplash)
+        const products = [
+            { id: 1, name: "Nike Air Max 97", price: "$170", img: "https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=400&q=80" },
+            { id: 2, name: "Air Jordan 1 High", price: "$220", img: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=80" },
+            { id: 3, name: "New Balance 550", price: "$130", img: "https://images.unsplash.com/photo-1539185441755-769473a23570?w=400&q=80" },
+            { id: 4, name: "Adidas Yeezy 350", price: "$250", img: "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=400&q=80" },
+            { id: 5, name: "Nike Blazer Mid", price: "$105", img: "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=400&q=80" },
+            { id: 6, name: "Vans Old Skool", price: "$70", img: "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=400&q=80" }
         ];
 
-        const dropsData = [
-            { name: "HOLO-KICK PRO", date: "ВЫХОД: 20.06.2026", img: "✨" },
-            { name: "AERO-JUMP 77", date: "ВЫХОД: 04.07.2026", img: "🚀" }
-        ];
+        let purchasedItems = 0;
 
-        let inventory = [];
+        // Рендер товаров в магазине
+        const grid = document.getElementById('products-grid');
+        products.forEach(product => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div class="card-img-container">
+                    <img src="${product.img}" alt="${product.name}">
+                </div>
+                <div class="card-info">
+                    <div class="card-title">${product.name}</div>
+                    <div class="card-price">${product.price}</div>
+                    <button class="btn-buy" onclick="buyItem('${product.name}', '${product.img}')">Купить</button>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
 
-        // Переключение вкладок
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-            
+        // Функция переключения вкладок
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
             document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
+            btnElement.classList.add('active');
             
-            // Легкая вибрация при клике (Haptic Feedback)
-            tg.HapticFeedback.impactOccurred('light');
+            // Легкая вибрация iOS (через Telegram API)
+            tg.HapticFeedback.selectionChanged();
         }
 
-        // Рендер магазина
-        function renderShop() {
-            const container = document.getElementById('shop');
-            container.innerHTML = '<h2 style="color: var(--yellow); margin-bottom: 15px;">>>> BLACK MARKET</h2>';
-            
-            shopData.forEach(item => {
-                const isBought = inventory.includes(item.id);
-                const btnHtml = isBought 
-                    ? `<button class="cyber-btn" style="border-color: #555; color: #555;" disabled>ПРИОБРЕТЕНО</button>`
-                    : `<button class="cyber-btn" onclick="buyItem(${item.id})">BUY [ ${item.price} ₿ ]</button>`;
+        // Функция покупки и добавления в Оружейную
+        function buyItem(name, imgSrc) {
+            const shelf = document.getElementById('purchased-shelf');
+            const emptyState = document.getElementById('empty-shelf');
 
-                container.innerHTML += `
-                    <div class="card">
-                        <div style="font-size: 0.7rem; color: #888; text-align: right;">CORP: ${item.corp}</div>
-                        <div class="item-img">${item.img}</div>
-                        <div class="item-name">${item.name}</div>
-                        ${btnHtml}
-                    </div>
-                `;
-            });
-        }
-
-        // Рендер релизов
-        function renderDrops() {
-            const container = document.getElementById('releases-container');
-            dropsData.forEach(item => {
-                container.innerHTML += `
-                    <div class="card" style="border-color: var(--pink);">
-                        <div class="item-img" style="text-shadow: 0 0 15px var(--pink);">${item.img}</div>
-                        <div class="item-name" style="color: var(--pink);">${item.name}</div>
-                        <div style="color: #fff;">${item.date}</div>
-                    </div>
-                `;
-            });
-        }
-
-        // Покупка (добавление в Оружейную)
-        window.buyItem = function(id) {
-            tg.HapticFeedback.notificationOccurred('success');
-            inventory.push(id);
-            renderShop();
-            updateArmory();
-            
-            // Показываем нативную кнопку TG для оповещения (опционально)
-            tg.MainButton.setText('КРОССОВКИ ДОБАВЛЕНЫ В ОРУЖЕЙНУЮ');
-            tg.MainButton.show();
-            setTimeout(() => tg.MainButton.hide(), 2000);
-        }
-
-        // Обновление Оружейной
-        function updateArmory() {
-            const shelf = document.getElementById('inventory-shelf');
-            const msg = document.getElementById('empty-msg');
-            
-            if (inventory.length > 0) {
-                msg.style.display = 'none';
-                shelf.innerHTML = '';
-                inventory.forEach(id => {
-                    const item = shopData.find(i => i.id === id);
-                    shelf.innerHTML += `<div class="shelf-item">${item.img}</div>`;
-                });
+            if (emptyState) {
+                emptyState.style.display = 'none';
             }
+
+            const item = document.createElement('div');
+            item.className = 'shelf-item';
+            item.innerHTML = `
+                <img src="${imgSrc}" alt="${name}">
+                <div class="shelf-item-name">${name}</div>
+            `;
+            shelf.appendChild(item);
+
+            // Обновляем статистику
+            purchasedItems++;
+            document.getElementById('userStats').innerText = `Покупок: ${purchasedItems}`;
+
+            // Вибрация успеха
+            tg.HapticFeedback.notificationOccurred('success');
+            
+            // Показываем iOS-style Toast уведомление
+            showToast();
         }
 
-        // Инициализация
-        renderShop();
-        renderDrops();
-        
-        // Устанавливаем цвета хедера под тему TG
-        tg.setHeaderColor('#000000');
-        tg.setBackgroundColor('#050505');
+        // Логика всплывающего уведомления
+        let toastTimeout;
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
     </script>
 </body>
+</html>
