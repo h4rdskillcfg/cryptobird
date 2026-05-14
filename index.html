@@ -20,7 +20,7 @@
 
         /* Шапка и Хэштеги */
         header { position: sticky; top: 0; z-index: 100; padding-top: calc(24px + env(safe-area-inset-top)); padding-bottom: 12px; text-align: center; }
-        h1 { font-size: 17px; font-weight: 600; letter-spacing: -0.5px; }
+        h1 { font-size: 17px; font-weight: 600; letter-spacing: -0.5px; text-transform: uppercase; }
         .hashtags-scroll { display: flex; gap: 8px; padding: 0 20px 12px 20px; overflow-x: auto; margin-top: 12px; }
         .hashtags-scroll::-webkit-scrollbar { display: none; }
         .tag { background: var(--card-bg); padding: 6px 12px; border-radius: 100px; font-size: 12px; font-weight: 500; box-shadow: 0 2px 8px rgba(0,0,0,0.03); white-space: nowrap; }
@@ -45,9 +45,14 @@
         .card-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .card-price { font-size: 13px; color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center; }
         
-        /* Блокировка Premium пар */
         .card.locked .card-img-container::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); }
         .card.locked .lock-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 24px; z-index: 2; }
+
+        /* Вкладка DROP */
+        .drop-lock-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; padding: 20px; text-align: center; }
+        .lock-icon-large { font-size: 64px; margin-bottom: 20px; opacity: 0.9; }
+        .drop-title { font-size: 24px; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.5px; }
+        .drop-desc { color: var(--text-secondary); font-size: 15px; line-height: 1.4; max-width: 280px; }
 
         /* Профиль */
         .profile-header { display: flex; align-items: center; padding: 20px; background: var(--card-bg); border-radius: 20px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
@@ -63,32 +68,38 @@
         .overlay.show { opacity: 1; visibility: visible; }
         .bottom-sheet { position: fixed; bottom: -100%; left: 0; width: 100%; background: var(--bg-color); border-radius: 24px 24px 0 0; z-index: 1001; transition: 0.4s cubic-bezier(0.1, 0.8, 0.2, 1); padding-bottom: calc(20px + env(safe-area-inset-bottom)); max-height: 90vh; overflow-y: auto; }
         .bottom-sheet.show { bottom: 0; }
-        .sheet-handle { width: 36px; height: 5px; background: #d1d1d6; border-radius: 3px; margin: 12px auto; }
+        .sheet-handle { width: 36px; height: 5px; background: #d1d1d6; border-radius: 3px; margin: 12px auto; cursor: pointer; } 
         
         .sheet-img-wrap { position: relative; }
-        .sheet-img { width: 100%; height: 250px; object-fit: cover; }
+        .sheet-img { width: 100%; height: 250px; object-fit: cover; cursor: pointer; } 
         
-        /* Бейджи и триггеры */
-        .legit-badge { position: absolute; bottom: 12px; left: 12px; background: rgba(255,255,255,0.9); padding: 4px 8px; border-radius: 8px; font-size: 12px; font-weight: 700; color: var(--accent-green); display: flex; align-items: center; gap: 4px; backdrop-filter: blur(5px); }
-        .share-btn { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.9); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); cursor: pointer; }
+        .close-btn { position: absolute; top: 12px; left: 12px; background: rgba(255,255,255,0.9); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; color: #000; box-shadow: 0 4px 12px rgba(0,0,0,0.1); cursor: pointer; z-index: 10; backdrop-filter: blur(5px); }
+        .legit-badge { position: absolute; bottom: 12px; left: 12px; background: rgba(255,255,255,0.9); padding: 4px 8px; border-radius: 8px; font-size: 12px; font-weight: 700; color: var(--accent-green); display: flex; align-items: center; gap: 4px; backdrop-filter: blur(5px); pointer-events: none; }
+        .share-btn { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.9); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); cursor: pointer; z-index: 10; }
         
         .sheet-content { padding: 20px; }
         .sheet-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
         .sheet-title { font-size: 24px; font-weight: 700; line-height: 1.1; }
         .sheet-price-block { text-align: right; }
-        .price-current { font-size: 22px; font-weight: 700; color: var(--accent-blue); }
-        .price-retail { font-size: 13px; color: var(--text-secondary); text-decoration: line-through; }
+        .price-current { font-size: 22px; font-weight: 700; color: var(--accent-blue); white-space: nowrap; }
+        .price-retail { font-size: 13px; color: var(--text-secondary); text-decoration: line-through; white-space: nowrap; }
         
+        /* Блок Размеров */
+        .section-subtitle { font-size: 16px; font-weight: 600; margin-bottom: 10px; margin-top: 16px; }
+        .size-selector { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 4px; }
+        .size-selector::-webkit-scrollbar { display: none; }
+        .size-btn { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 12px; border: 1px solid #d1d1d6; background: var(--card-bg); font-size: 15px; font-weight: 600; color: var(--text-main); transition: 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .size-btn.active { background: var(--text-main); color: var(--card-bg); border-color: var(--text-main); }
+
         /* Блок FOMO */
         .fomo-box { background: rgba(255, 59, 48, 0.1); border-radius: 12px; padding: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
         .stock-text { color: var(--accent-red); font-size: 13px; font-weight: 600; }
         .timer { font-family: monospace; font-size: 16px; font-weight: 700; color: var(--accent-red); background: white; padding: 4px 8px; border-radius: 6px; }
 
-        .sheet-fit { background: var(--card-bg); padding: 12px; border-radius: 12px; font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
+        .sheet-fit { background: var(--card-bg); padding: 12px; border-radius: 12px; font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; }
         .sheet-fit b { color: var(--text-main); }
 
         /* Upsell Блок */
-        .section-subtitle { font-size: 16px; font-weight: 600; margin-bottom: 10px; }
         .upsell-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; }
         .upsell-scroll::-webkit-scrollbar { display: none; }
         .upsell-item { background: var(--card-bg); min-width: 120px; padding: 12px; border-radius: 16px; border: 2px solid transparent; text-align: center; transition: 0.2s; cursor: pointer; }
@@ -122,6 +133,17 @@
             <div class="grid" id="products-grid"></div>
         </section>
 
+        <!-- ВКЛАДКА DROP (Закрыта) -->
+        <section id="drop" class="tab-content">
+            <div class="drop-lock-container">
+                <div class="lock-icon-large">📦</div>
+                <div class="drop-title">DROP ЗАКРЫТ</div>
+                <div class="drop-desc">
+                    В скором времени здесь появятся эксклюзивные кастомизированные лимитированные кроссовки. Следите за обновлениями!
+                </div>
+            </div>
+        </section>
+
         <!-- ПРОФИЛЬ -->
         <section id="armory" class="tab-content">
             <div class="profile-header">
@@ -141,12 +163,14 @@
         </section>
     </main>
 
-    <!-- Детальная карточка с Upsell и Триггерами -->
+    <!-- Детальная карточка (Bottom Sheet) -->
     <div class="overlay" id="overlay" onclick="closeSheet()"></div>
     <div class="bottom-sheet" id="bottomSheet">
-        <div class="sheet-handle"></div>
+        <div class="sheet-handle" onclick="closeSheet()"></div>
+        
         <div class="sheet-img-wrap">
-            <img src="" id="sheetImg" class="sheet-img">
+            <img src="" id="sheetImg" class="sheet-img" onclick="closeSheet()">
+            <div class="close-btn" onclick="closeSheet()">✕</div>
             <div class="legit-badge">✔️ 100% Legit</div>
             <div class="share-btn" onclick="shareProduct()">📤</div>
         </div>
@@ -155,12 +179,23 @@
             <div class="sheet-header-row">
                 <div class="sheet-title" id="sheetTitle">Name</div>
                 <div class="sheet-price-block">
-                    <div class="price-current" id="sheetPrice">$0</div>
-                    <div class="price-retail" id="sheetRetail">Рынок: $0</div>
+                    <div class="price-current" id="sheetPrice">0 ₽</div>
+                    <div class="price-retail" id="sheetRetail">Рынок: 0 ₽</div>
                 </div>
             </div>
 
-            <!-- Блок Страха упущенной выгоды (FOMO) -->
+            <!-- Блок Размеров -->
+            <div class="section-subtitle">Выберите размер (EU):</div>
+            <div class="size-selector">
+                <div class="size-btn active" onclick="selectSize(this, 36)">36</div>
+                <div class="size-btn" onclick="selectSize(this, 37)">37</div>
+                <div class="size-btn" onclick="selectSize(this, 38)">38</div>
+                <div class="size-btn" onclick="selectSize(this, 39)">39</div>
+                <div class="size-btn" onclick="selectSize(this, 40)">40</div>
+                <div class="size-btn" onclick="selectSize(this, 41)">41</div>
+            </div>
+
+            <!-- Блок FOMO -->
             <div class="fomo-box">
                 <div class="stock-text">🔥 Осталось <span id="sheetStock">2</span> пары!</div>
                 <div class="timer" id="sheetTimer">10:00</div>
@@ -174,20 +209,20 @@
             <!-- Блок Upsell -->
             <div class="section-subtitle">Добавить к заказу:</div>
             <div class="upsell-scroll">
-                <div class="upsell-item" onclick="toggleUpsell(this, 15)">
+                <div class="upsell-item" onclick="toggleUpsell(this, 1500)">
                     <div class="upsell-icon">🛡️</div>
                     <div class="upsell-name">Спрей Crep</div>
-                    <div class="upsell-price">+$15</div>
+                    <div class="upsell-price">+1 500 ₽</div>
                 </div>
-                <div class="upsell-item" onclick="toggleUpsell(this, 10)">
+                <div class="upsell-item" onclick="toggleUpsell(this, 900)">
                     <div class="upsell-icon">🪢</div>
                     <div class="upsell-name">PRO Шнурки</div>
-                    <div class="upsell-price">+$10</div>
+                    <div class="upsell-price">+900 ₽</div>
                 </div>
-                <div class="upsell-item" onclick="toggleUpsell(this, 20)">
+                <div class="upsell-item" onclick="toggleUpsell(this, 1900)">
                     <div class="upsell-icon">🧦</div>
                     <div class="upsell-name">Носки Nike</div>
-                    <div class="upsell-price">+$20</div>
+                    <div class="upsell-price">+1 900 ₽</div>
                 </div>
             </div>
         </div>
@@ -198,6 +233,10 @@
         <button class="tab-btn active" onclick="switchTab('store', this)">
             <svg viewBox="0 0 24 24"><path d="M10 4V2.25C10 1.01 10.95 0 12.18 0C13.41 0 14.36 1.01 14.36 2.25V4H20.67C21.84 4 22.84 4.87 22.98 6.03L23.95 19.53C24.05 20.84 23.01 22 21.64 22H2.72C1.35 22 0.31 20.84 0.41 19.53L1.38 6.03C1.52 4.87 2.52 4 3.69 4H10Z"/></svg>
             Магазин
+        </button>
+        <button class="tab-btn" onclick="switchTab('drop', this)">
+            <svg viewBox="0 0 24 24"><path d="M19 4H18V2H16V4H8V2H6V4H5C3.89 4 3 4.9 3 6V20C3 21.1 3.89 22 5 22H19C20.1 22 21 21.1 21 20V6C21 4.9 20.1 4 19 4ZM19 20H5V10H19V20ZM19 8H5V6H19V8Z"/></svg>
+            DROP
         </button>
         <button class="tab-btn" onclick="switchTab('armory', this)">
             <svg viewBox="0 0 24 24"><path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z"/></svg>
@@ -211,33 +250,33 @@
         if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) document.getElementById('userName').innerText = tg.initDataUnsafe.user.first_name;
 
-        // База товаров (Yeezy - премиум, заблокированы для новичков)
+        // База товаров в РУБЛЯХ
         const products = [
-            { id: 1, name: "Nike Air Max 97", price: 170, retail: 220, img: "https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=400&q=80", fit: "TTS (Размер в размер)", cm: "27.5", stock: 3, premium: false },
-            { id: 2, name: "Air Jordan 1 High", price: 220, retail: 350, img: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=80", fit: "Маломерят на 0.5", cm: "28.0", stock: 1, premium: false },
-            { id: 3, name: "New Balance 550", price: 130, retail: 180, img: "https://images.unsplash.com/photo-1539185441755-769473a23570?w=400&q=80", fit: "TTS", cm: "26.5", stock: 4, premium: false },
-            { id: 4, name: "Yeezy Boost 350", price: 250, retail: 400, img: "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=400&q=80", fit: "Большемерят на 0.5", cm: "28.5", stock: 2, premium: true }, // PREMIUM
-            { id: 5, name: "Vans Old Skool", price: 70, retail: 95, img: "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=400&q=80", fit: "TTS", cm: "27.0", stock: 8, premium: false }
+            { id: 1, name: "Nike Air Max 97", price: 17000, retail: 22000, img: "https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=400&q=80", fit: "TTS (Размер в размер)", cm: "27.5", stock: 3, premium: false },
+            { id: 2, name: "Air Jordan 1 High", price: 22000, retail: 31000, img: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=80", fit: "Маломерят на 0.5", cm: "28.0", stock: 1, premium: false },
+            { id: 3, name: "New Balance 550", price: 13500, retail: 18000, img: "https://images.unsplash.com/photo-1539185441755-769473a23570?w=400&q=80", fit: "TTS", cm: "26.5", stock: 4, premium: false },
+            { id: 4, name: "Yeezy Boost 350", price: 28000, retail: 42000, img: "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=400&q=80", fit: "Большемерят на 0.5", cm: "28.5", stock: 2, premium: true },
+            { id: 5, name: "Vans Old Skool", price: 7500, retail: 9500, img: "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=400&q=80", fit: "TTS", cm: "27.0", stock: 8, premium: false }
         ];
 
         let inventory = [];
         let currentProduct = null;
         let basePrice = 0;
         let upsellTotal = 0;
+        let selectedSize = 36;
         let timerInterval;
 
-        // Загрузка инвентаря
+        // Вспомогательная функция для формата валюты (с пробелами)
+        const formatPrice = (price) => price.toLocaleString('ru-RU') + ' ₽';
+
         tg.CloudStorage.getItem('sneaker_inventory', (err, value) => {
             if (!err && value) {
                 inventory = JSON.parse(value);
                 updateProfile();
-                renderStore(); // Рендерим магазин после проверки инвентаря
-            } else {
-                renderStore();
             }
+            renderStore();
         });
 
-        // Отрисовка магазина с учетом уровня профиля
         function renderStore() {
             const grid = document.getElementById('products-grid');
             grid.innerHTML = '';
@@ -257,7 +296,7 @@
                     <div class="card-info">
                         <div class="card-title">${p.name}</div>
                         <div class="card-price">
-                            <span style="color:var(--accent-blue);font-weight:700;">$${p.price}</span>
+                            <span style="color:var(--accent-blue);font-weight:700;">${formatPrice(p.price)}</span>
                             ${isLocked ? '<span style="font-size:10px; color:#ff3b30">VIP Only</span>' : ''}
                         </div>
                     </div>
@@ -279,19 +318,23 @@
             closeSheet(); tg.HapticFeedback.selectionChanged();
         }
 
-        // Логика Детальной карточки (Bottom Sheet)
         function openSheet(product) {
             currentProduct = product;
             basePrice = product.price;
             upsellTotal = 0;
             
-            // Сброс выделения upsell
+            // Сброс апселлов и размеров
             document.querySelectorAll('.upsell-item').forEach(el => el.classList.remove('selected'));
+            document.querySelectorAll('.size-btn').forEach((el, index) => {
+                el.classList.remove('active');
+                if(index === 0) el.classList.add('active'); // 36 по умолчанию
+            });
+            selectedSize = 36;
 
             document.getElementById('sheetImg').src = product.img;
             document.getElementById('sheetTitle').innerText = product.name;
-            document.getElementById('sheetPrice').innerText = `$${product.price}`;
-            document.getElementById('sheetRetail').innerText = `Рынок: $${product.retail}`;
+            document.getElementById('sheetPrice').innerText = formatPrice(product.price);
+            document.getElementById('sheetRetail').innerText = `Рынок: ${formatPrice(product.retail)}`;
             document.getElementById('sheetStock').innerText = product.stock;
             document.getElementById('sheetFit').innerText = product.fit;
             document.getElementById('sheetCM').innerText = product.cm + " см";
@@ -312,7 +355,14 @@
             clearInterval(timerInterval);
         }
 
-        // Выбор дополнительных товаров
+        // Логика выбора размера
+        function selectSize(element, size) {
+            document.querySelectorAll('.size-btn').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            selectedSize = size;
+            tg.HapticFeedback.selectionChanged();
+        }
+
         function toggleUpsell(element, price) {
             if (element.classList.contains('selected')) {
                 element.classList.remove('selected');
@@ -327,14 +377,13 @@
 
         function updateMainButton() {
             let total = basePrice + upsellTotal;
-            tg.MainButton.text = `ОПЛАТИТЬ $${total}`;
+            tg.MainButton.text = `ОПЛАТИТЬ ${formatPrice(total)}`;
             tg.MainButton.color = '#007aff';
         }
 
-        // Таймер брони
         function startTimer() {
             clearInterval(timerInterval);
-            let time = 600; // 10 минут
+            let time = 600; 
             document.getElementById('sheetTimer').innerText = '10:00';
             timerInterval = setInterval(() => {
                 time--;
@@ -348,24 +397,25 @@
             }, 1000);
         }
 
-        // Покупка
         tg.MainButton.onClick(() => {
             if (currentProduct) {
-                inventory.push(currentProduct);
+                // Добавляем инфу о размере в инвентарь
+                let purchasedItem = { ...currentProduct, selectedSize: selectedSize };
+                inventory.push(purchasedItem);
                 tg.CloudStorage.setItem('sneaker_inventory', JSON.stringify(inventory));
+                
                 updateProfile();
-                renderStore(); // Обновляем магазин (могут открыться премиум пары)
+                renderStore(); 
                 closeSheet();
                 tg.HapticFeedback.notificationOccurred('success');
                 
                 const toast = document.getElementById('toast');
-                toast.innerText = 'Покупка оформлена!';
+                toast.innerText = 'Успешная покупка!';
                 toast.classList.add('show');
                 setTimeout(() => toast.classList.remove('show'), 2000);
             }
         });
 
-        // Обновление профиля
         function updateProfile() {
             const len = inventory.length;
             let level = "Новичок", progress = `До Сникерхеда: ${2 - len} покупки`;
@@ -383,13 +433,17 @@
                 inventory.forEach(item => {
                     const div = document.createElement('div');
                     div.className = 'shelf-item';
-                    div.innerHTML = `<img src="${item.img}"><div style="font-size:10px; font-weight:600; white-space:nowrap; overflow:hidden;">${item.name}</div>`;
+                    // Отображаем размер на полке
+                    div.innerHTML = `
+                        <img src="${item.img}">
+                        <div style="font-size:10px; font-weight:600; white-space:nowrap; overflow:hidden;">${item.name}</div>
+                        <div style="font-size:9px; color:var(--text-secondary);">EU ${item.selectedSize || ''}</div>
+                    `;
                     shelf.appendChild(div);
                 });
             }
         }
 
-        // Имитация шаринга
         function shareProduct() {
             tg.HapticFeedback.impactOccurred('light');
             tg.showAlert('Ссылка на товар скопирована! Отправь друзьям.');
