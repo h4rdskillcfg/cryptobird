@@ -2,7 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    /* Добавлено viewport-fit=cover для работы safe-area */
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>TRIPPLE STORE</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -26,26 +27,26 @@
             user-select: none;
         }
 
-        /* --- ФИКС СКРОЛЛА ДЛЯ ТЕЛЕГРАМА --- */
+        /* --- ФИКС СКРОЛЛА --- */
         html, body {
             height: 100%;
             margin: 0;
             padding: 0;
-            overflow: hidden; /* Жестко блокируем скролл самого окна */
-            overscroll-behavior-y: none; /* Убираем пружинящий эффект на iOS */
+            overflow: hidden;
+            overscroll-behavior-y: none;
             background-color: var(--bg-color);
             color: var(--text-main);
         }
 
         main {
             height: 100%;
-            overflow-y: auto; /* Скроллится только этот блок */
-            -webkit-overflow-scrolling: touch; /* Плавный инерционный скролл iOS */
-            padding-bottom: 120px; /* Отступ внизу, чтобы меню не перекрывало контент */
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            /* Динамический отступ снизу под меню + безопасная зона iOS */
+            padding-bottom: calc(100px + env(safe-area-inset-bottom)); 
         }
-        /* ---------------------------------- */
 
-        /* Эффект матового стекла (Glassmorphism) */
+        /* Эффект матового стекла */
         .glass {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
@@ -53,12 +54,16 @@
             border-bottom: 1px solid var(--glass-border);
         }
 
-        /* Шапка */
+        /* --- ШАПКА И ЛОГОТИП (Адаптация под челку) --- */
         header {
             position: sticky;
             top: 0;
             z-index: 100;
-            padding: 16px 20px;
+            /* Динамический отступ сверху: 24px + размер челки/камеры */
+            padding-top: calc(24px + env(safe-area-inset-top)); 
+            padding-bottom: 16px;
+            padding-left: 20px;
+            padding-right: 20px;
             text-align: center;
         }
 
@@ -68,7 +73,7 @@
             letter-spacing: -0.5px;
         }
 
-        /* Навигация (Нижний бар) */
+        /* Навигация (Нижний бар с адаптацией под полоску Домой) */
         .tab-bar {
             position: fixed;
             bottom: 0;
@@ -76,7 +81,9 @@
             width: 100%;
             display: flex;
             justify-content: space-around;
-            padding: 10px 0 25px 0; /* Отступ снизу для iPhone */
+            padding-top: 10px;
+            /* Динамический отступ снизу: 15px + размер системной полоски */
+            padding-bottom: calc(15px + env(safe-area-inset-bottom));
             z-index: 100;
             border-top: 1px solid rgba(0,0,0,0.1);
             border-bottom: none;
@@ -129,7 +136,7 @@
             gap: 16px;
         }
 
-        /* Карточка товара (iOS Style) */
+        /* Карточка товара */
         .card {
             background: var(--card-bg);
             border-radius: 20px;
@@ -312,10 +319,10 @@
             grid-column: span 3;
         }
 
-        /* iOS Toast Notification */
+        /* iOS Toast Notification (Тоже опустили ниже челки) */
         .toast {
             position: fixed;
-            top: 70px;
+            top: calc(85px + env(safe-area-inset-top));
             left: 50%;
             transform: translateX(-50%) translateY(-20px);
             background: var(--glass-bg);
@@ -346,7 +353,6 @@
             <h1>TRIPPLE STORE</h1>
         </header>
 
-        <!-- Всплывающее уведомление -->
         <div id="toast" class="toast">Добавлено в Оружейную</div>
 
         <!-- МАГАЗИН -->
@@ -394,7 +400,7 @@
         </section>
     </main>
 
-    <!-- Навигация (Bottom Bar) -->
+    <!-- Навигация -->
     <nav class="tab-bar glass">
         <button class="tab-btn active" onclick="switchTab('store', this)">
             <svg viewBox="0 0 24 24"><path d="M10 4V2.25C10 1.01 10.95 0 12.18 0C13.41 0 14.36 1.01 14.36 2.25V4H20.67C21.84 4 22.84 4.87 22.98 6.03L23.95 19.53C24.05 20.84 23.01 22 21.64 22H2.72C1.35 22 0.31 20.84 0.41 19.53L1.38 6.03C1.52 4.87 2.52 4 3.69 4H10ZM12.18 1.83C11.96 1.83 11.82 2.01 11.82 2.25V4H12.55V2.25C12.55 2.01 12.4 1.83 12.18 1.83Z"/></svg>
@@ -411,30 +417,21 @@
     </nav>
 
     <script>
-        // Инициализация Telegram Web App
         const tg = window.Telegram.WebApp;
-        
-        // 1. Разворачиваем на весь экран
         tg.expand(); 
-        
-        // 2. Настраиваем цвета шапки и фона под наш CSS (--bg-color: #f2f2f7)
         tg.setHeaderColor('#f2f2f7');
         tg.setBackgroundColor('#f2f2f7');
         
-        // 3. Отключаем закрытие приложения свайпом вниз
         if (tg.disableVerticalSwipes) {
             tg.disableVerticalSwipes();
         }
 
-        // Сообщаем телеграму, что приложение готово к отображению
         tg.ready();
 
-        // Устанавливаем имя пользователя из ТГ
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             document.getElementById('userName').innerText = tg.initDataUnsafe.user.first_name;
         }
 
-        // База данных товаров (Используем качественные фото с Unsplash)
         const products = [
             { id: 1, name: "Nike Air Max 97", price: "$170", img: "https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=400&q=80" },
             { id: 2, name: "Air Jordan 1 High", price: "$220", img: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=80" },
@@ -446,7 +443,6 @@
 
         let purchasedItems = 0;
 
-        // Рендер товаров в магазине
         const grid = document.getElementById('products-grid');
         products.forEach(product => {
             const card = document.createElement('div');
@@ -464,22 +460,17 @@
             grid.appendChild(card);
         });
 
-        // Функция переключения вкладок
         function switchTab(tabId, btnElement) {
-            // Скроллим наверх при смене вкладки
             document.querySelector('main').scrollTop = 0;
-
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
 
             document.getElementById(tabId).classList.add('active');
             btnElement.classList.add('active');
             
-            // Легкая вибрация iOS (через Telegram API)
             tg.HapticFeedback.selectionChanged();
         }
 
-        // Функция покупки и добавления в Оружейную
         function buyItem(name, imgSrc) {
             const shelf = document.getElementById('purchased-shelf');
             const emptyState = document.getElementById('empty-shelf');
@@ -496,18 +487,13 @@
             `;
             shelf.appendChild(item);
 
-            // Обновляем статистику
             purchasedItems++;
             document.getElementById('userStats').innerText = `Покупок: ${purchasedItems}`;
 
-            // Вибрация успеха
             tg.HapticFeedback.notificationOccurred('success');
-            
-            // Показываем iOS-style Toast уведомление
             showToast();
         }
 
-        // Логика всплывающего уведомления
         let toastTimeout;
         function showToast() {
             const toast = document.getElementById('toast');
