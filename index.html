@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TRIPPLE STORE 2.0</title>
+    <title>TRIPPLE STORE</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         /* Базовые настройки в стиле iOS */
@@ -26,12 +26,24 @@
             user-select: none;
         }
 
-        body {
+        /* --- ФИКС СКРОЛЛА ДЛЯ ТЕЛЕГРАМА --- */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Жестко блокируем скролл самого окна */
+            overscroll-behavior-y: none; /* Убираем пружинящий эффект на iOS */
             background-color: var(--bg-color);
             color: var(--text-main);
-            overflow-x: hidden;
-            padding-bottom: 90px; /* Место для навбара */
         }
+
+        main {
+            height: 100%;
+            overflow-y: auto; /* Скроллится только этот блок */
+            -webkit-overflow-scrolling: touch; /* Плавный инерционный скролл iOS */
+            padding-bottom: 120px; /* Отступ внизу, чтобы меню не перекрывало контент */
+        }
+        /* ---------------------------------- */
 
         /* Эффект матового стекла (Glassmorphism) */
         .glass {
@@ -329,14 +341,14 @@
 </head>
 <body>
 
-    <header class="glass">
-        <h1>TRIPPLE STORE</h1>
-    </header>
-
-    <!-- Всплывающее уведомление -->
-    <div id="toast" class="toast">Добавлено в Оружейную</div>
-
     <main>
+        <header class="glass">
+            <h1>TRIPPLE STORE</h1>
+        </header>
+
+        <!-- Всплывающее уведомление -->
+        <div id="toast" class="toast">Добавлено в Оружейную</div>
+
         <!-- МАГАЗИН -->
         <section id="store" class="tab-content active">
             <div class="grid" id="products-grid">
@@ -454,6 +466,9 @@
 
         // Функция переключения вкладок
         function switchTab(tabId, btnElement) {
+            // Скроллим наверх при смене вкладки
+            document.querySelector('main').scrollTop = 0;
+
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
 
