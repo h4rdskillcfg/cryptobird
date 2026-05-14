@@ -2,348 +2,123 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    /* Добавлено viewport-fit=cover для работы safe-area */
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>TRIPPLE STORE</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Базовые настройки в стиле iOS */
         :root {
             --bg-color: #f2f2f7;
             --card-bg: #ffffff;
             --text-main: #000000;
             --text-secondary: #8e8e93;
             --accent-blue: #007aff;
+            --accent-green: #34c759;
             --glass-bg: rgba(255, 255, 255, 0.75);
             --glass-border: rgba(255, 255, 255, 0.3);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
 
-        /* --- ФИКС СКРОЛЛА --- */
         html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            overscroll-behavior-y: none;
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            height: 100%; margin: 0; padding: 0; overflow: hidden; overscroll-behavior-y: none;
+            background-color: var(--bg-color); color: var(--text-main);
         }
 
         main {
-            height: 100%;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            /* Динамический отступ снизу под меню + безопасная зона iOS */
+            height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch;
             padding-bottom: calc(100px + env(safe-area-inset-bottom)); 
         }
 
-        /* Эффект матового стекла */
-        .glass {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--glass-border);
+        .glass { background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border); }
+
+        /* Шапка */
+        header { position: sticky; top: 0; z-index: 100; padding-top: calc(24px + env(safe-area-inset-top)); padding-bottom: 12px; text-align: center; }
+        h1 { font-size: 17px; font-weight: 600; letter-spacing: -0.5px; }
+
+        /* Хэштеги */
+        .hashtags-scroll {
+            display: flex; gap: 8px; padding: 0 20px 12px 20px; overflow-x: auto;
+        }
+        .hashtags-scroll::-webkit-scrollbar { display: none; }
+        .tag {
+            background: var(--card-bg); padding: 6px 12px; border-radius: 100px;
+            font-size: 12px; font-weight: 500; color: var(--text-main);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03); white-space: nowrap;
         }
 
-        /* --- ШАПКА И ЛОГОТИП (Адаптация под челку) --- */
-        header {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            /* Динамический отступ сверху: 24px + размер челки/камеры */
-            padding-top: calc(24px + env(safe-area-inset-top)); 
-            padding-bottom: 16px;
-            padding-left: 20px;
-            padding-right: 20px;
-            text-align: center;
-        }
-
-        h1 {
-            font-size: 17px;
-            font-weight: 600;
-            letter-spacing: -0.5px;
-        }
-
-        /* Навигация (Нижний бар с адаптацией под полоску Домой) */
+        /* Навигация */
         .tab-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            display: flex;
-            justify-content: space-around;
-            padding-top: 10px;
-            /* Динамический отступ снизу: 15px + размер системной полоски */
-            padding-bottom: calc(15px + env(safe-area-inset-bottom));
-            z-index: 100;
-            border-top: 1px solid rgba(0,0,0,0.1);
-            border-bottom: none;
+            position: fixed; bottom: 0; left: 0; width: 100%; display: flex; justify-content: space-around;
+            padding-top: 10px; padding-bottom: calc(15px + env(safe-area-inset-bottom));
+            z-index: 90; border-top: 1px solid rgba(0,0,0,0.1); border-bottom: none;
         }
+        .tab-btn { background: none; border: none; color: var(--text-secondary); font-size: 11px; font-weight: 500; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; transition: color 0.2s; }
+        .tab-btn svg { width: 24px; height: 24px; fill: currentColor; }
+        .tab-btn.active { color: var(--accent-blue); }
 
-        .tab-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 11px;
-            font-weight: 500;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-            transition: color 0.2s ease;
-        }
-
-        .tab-btn svg {
-            width: 24px;
-            height: 24px;
-            fill: currentColor;
-        }
-
-        .tab-btn.active {
-            color: var(--accent-blue);
-        }
-
-        /* Контент вкладок */
-        .tab-content {
-            display: none;
-            padding: 20px;
-            animation: fadeSlideUp 0.4s cubic-bezier(0.1, 0.8, 0.2, 1);
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        @keyframes fadeSlideUp {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .tab-content { display: none; padding: 10px 20px 20px 20px; animation: fadeSlideUp 0.4s cubic-bezier(0.1, 0.8, 0.2, 1); }
+        .tab-content.active { display: block; }
+        @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Сетка товаров */
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-
-        /* Карточка товара */
-        .card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.04);
-            transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-
-        .card:active {
-            transform: scale(0.96);
-        }
-
-        .card-img-container {
-            width: 100%;
-            height: 140px;
-            background: #f8f8f8;
-            overflow: hidden;
-        }
-
-        .card-img-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-
-        .card-info {
-            padding: 12px;
-        }
-
-        .card-title {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .card-price {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-        }
-
-        .btn-buy {
-            width: 100%;
-            background: var(--accent-blue);
-            color: white;
-            border: none;
-            padding: 8px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-buy:active {
-            background: #005ecb;
-        }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .card { background: var(--card-bg); border-radius: 20px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.04); transition: transform 0.2s; cursor: pointer; }
+        .card:active { transform: scale(0.96); }
+        .card-img-container { width: 100%; height: 140px; background: #f8f8f8; overflow: hidden; }
+        .card-img-container img { width: 100%; height: 100%; object-fit: cover; }
+        .card-info { padding: 12px; }
+        .card-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-price { font-size: 13px; color: var(--text-secondary); }
 
         /* Списки (Релизы) */
-        .list-item {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-        }
-
-        .list-img {
-            width: 60px;
-            height: 60px;
-            border-radius: 12px;
-            object-fit: cover;
-            margin-right: 16px;
-        }
-
-        .list-info {
-            flex-grow: 1;
-        }
-
-        .list-title {
-            font-size: 15px;
-            font-weight: 600;
-        }
-
-        .list-date {
-            font-size: 13px;
-            color: var(--accent-blue);
-            margin-top: 4px;
-        }
+        .section-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; letter-spacing: -0.5px; }
+        .list-item { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 12px; display: flex; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .list-img { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; margin-right: 16px; }
+        .list-info { flex-grow: 1; }
+        .list-title { font-size: 15px; font-weight: 600; }
+        .list-date { font-size: 13px; color: var(--accent-blue); margin-top: 4px; }
 
         /* Профиль (Оружейная) */
-        .profile-header {
-            display: flex;
-            align-items: center;
-            padding: 20px;
-            background: var(--card-bg);
-            border-radius: 20px;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-        }
-
-        .avatar {
-            width: 64px;
-            height: 64px;
-            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-            border-radius: 50%;
-            margin-right: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-        }
-
-        .profile-name {
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        .profile-stat {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-top: 2px;
-        }
-
-        .section-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            letter-spacing: -0.5px;
-        }
+        .profile-header { display: flex; align-items: center; padding: 20px; background: var(--card-bg); border-radius: 20px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .avatar { width: 64px; height: 64px; background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); border-radius: 50%; margin-right: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .profile-name { font-size: 20px; font-weight: 700; }
+        .profile-stat { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+        .level-badge { display: inline-block; padding: 2px 8px; background: var(--accent-blue); color: white; border-radius: 8px; font-size: 10px; font-weight: 600; margin-top: 6px; }
 
         /* Полка покупок */
-        .shelf {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-        }
+        .shelf { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .shelf-item { background: var(--card-bg); border-radius: 16px; padding: 8px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.04); animation: scaleIn 0.3s cubic-bezier(0.1, 0.8, 0.2, 1); }
+        .shelf-item img { width: 100%; height: 70px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; }
+        .shelf-item-name { font-size: 10px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        @keyframes scaleIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .empty-state { text-align: center; color: var(--text-secondary); font-size: 14px; padding: 40px 0; grid-column: span 3; }
 
-        .shelf-item {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 8px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-            animation: scaleIn 0.3s cubic-bezier(0.1, 0.8, 0.2, 1);
+        /* Модальное окно (Bottom Sheet) */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; opacity: 0; visibility: hidden; transition: 0.3s; }
+        .overlay.show { opacity: 1; visibility: visible; }
+        
+        .bottom-sheet {
+            position: fixed; bottom: -100%; left: 0; width: 100%; background: var(--bg-color);
+            border-radius: 24px 24px 0 0; z-index: 1001; transition: 0.4s cubic-bezier(0.1, 0.8, 0.2, 1);
+            padding-bottom: calc(20px + env(safe-area-inset-bottom)); display: flex; flex-direction: column;
         }
+        .bottom-sheet.show { bottom: 0; }
+        .sheet-handle { width: 36px; height: 5px; background: #d1d1d6; border-radius: 3px; margin: 12px auto; }
+        .sheet-img { width: 100%; height: 220px; object-fit: cover; }
+        .sheet-content { padding: 20px; }
+        .sheet-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+        .sheet-fit { display: inline-block; padding: 4px 10px; background: #e5e5ea; border-radius: 6px; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 16px; }
+        
+        /* График StockX style */
+        .chart-box { background: var(--card-bg); padding: 16px; border-radius: 16px; margin-bottom: 20px; }
+        .chart-header { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; }
+        .chart-header span b { color: var(--accent-green); font-size: 15px; }
+        .chart-bars { display: flex; align-items: flex-end; gap: 4px; height: 40px; }
+        .bar { flex: 1; background: #e5e5ea; border-radius: 4px 4px 0 0; transition: 0.3s; }
+        .bar:last-child { background: var(--accent-green); }
 
-        .shelf-item img {
-            width: 100%;
-            height: 70px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 8px;
-        }
-
-        .shelf-item-name {
-            font-size: 10px;
-            font-weight: 500;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        @keyframes scaleIn {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .empty-state {
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 14px;
-            padding: 40px 0;
-            grid-column: span 3;
-        }
-
-        /* iOS Toast Notification (Тоже опустили ниже челки) */
-        .toast {
-            position: fixed;
-            top: calc(85px + env(safe-area-inset-top));
-            left: 50%;
-            transform: translateX(-50%) translateY(-20px);
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            padding: 12px 24px;
-            border-radius: 100px;
-            font-size: 14px;
-            font-weight: 500;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s cubic-bezier(0.1, 0.8, 0.2, 1);
-            z-index: 1000;
-        }
-
-        .toast.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateX(-50%) translateY(0);
-        }
+        .toast { position: fixed; top: calc(85px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%) translateY(-20px); background: var(--glass-bg); backdrop-filter: blur(20px); padding: 12px 24px; border-radius: 100px; font-size: 14px; font-weight: 500; box-shadow: 0 4px 20px rgba(0,0,0,0.1); opacity: 0; visibility: hidden; transition: all 0.3s; z-index: 2000; }
+        .toast.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
     </style>
 </head>
 <body>
@@ -351,54 +126,93 @@
     <main>
         <header class="glass">
             <h1>TRIPPLE STORE</h1>
+            <!-- Хэштеги (скроллятся по горизонтали) -->
+            <div class="hashtags-scroll" style="margin-top: 12px;">
+                <div class="tag">#Все</div>
+                <div class="tag">#Retro</div>
+                <div class="tag">#Running</div>
+                <div class="tag">#Yeezy</div>
+                <div class="tag">#Collab</div>
+                <div class="tag">#Sale</div>
+            </div>
         </header>
 
-        <div id="toast" class="toast">Добавлено в Оружейную</div>
+        <div id="toast" class="toast">Успешная покупка!</div>
 
         <!-- МАГАЗИН -->
         <section id="store" class="tab-content active">
             <div class="grid" id="products-grid">
-                <!-- Карточки генерируются через JS -->
+                <!-- Карточки генерируются JS -->
             </div>
         </section>
 
         <!-- РЕЛИЗЫ -->
         <section id="releases" class="tab-content">
-            <div class="section-title">Скоро в продаже</div>
+            <div class="section-title">Календарь релизов</div>
             <div class="list-item">
                 <img src="https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=400&q=80" alt="Release" class="list-img">
                 <div class="list-info">
                     <div class="list-title">Puma RS-X3</div>
-                    <div class="list-date">Дроп: 15 Мая, 10:00</div>
+                    <div class="list-date">Дроп: Завтра, 10:00</div>
                 </div>
             </div>
             <div class="list-item">
-                <img src="https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=400&q=80" alt="Release" class="list-img">
+                <img src="https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=400&q=80" alt="Release" class="list-img">
                 <div class="list-info">
-                    <div class="list-title">Nike Dunk Low Retro</div>
+                    <div class="list-title">Yeezy Boost 350 V2</div>
                     <div class="list-date">Дроп: 20 Мая, 12:00</div>
                 </div>
             </div>
         </section>
 
-        <!-- ПРОФИЛЬ (ОРУЖЕЙНАЯ) -->
+        <!-- ПРОФИЛЬ -->
         <section id="armory" class="tab-content">
             <div class="profile-header">
                 <div class="avatar">✌️</div>
                 <div>
                     <div class="profile-name" id="userName">Гость</div>
-                    <div class="profile-stat" id="userStats">Покупок: 0</div>
+                    <div class="profile-stat" id="userStats">Пар в коллекции: 0</div>
+                    <div class="level-badge" id="userLevel">Уровень: Новичок</div>
                 </div>
             </div>
 
             <div class="section-title">Оружейная</div>
             <div class="shelf" id="purchased-shelf">
                 <div class="empty-state" id="empty-shelf">
-                    Полка пуста.<br>Выбери что-нибудь в магазине.
+                    Твоя полка пуста.<br>Пора пополнить коллекцию!
                 </div>
             </div>
         </section>
     </main>
+
+    <!-- Bottom Sheet для кроссовка -->
+    <div class="overlay" id="overlay" onclick="closeSheet()"></div>
+    <div class="bottom-sheet" id="bottomSheet">
+        <div class="sheet-handle"></div>
+        <img src="" id="sheetImg" class="sheet-img">
+        <div class="sheet-content">
+            <div class="sheet-title" id="sheetTitle">Name</div>
+            <div class="sheet-fit" id="sheetFit">📏 Сайзгайд: TTS (Размер в размер)</div>
+            
+            <div class="chart-box">
+                <div class="chart-header">
+                    <span>Рыночная цена</span>
+                    <span id="sheetTrend"><b>+$15</b> за месяц</span>
+                </div>
+                <!-- Фейковый график изменения цены -->
+                <div class="chart-bars">
+                    <div class="bar" style="height: 40%"></div>
+                    <div class="bar" style="height: 50%"></div>
+                    <div class="bar" style="height: 45%"></div>
+                    <div class="bar" style="height: 60%"></div>
+                    <div class="bar" style="height: 55%"></div>
+                    <div class="bar" style="height: 70%"></div>
+                    <div class="bar" style="height: 85%"></div>
+                    <div class="bar" style="height: 100%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Навигация -->
     <nav class="tab-bar glass">
@@ -421,40 +235,45 @@
         tg.expand(); 
         tg.setHeaderColor('#f2f2f7');
         tg.setBackgroundColor('#f2f2f7');
-        
-        if (tg.disableVerticalSwipes) {
-            tg.disableVerticalSwipes();
-        }
-
-        tg.ready();
+        if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
 
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             document.getElementById('userName').innerText = tg.initDataUnsafe.user.first_name;
         }
 
         const products = [
-            { id: 1, name: "Nike Air Max 97", price: "$170", img: "https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=400&q=80" },
-            { id: 2, name: "Air Jordan 1 High", price: "$220", img: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=80" },
-            { id: 3, name: "New Balance 550", price: "$130", img: "https://images.unsplash.com/photo-1539185441755-769473a23570?w=400&q=80" },
-            { id: 4, name: "Adidas Yeezy 350", price: "$250", img: "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=400&q=80" },
-            { id: 5, name: "Nike Blazer Mid", price: "$105", img: "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=400&q=80" },
-            { id: 6, name: "Vans Old Skool", price: "$70", img: "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=400&q=80" }
+            { id: 1, name: "Nike Air Max 97", price: "170", img: "https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=400&q=80", fit: "TTS (Размер в размер)" },
+            { id: 2, name: "Air Jordan 1 High", price: "220", img: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=80", fit: "Маломерят на 0.5 размера" },
+            { id: 3, name: "New Balance 550", price: "130", img: "https://images.unsplash.com/photo-1539185441755-769473a23570?w=400&q=80", fit: "TTS (Размер в размер)" },
+            { id: 4, name: "Adidas Yeezy 350", price: "250", img: "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=400&q=80", fit: "Большемерят на 0.5 размера" },
+            { id: 5, name: "Nike Blazer Mid", price: "105", img: "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=400&q=80", fit: "Узкая колодка (Берите +0.5)" },
+            { id: 6, name: "Vans Old Skool", price: "70", img: "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=400&q=80", fit: "TTS (Размер в размер)" }
         ];
 
-        let purchasedItems = 0;
+        let inventory = [];
+        let currentSelectedProduct = null;
+
+        // Загрузка инвентаря из CloudStorage (если поддерживается)
+        tg.CloudStorage.getItem('sneaker_inventory', (err, value) => {
+            if (!err && value) {
+                inventory = JSON.parse(value);
+                updateArmoryUI();
+            }
+        });
 
         const grid = document.getElementById('products-grid');
         products.forEach(product => {
             const card = document.createElement('div');
             card.className = 'card';
+            // Теперь клик по карточке открывает Sheet
+            card.onclick = () => openSheet(product);
             card.innerHTML = `
                 <div class="card-img-container">
                     <img src="${product.img}" alt="${product.name}">
                 </div>
                 <div class="card-info">
                     <div class="card-title">${product.name}</div>
-                    <div class="card-price">${product.price}</div>
-                    <button class="btn-buy" onclick="buyItem('${product.name}', '${product.img}')">Купить</button>
+                    <div class="card-price">$${product.price}</div>
                 </div>
             `;
             grid.appendChild(card);
@@ -468,42 +287,93 @@
             document.getElementById(tabId).classList.add('active');
             btnElement.classList.add('active');
             
+            closeSheet(); // Закрываем окно при смене вкладки
             tg.HapticFeedback.selectionChanged();
         }
 
-        function buyItem(name, imgSrc) {
+        // Логика Bottom Sheet
+        function openSheet(product) {
+            currentSelectedProduct = product;
+            document.getElementById('sheetImg').src = product.img;
+            document.getElementById('sheetTitle').innerText = product.name;
+            document.getElementById('sheetFit').innerText = `📏 Сайзгайд: ${product.fit}`;
+            
+            document.getElementById('overlay').classList.add('show');
+            document.getElementById('bottomSheet').classList.add('show');
+
+            tg.HapticFeedback.impactOccurred('light');
+
+            // Показываем Telegram Main Button
+            tg.MainButton.text = `КУПИТЬ ЗА $${product.price}`;
+            tg.MainButton.color = '#007aff';
+            tg.MainButton.show();
+        }
+
+        function closeSheet() {
+            document.getElementById('overlay').classList.remove('show');
+            document.getElementById('bottomSheet').classList.remove('show');
+            tg.MainButton.hide();
+            currentSelectedProduct = null;
+        }
+
+        // Обработка клика по Main Button
+        tg.MainButton.onClick(() => {
+            if (currentSelectedProduct) {
+                buyItem(currentSelectedProduct);
+            }
+        });
+
+        function buyItem(product) {
+            inventory.push(product);
+            
+            // Сохраняем в Telegram Cloud
+            tg.CloudStorage.setItem('sneaker_inventory', JSON.stringify(inventory));
+            
+            updateArmoryUI();
+            closeSheet();
+            
+            tg.HapticFeedback.notificationOccurred('success');
+            showToast();
+        }
+
+        function updateArmoryUI() {
             const shelf = document.getElementById('purchased-shelf');
             const emptyState = document.getElementById('empty-shelf');
 
-            if (emptyState) {
-                emptyState.style.display = 'none';
+            // Обновляем статистику и уровень
+            document.getElementById('userStats').innerText = `Пар в коллекции: ${inventory.length}`;
+            
+            let level = "Новичок";
+            if (inventory.length >= 2) level = "Сникерхед";
+            if (inventory.length >= 5) level = "Магнат 👑";
+            document.getElementById('userLevel').innerText = `Уровень: ${level}`;
+
+            if (inventory.length > 0) {
+                if (emptyState) emptyState.style.display = 'none';
+                
+                // Перерисовываем полку
+                shelf.innerHTML = '';
+                inventory.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'shelf-item';
+                    div.innerHTML = `
+                        <img src="${item.img}" alt="${item.name}">
+                        <div class="shelf-item-name">${item.name}</div>
+                    `;
+                    shelf.appendChild(div);
+                });
             }
-
-            const item = document.createElement('div');
-            item.className = 'shelf-item';
-            item.innerHTML = `
-                <img src="${imgSrc}" alt="${name}">
-                <div class="shelf-item-name">${name}</div>
-            `;
-            shelf.appendChild(item);
-
-            purchasedItems++;
-            document.getElementById('userStats').innerText = `Покупок: ${purchasedItems}`;
-
-            tg.HapticFeedback.notificationOccurred('success');
-            showToast();
         }
 
         let toastTimeout;
         function showToast() {
             const toast = document.getElementById('toast');
             toast.classList.add('show');
-            
             clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => {
-                toast.classList.remove('show');
-            }, 2000);
+            toastTimeout = setTimeout(() => { toast.classList.remove('show'); }, 2000);
         }
+
+        tg.ready();
     </script>
 </body>
 </html>
